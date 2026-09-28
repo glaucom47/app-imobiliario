@@ -8,7 +8,7 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 
 - [x] **Fase 1: Infraestrutura, Base do Projeto e PWA Shell**
 - [x] **Fase 2: Banco de Dados, Persistência e Isolamento Multi-tenant**
-- [ ] **Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)**
+- [x] **Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)**
 - [ ] **Fase 4: Imóveis e Gestão de Carteira Ativa**
 - [ ] **Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**
 - [ ] **Fase 6: Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)**
@@ -66,14 +66,14 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ### Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)
 * **Objetivo:** Implementar ciclo seguro de autenticação com senhas protegidas por Bcrypt, emissão de tokens JWT com claims de agência e perfil, e middleware/dependências de autorização para isolamento multi-tenant.
 * **Checklist de Tarefas:**
-  - [ ] Implementar utilitários de hash de senha (`passlib[bcrypt]`) em `app/services/auth_service.py`.
-  - [ ] Implementar geração e decodificação de tokens JWT (`python-jose`) com tempo de expiração e claims obrigatórios (`sub`, `agencia_id`, `role`).
-  - [ ] Criar esquemas Pydantic de autenticação (`LoginRequest`, `TokenResponse`, `UserResponse`) em `app/schemas/auth_schema.py`.
-  - [ ] Criar dependências de injeção FastAPI (`get_current_user`, `get_current_tenant`, `require_diretor`, `require_consultor`).
-  - [ ] Implementar endpoints em `app/controllers/auth_controller.py`: `POST /api/v1/auth/login`, `GET /api/v1/auth/me`, `POST /api/v1/auth/refresh`.
-  - [ ] Integrar fluxo de login na interface PWA e no backoffice web com armazenamento seguro de token no client.
+  - [x] Implementar utilitários de hash de senha (`bcrypt`) em `app/services/auth_service.py`.
+  - [x] Implementar geração e decodificação de tokens JWT (`python-jose`) com tempo de expiração e claims obrigatórios (`sub`, `agencia_id`, `role`).
+  - [x] Criar esquemas Pydantic de autenticação (`LoginRequest`, `TokenResponse`, `UserResponse`) em `app/schemas/auth_schema.py`.
+  - [x] Criar dependências de injeção FastAPI (`get_current_user`, `get_current_tenant`, `require_diretor`, `require_consultor`) em `app/dependencies.py`.
+  - [x] Implementar endpoints em `app/controllers/auth_controller.py`: `POST /api/v1/auth/login`, `GET /api/v1/auth/me`, `POST /api/v1/auth/refresh`.
+  - [x] Integrar fluxo de login na interface PWA e no backoffice web com armazenamento seguro de token no client (`static/js/api.js`, `static/index.html`, `static/backoffice.html`).
 * **Critérios de Pronto:** Consultores e diretores conseguem autenticar; endpoints protegidos rejeitam requisições sem token válido; contexto de agência (`agencia_id`) é injetado com segurança em todas as requisições autenticadas.
-* **Arquivos e Pastas:** `app/controllers/auth_controller.py`, `app/services/auth_service.py`, `app/schemas/auth_schema.py`, `static/js/api.js`.
+* **Arquivos e Pastas:** `app/controllers/auth_controller.py`, `app/services/auth_service.py`, `app/schemas/auth_schema.py`, `app/dependencies.py`, `static/js/api.js`.
 * **Dependências:** Fase 2 concluída.
 
 ---

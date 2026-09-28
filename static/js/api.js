@@ -1,11 +1,12 @@
 /**
  * Cliente HTTP da API REST - Fecho (fecho.pt)
- * Gerencia autenticação via JWT, injeção de cabeçalhos e tratamento centralizado de erros.
+ * Gerencia autenticação via JWT, controle de sessão local, RBAC e injeção de cabeçalhos.
  */
 
 const Api = {
   baseUrl: '/api/v1',
   tokenKey: 'fecho_jwt_token',
+  userKey: 'fecho_user_data',
 
   getToken() {
     return localStorage.getItem(this.tokenKey);
@@ -17,6 +18,37 @@ const Api = {
     } else {
       localStorage.removeItem(this.tokenKey);
     }
+  },
+
+  getUser() {
+    try {
+      const data = localStorage.getItem(this.userKey);
+      return data ? JSON.parse(data) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  setUser(user) {
+    if (user) {
+      localStorage.setItem(this.userKey, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(this.userKey);
+    }
+  },
+
+  isAuthenticated() {
+    return !!this.getToken();
+  },
+
+  isDiretor() {
+    const user = this.getUser();
+    return user && user.role === 'diretor';
+  },
+
+  isConsultor() {
+    const user = this.getUser();
+    return user && (user.role === 'consultor' || user.role === 'diretor');
   },
 
   async request(endpoint, options = {}) {
@@ -38,8 +70,10 @@ const Api = {
       });
 
       if (response.status === 401) {
-        // Redireciona ou limpa credencial expirada
+        // Limpa credencial expirada e notifica
         this.setToken(null);
+        this.setUser(null);
+        window.dispatchEvent(new CustomEvent('fecho:unauthorized'));
       }
 
       const data = await response.json().catch(() => null);
@@ -52,5 +86,56 @@ const Api = {
       console.error(`[API Error] ${endpoint}:`, error);
       throw error;
     }
+  },
+
+  /**
+   * Autentica o usuário por e-mail e senha.
+   */
+  async login(email, password) {
+    const data = await this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (data && data.access_token) {
+      this.setToken(data.access_token);
+      this.setUser(data.user);
+      window.dispatchEvent(new CustomEvent('fecho:authenticated', { detail: data.user }));
+    }
+    return data;
+  },
+
+  /**
+   * Obtém o perfil atualizado do usuário autenticado no servidor.
+   */
+  async getMe() {
+    const user = await this.request('/auth/me');
+    if (user) {
+      this.setUser(user);
+    }
+    return user;
+  },
+
+  /**
+   * Renova o token JWT de acesso.
+   */
+  async refresh() {
+    const data = await this.request('/auth/refresh', {
+      method: 'POST',
+    });
+    if (data && data.access_token) {
+      this.setToken(data.access_token);
+      this.setUser(data.user);
+    }
+    return data;
+  },
+
+  /**
+   * Encerra a sessão do usuário.
+   */
+  logout() {
+    this.setToken(null);
+    this.setUser(null);
+    window.dispatchEvent(new CustomEvent('fecho:logout'));
   }
 };

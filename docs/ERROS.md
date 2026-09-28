@@ -48,3 +48,24 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 - **Causa:** No SQLAlchemy 2.0+ rodando em versões recentes do Python, o esquema de URL `postgresql://` tenta utilizar o driver `psycopg` (versão 3) por padrão quando o submódulo dialetal não é explicitado, enquanto o projeto utiliza o driver binário padrão estável `psycopg2-binary`.
 - **Solução aplicada:** O esquema da URL de conexão foi explicitado como `postgresql+psycopg2://` tanto em `config/config.py` quanto em `alembic.ini`.
 - **Como evitar no futuro:** Sempre especificar explicitamente o driver no protocolo de conexão do SQLAlchemy (ex.: `postgresql+psycopg2://` em vez de apenas `postgresql://`).
+
+### 2026-09-29 - Falha de importação de email-validator no Pydantic ao utilizar EmailStr
+
+- **Sintoma:** Ao executar os testes com pytest importando esquemas com `EmailStr`, ocorreu `ImportError: email-validator is not installed, run pip install 'pydantic[email]'`.
+- **Causa:** O tipo `EmailStr` do Pydantic v2 depende da biblioteca externa `email-validator`, que não estava listada no escopo estrito de dependências do FSD (`requirements.txt`).
+- **Solução aplicada:** Substituiu-se `EmailStr` por campo `str` com validação de formato via `@field_validator` nativo com expressão regular padrão RFC, mantendo validação estrita sem adicionar pacotes externos desnecessários.
+- **Como evitar no futuro:** Evitar tipos do Pydantic que exijam pacotes auxiliares não contemplados no `requirements.txt` do projeto, priorizando validadores nativos.
+
+### 2026-09-29 - Falha de tabela não encontrada em SQLite :memory: com conexões concorrentes nos testes
+
+- **Sintoma:** Nos testes do TestClient com SQLite em memória, ocorria `OperationalError: (sqlite3.OperationalError) no such table: users`.
+- **Causa:** Por padrão, a URI `sqlite:///:memory:` cria uma base de dados distinta a cada nova conexão aberta pelo pool do SQLAlchemy. Quando o TestClient e a fixture abriam conexões diferentes, a tabela criada na primeira conexão não existia na segunda.
+- **Solução aplicada:** Configurou-se o engine dos testes com `poolclass=StaticPool` e `connect_args={"check_same_thread": False}`, garantindo que todas as threads e conexões compartilhem o mesmo estado em memória durante o teste.
+- **Como evitar no futuro:** Sempre utilizar `StaticPool` ao executar testes com SQLite `:memory:` no SQLAlchemy em conjunto com o `TestClient` do FastAPI.
+
+### 2026-09-29 - UnicodeEncodeError ao imprimir caracteres e emojis no console Windows
+
+- **Sintoma:** Ao rodar `seed.py` no terminal do Windows, ocorreu `UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f331'`.
+- **Causa:** O console padrão do Windows utiliza a página de código `cp1252`, que não suporta determinados caracteres Unicode estendidos ou emojis emitidos via `print()`.
+- **Solução aplicada:** Adicionou-se `if hasattr(sys.stdout, "reconfigure"): sys.stdout.reconfigure(encoding="utf-8")` na inicialização do script.
+- **Como evitar no futuro:** Garantir configuração explícita de `sys.stdout` para UTF-8 em scripts de linha de comando no Windows.

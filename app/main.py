@@ -2,12 +2,14 @@
 Ponto de entrada da aplicação ASGI FastAPI - Fecho (fecho.pt).
 """
 import os
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from config.config import settings
+from app.controllers import auth_controller
 
 # Inicialização da aplicação FastAPI
 app = FastAPI(
@@ -26,6 +28,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Inclusão dos roteadores da API REST (v1)
+app.include_router(auth_controller.router, prefix=settings.API_V1_STR)
 
 # Montagem dos arquivos estáticos do frontend/PWA
 if os.path.exists(settings.STATIC_DIR):
@@ -67,9 +72,28 @@ async def serve_backoffice_shell():
     )
 
 
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request: Request, exc: HTTPException):
+    """Tratamento de exceções HTTP da aplicação preservando código de status e cabeçalhos."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=exc.headers
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Tratamento de erros de validação de schemas Pydantic."""
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": "Parâmetros de requisição inválidos.", "errors": exc.errors()}
+    )
+
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    """Tratamento centralizado de exceções não capturadas."""
+    """Tratamento centralizado de exceções inesperadas do servidor."""
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={

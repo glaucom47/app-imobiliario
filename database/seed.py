@@ -16,6 +16,10 @@ import bcrypt
 # Adiciona a raiz do projeto ao sys.path
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
 
+# Garante suporte a UTF-8 no stdout no Windows
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 from database.connection import SessionLocal
 from app.models.tenant import Tenant
 from app.models.user import User

@@ -18,46 +18,189 @@
         <span class="label-caps" style="color: var(--color-outline); padding-left: 12px; border-left: var(--border-hairline);">Direção Comercial</span>
       </div>
       <div style="display: flex; align-items: center; gap: 12px;">
-        <span class="status-pill status-pill-notarized" id="agency-name-badge">Agência Imobiliária</span>
+        <span class="status-pill status-pill-notarized" id="agency-name-badge">Fecho Prime Real Estate</span>
+        <span class="status-pill status-pill-secondary" id="director-name-badge">Marta Silva (Diretora)</span>
         <button class="btn-secondary-ghost" style="width: auto; padding: 0 16px; height: 38px; font-size: 13px;" id="btn-export-csv">
           Exportar CSV
+        </button>
+        <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: transparent; cursor: pointer; height: 38px; padding: 0 14px;" id="btn-backoffice-logout" title="Terminar Sessão">
+          Sair
         </button>
       </div>
     </header>
 
-    <!-- Grid de Indicadores e KPIs da Agência -->
-    <main style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-margin);">
-      <div class="card-tier1">
-        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Visitas Realizadas (Mês)</span>
-        <div class="financial-display" id="kpi-total-visitas">--</div>
-        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Assiduidade dos consultores</p>
-      </div>
-
-      <div class="card-tier1">
-        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Taxa de Adesão ao Feedback</span>
-        <div class="financial-display" id="kpi-taxa-adesao">--%</div>
-        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Auditorias de voz concluídas</p>
-      </div>
-
-      <div class="card-tier1">
-        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Objeções Frequentes</span>
-        <div class="financial-display" style="font-size: 20px;" id="kpi-top-objecao">--</div>
-        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Base para renegociação de preço</p>
-      </div>
-    </main>
-
-    <!-- Área de Visualização Gráfica e Tabela -->
-    <section class="card-tier1" style="margin-top: var(--spacing-lg);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin);">
-        <h2 style="font-size: 18px; font-weight: 600;">Estatística Consolidada de Objeções por Imóvel</h2>
-        <span class="label-caps" style="color: var(--color-secondary);">Inteligência de Mercado</span>
-      </div>
-      <div id="objections-chart-placeholder" style="padding: 40px; text-align: center; color: var(--color-outline); background: var(--color-surface); border-radius: var(--radius-default); border: var(--border-hairline);">
-        Gráfico consolidado de objeções carregará nesta área após a inicialização dos dados.
-      </div>
+    <!-- Aviso de Acesso Restrito (Exibido para perfil Consultor) -->
+    <section id="rbac-warning-banner" class="card-tier1" style="display: none; border-color: var(--color-error); background-color: #fff9f9;">
+      <span class="label-caps" style="color: var(--color-error); display: block; margin-bottom: 6px;">Acesso Restrito (RBAC)</span>
+      <h3 style="font-size: 16px; font-weight: 600; color: var(--color-error); margin-bottom: 8px;">Área Exclusiva da Direção Comercial</h3>
+      <p style="font-size: 14px; color: var(--color-on-surface-variant); margin-bottom: 16px;">
+        O seu perfil atual está configurado como <strong>Consultor</strong>. A visualização de métricas corporativas, auditorias e gráficos consolidados é restrita aos diretores da agência.
+      </p>
+      <a href="/" class="btn-primary-action" style="max-width: 240px; height: 42px; font-size: 13px;">Voltar ao Assistente Móvel</a>
     </section>
+
+    <!-- Conteúdo Principal do Backoffice (Exibido para Diretor) -->
+    <div id="backoffice-content">
+      <!-- Grid de Indicadores e KPIs da Agência -->
+      <main style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-margin);">
+        <div class="card-tier1">
+          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Visitas Realizadas (Mês)</span>
+          <div class="financial-display" id="kpi-total-visitas">18</div>
+          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Assiduidade dos consultores</p>
+        </div>
+
+        <div class="card-tier1">
+          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Taxa de Adesão ao Feedback</span>
+          <div class="financial-display" id="kpi-taxa-adesao">89%</div>
+          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Auditorias de voz concluídas</p>
+        </div>
+
+        <div class="card-tier1">
+          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Objeções Frequentes</span>
+          <div class="financial-display" style="font-size: 20px;" id="kpi-top-objecao">Preço Elevado</div>
+          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Base para renegociação de preço</p>
+        </div>
+      </main>
+
+      <!-- Área de Visualização Gráfica e Tabela -->
+      <section class="card-tier1" style="margin-top: var(--spacing-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin);">
+          <h2 style="font-size: 18px; font-weight: 600;">Estatística Consolidada de Objeções por Imóvel</h2>
+          <span class="label-caps" style="color: var(--color-secondary);">Inteligência de Mercado</span>
+        </div>
+        <div id="objections-chart-placeholder" style="padding: 40px; text-align: center; color: var(--color-outline); background: var(--color-surface); border-radius: var(--radius-default); border: var(--border-hairline);">
+          Gráfico consolidado de objeções carregará nesta área após a inicialização dos dados.
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Modal de Autenticação para o Backoffice -->
+  <div class="auth-overlay" id="backoffice-auth-modal" style="display: none;">
+    <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img src="/static/img/screen.png" alt="Fecho" style="height: 32px; margin-bottom: 12px;">
+        <h2 style="font-size: 18px; font-weight: 600;">Acesso à Direção</h2>
+        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Autenticação restrita ao painel corporativo</p>
+      </div>
+
+      <form id="backoffice-login-form">
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="bo-login-email">E-mail de Diretor</label>
+          <input type="email" id="bo-login-email" class="fecho-input" placeholder="diretor@fecho.pt" required autocomplete="username">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="bo-login-password">Palavra-passe</label>
+          <input type="password" id="bo-login-password" class="fecho-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <div id="bo-login-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 16px; text-align: center;"></div>
+
+        <button type="submit" class="btn-primary-action" id="bo-btn-submit-login">Entrar na Direção</button>
+      </form>
+
+      <div class="demo-credentials-box">
+        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 4px;">Acesso de Teste (1 Toque):</span>
+        <button type="button" class="btn-demo-pill" id="bo-btn-demo-diretor">Diretora Demo</button>
+        <button type="button" class="btn-demo-pill" id="bo-btn-demo-consultor">Consultor Demo (Testar Bloqueio RBAC)</button>
+      </div>
+    </div>
   </div>
 
   <script src="/static/js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const modal = document.getElementById('backoffice-auth-modal');
+      const form = document.getElementById('backoffice-login-form');
+      const emailInput = document.getElementById('bo-login-email');
+      const passInput = document.getElementById('bo-login-password');
+      const errorDiv = document.getElementById('bo-login-error');
+      const btnSubmit = document.getElementById('bo-btn-submit-login');
+      const btnDemoDir = document.getElementById('bo-btn-demo-diretor');
+      const btnDemoCons = document.getElementById('bo-btn-demo-consultor');
+      const btnLogout = document.getElementById('btn-backoffice-logout');
+      const rbacWarning = document.getElementById('rbac-warning-banner');
+      const boContent = document.getElementById('backoffice-content');
+      const dirBadge = document.getElementById('director-name-badge');
+      const agencyBadge = document.getElementById('agency-name-badge');
+
+      function renderBackofficeUI(user) {
+        if (!user) {
+          modal.style.display = 'flex';
+          boContent.style.display = 'none';
+          rbacWarning.style.display = 'none';
+          return;
+        }
+
+        modal.style.display = 'none';
+
+        if (user.role === 'diretor') {
+          rbacWarning.style.display = 'none';
+          boContent.style.display = 'block';
+          dirBadge.textContent = `${user.nome} (Diretora)`;
+          if (user.agencia_nome) agencyBadge.textContent = user.agencia_nome;
+        } else {
+          // Bloqueio RBAC para consultores
+          rbacWarning.style.display = 'block';
+          boContent.style.display = 'none';
+          dirBadge.textContent = `${user.nome} (${user.role.toUpperCase()})`;
+        }
+      }
+
+      // Validação inicial da sessão
+      if (Api.isAuthenticated()) {
+        try {
+          const user = await Api.getMe();
+          renderBackofficeUI(user);
+        } catch {
+          Api.logout();
+          renderBackofficeUI(null);
+        }
+      } else {
+        renderBackofficeUI(null);
+      }
+
+      // Submissão do login
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorDiv.style.display = 'none';
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'A validar...';
+
+        try {
+          const email = emailInput.value.trim();
+          const pass = passInput.value;
+          const result = await Api.login(email, pass);
+          renderBackofficeUI(result.user);
+        } catch (err) {
+          errorDiv.textContent = err.message || 'Credenciais inválidas.';
+          errorDiv.style.display = 'block';
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Entrar na Direção';
+        }
+      });
+
+      // Botões demo
+      btnDemoDir.addEventListener('click', () => {
+        emailInput.value = 'diretor@fecho.pt';
+        passInput.value = 'senha_segura_diretor';
+        form.dispatchEvent(new Event('submit'));
+      });
+
+      btnDemoCons.addEventListener('click', () => {
+        emailInput.value = 'consultor@fecho.pt';
+        passInput.value = 'senha_segura_consultor';
+        form.dispatchEvent(new Event('submit'));
+      });
+
+      // Logout
+      btnLogout.addEventListener('click', () => {
+        Api.logout();
+        renderBackofficeUI(null);
+      });
+    });
+  </script>
 </body>
 </html>

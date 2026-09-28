@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 28/09/2026 - 23:45
-* **Fase Atual:** Fase 2 - Banco de Dados, Persistência e Isolamento Multi-tenant
-* **Status Geral:** Concluída (Modelos ORM, migração Alembic, seed inicial e suíte de testes 100% aprovada)
+* **Última Atualização:** 29/09/2026 - 00:05
+* **Fase Atual:** Fase 3 - Autenticação, Sessão e Controle de Acesso (RBAC)
+* **Status Geral:** Concluída (Serviço de autenticação com Bcrypt e JWT, RBAC multi-tenant, endpoints REST `/api/v1/auth`, integração frontend PWA/Backoffice e suíte de testes 100% aprovada)
 
 ---
 
@@ -12,7 +12,7 @@
 |---|---|---|
 | **Fase 1** | Infraestrutura, Base do Projeto e PWA Shell | Concluída |
 | **Fase 2** | Banco de Dados, Persistência e Isolamento Multi-tenant | Concluída |
-| **Fase 3** | Autenticação, Sessão e Controle de Acesso (RBAC) | Pendente |
+| **Fase 3** | Autenticação, Sessão e Controle de Acesso (RBAC) | Concluída |
 | **Fase 4** | Imóveis e Gestão de Carteira Ativa | Pendente |
 | **Fase 5** | Calculadora Visual de Viabilidade Financeira (Client-side / Offline) | Pendente |
 | **Fase 6** | Visitas, Feedback por Voz e Objeções (Human-in-the-Loop) | Pendente |
@@ -62,12 +62,15 @@
 - [x] Criação e aprovação integral da suíte de testes com `pytest` (`tests/test_database.py`) cobrindo 100% dos modelos, relacionamentos e isolamento multi-tenant
 
 ### Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)
-- [ ] Hash de senhas com passlib e bcrypt
-- [ ] Geração e validação de tokens JWT (python-jose) com `agencia_id`
-- [ ] Schemas Pydantic de autenticação
-- [ ] Endpoints de login e perfil (`/api/v1/auth`)
-- [ ] Dependências de segurança do FastAPI para injeção de usuário e tenant
-- [ ] Controle de acesso por perfil (Diretor vs Consultor)
+- [x] Implementação de utilitários de hash Bcrypt nativo (`rounds=12`) e verificação em `app/services/auth_service.py`
+- [x] Emissão e decodificação de tokens JWT (`python-jose`) com claims obrigatórios (`sub`, `agencia_id`, `role`, `email`, `exp`)
+- [x] Schemas Pydantic tipados em `app/schemas/auth_schema.py` (`LoginRequest`, `TokenResponse`, `UserResponse`, `TokenPayload`)
+- [x] Dependências de injeção de segurança no FastAPI em `app/dependencies.py` (`get_current_user`, `get_current_tenant`, `require_diretor`, `require_consultor`)
+- [x] Endpoints REST em `app/controllers/auth_controller.py` (`POST /api/v1/auth/login`, `GET /api/v1/auth/me`, `POST /api/v1/auth/refresh`)
+- [x] Integração no cliente HTTP `static/js/api.js` com gerenciamento de sessão, token JWT e tratamento de 401
+- [x] Interface móvel PWA com overlay de login no estilo *Editorial PropTech Luxury*, atalhos de teste demo e encerramento de sessão em `static/index.html` e `static/js/app.js`
+- [x] Interface de backoffice com bloqueio visual RBAC para consultores e controle de sessão em `static/backoffice.html`
+- [x] Suíte de testes automatizados com `pytest` (`tests/test_auth.py`) com 100% de cobertura e 18 testes aprovados no projeto
 
 ### Fase 4: Imóveis e Gestão de Carteira Ativa
 - [ ] Schemas Pydantic de imóveis
@@ -121,5 +124,5 @@
 
 ## 3. Próximo Passo Recomendado
  
-* **Próxima Fase:** **Fase 3 - Autenticação, Sessão e Controle de Acesso (RBAC)**.
-* **Ação:** Em um novo chat ou iteração, implementar os utilitários de hash de senha (`bcrypt`), emissão e decodificação de tokens JWT (`python-jose`) com claims obrigatórios (`sub`, `agencia_id`, `role`), esquemas Pydantic (`auth_schema.py`), dependências de autorização FastAPI (`get_current_user`, `require_diretor`, `require_consultor`) e endpoints de autenticação em `app/controllers/auth_controller.py`.
+* **Próxima Fase:** **Fase 4 - Imóveis e Gestão de Carteira Ativa**.
+* **Ação:** Em um novo chat ou iteração, implementar os esquemas Pydantic (`property_schema.py`), a máquina de estados rigorosa (*Ativo* → *Reservado* → *Vendido*) no serviço (`property_service.py`), os endpoints REST em `app/controllers/properties_controller.py` com isolamento por `agencia_id`, e o componente de cartões de imóveis ativos no mobile PWA.

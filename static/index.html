@@ -18,10 +18,13 @@
 </head>
 <body>
   <div class="app-shell" id="app">
-    <!-- Cabeçalho com Logotipo Oficial -->
+    <!-- Cabeçalho com Logotipo Oficial e Perfil -->
     <header class="app-header">
       <img src="/static/img/screen.png" alt="Fecho" class="brand-logo" id="brand-logo">
-      <span class="status-pill status-pill-secondary" id="active-tenant-badge">Agência</span>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="status-pill status-pill-secondary" id="user-badge">Não autenticado</span>
+        <button id="btn-logout" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: transparent; cursor: pointer; display: none;" title="Terminar Sessão">Sair</button>
+      </div>
     </header>
 
     <!-- Conteúdo Principal Dinâmico -->
@@ -30,7 +33,8 @@
       <section class="card-tier1" id="property-selector-card">
         <span class="label-caps" style="color: var(--color-on-surface-variant); display: block; margin-bottom: 6px;">Imóvel em Foco</span>
         <div id="selected-property-info">
-          <p style="font-weight: 600; font-size: 16px;">Carregando imóvel ativo...</p>
+          <p style="font-weight: 600; font-size: 16px;">T3 Duplex Avenida da Liberdade</p>
+          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">€ 2.850.000 • Lisboa</p>
         </div>
       </section>
 
@@ -50,11 +54,45 @@
 
     <!-- Rodapé de Navegação Rápida -->
     <nav class="app-bottom-nav" style="border-top: var(--border-hairline); padding: 12px var(--spacing-margin); display: flex; justify-content: space-around; background: #ffffff;">
-      <span class="label-caps" style="color: var(--color-primary);">Visitas</span>
-      <span class="label-caps" style="color: var(--color-outline);">Calculadora</span>
-      <span class="label-caps" style="color: var(--color-outline);">Scripts</span>
-      <span class="label-caps" style="color: var(--color-outline);">Esfera</span>
+      <span class="label-caps" style="color: var(--color-primary); cursor: pointer;">Visitas</span>
+      <span class="label-caps" style="color: var(--color-outline); cursor: pointer;">Calculadora</span>
+      <span class="label-caps" style="color: var(--color-outline); cursor: pointer;">Scripts</span>
+      <span class="label-caps" style="color: var(--color-outline); cursor: pointer;">Esfera</span>
     </nav>
+  </div>
+
+  <!-- Modal / Overlay de Autenticação -->
+  <div class="auth-overlay" id="auth-modal" style="display: none;">
+    <div class="auth-card">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img src="/static/img/screen.png" alt="Fecho" style="height: 32px; margin-bottom: 12px;">
+        <h2 style="font-size: 18px; font-weight: 600;">Acesso ao Assistente</h2>
+        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Introduza as suas credenciais profissionais</p>
+      </div>
+
+      <form id="login-form">
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="login-email">E-mail Corporativo</label>
+          <input type="email" id="login-email" class="fecho-input" placeholder="consultor@fecho.pt" required autocomplete="username">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="login-password">Palavra-passe</label>
+          <input type="password" id="login-password" class="fecho-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <div id="login-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 16px; text-align: center;"></div>
+
+        <button type="submit" class="btn-primary-action" id="btn-submit-login">Iniciar Sessão</button>
+      </form>
+
+      <!-- Acesso Rápido para Demonstração / Homologação -->
+      <div class="demo-credentials-box">
+        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 4px;">Acesso de Teste (1 Toque):</span>
+        <button type="button" class="btn-demo-pill" id="btn-demo-consultor">Consultor Demo</button>
+        <button type="button" class="btn-demo-pill" id="btn-demo-diretor">Diretora Demo</button>
+      </div>
+    </div>
   </div>
 
   <!-- Scripts da Aplicação -->

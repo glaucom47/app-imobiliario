@@ -7,7 +7,7 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ## Visão Geral das Fases
 
 - [x] **Fase 1: Infraestrutura, Base do Projeto e PWA Shell**
-- [ ] **Fase 2: Banco de Dados, Persistência e Isolamento Multi-tenant**
+- [x] **Fase 2: Banco de Dados, Persistência e Isolamento Multi-tenant**
 - [ ] **Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)**
 - [ ] **Fase 4: Imóveis e Gestão de Carteira Ativa**
 - [ ] **Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**
@@ -43,17 +43,20 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ### Fase 2: Banco de Dados, Persistência e Isolamento Multi-tenant
 * **Objetivo:** Modelar as entidades relacionais no PostgreSQL via SQLAlchemy, implementar isolamento estrito por agência (`agencia_id`), configurar o motor de migrações Alembic e script de carga inicial (seed) para desenvolvimento.
 * **Checklist de Tarefas:**
-  - [ ] Implementar conexão e sessão do SQLAlchemy em `database/connection.py`.
-  - [ ] Criar entidade `Tenant` (`app/models/tenant.py`) representando as agências imobiliárias.
-  - [ ] Criar entidade `User` (`app/models/user.py`) com perfis `diretor` e `consultor`.
-  - [ ] Criar entidade `Property` (`app/models/property.py`) com estados (*Ativo*, *Reservado*, *Vendido*).
-  - [ ] Criar entidade `Visit` (`app/models/visit.py`) vinculada a imóvel, consultor e nível de interesse (1-5).
-  - [ ] Criar entidade `Objection` (`app/models/objection.py`) com catálogo de tags padronizadas da agência.
-  - [ ] Criar entidade `Contact` (`app/models/contact.py`) para esfera de influência e compradores pós-venda.
-  - [ ] Criar entidades `Settings` (`app/models/settings.py`) e `Log` (`app/models/log.py`).
-  - [ ] Configurar `database/migrations/env.py` para detecção automática dos modelos.
-  - [ ] Gerar migração inicial de criação das tabelas via Alembic.
-  - [ ] Criar script de seed de desenvolvimento com tenant demo, usuários de teste e catálogo inicial de objeções.
+  - [x] Implementar conexão e sessão do SQLAlchemy em `database/connection.py`.
+  - [x] Criar entidade `Tenant` (`app/models/tenant.py`) representando as agências imobiliárias.
+  - [x] Criar entidade `User` (`app/models/user.py`) com perfis `diretor` e `consultor`.
+  - [x] Criar entidade `Property` (`app/models/property.py`) com estados (*Ativo*, *Reservado*, *Vendido*).
+  - [x] Criar entidade `Visit` (`app/models/visit.py`) vinculada a imóvel, consultor e nível de interesse (1-5).
+  - [x] Criar entidade `Objection` (`app/models/objection.py`) com catálogo de tags padronizadas da agência.
+  - [x] Criar entidade `Contact` (`app/models/contact.py`) para esfera de influência e compradores pós-venda.
+  - [x] Criar entidades `Settings` (`app/models/settings.py`) e `Log` (`app/models/log.py`).
+  - [x] Configurar `database/migrations/env.py` para detecção automática dos modelos.
+  - [x] Gerar migração inicial de criação das tabelas via Alembic.
+  - [x] Criar script de seed de desenvolvimento com tenant demo, usuários de teste e catálogo inicial de objeções.
+* **Critérios de Pronto:** Migração executada com sucesso no PostgreSQL; todas as chaves estrangeiras, índices e colunas `agencia_id` criados e validados.
+* **Arquivos e Pastas:** `app/models/`, `database/connection.py`, `database/migrations/`.
+* **Dependências:** Fase 1 concluída e serviço PostgreSQL ativo.
 * **Critérios de Pronto:** Migração executada com sucesso no PostgreSQL; todas as chaves estrangeiras, índices e colunas `agencia_id` criados e validados.
 * **Arquivos e Pastas:** `app/models/`, `database/connection.py`, `database/migrations/`.
 * **Dependências:** Fase 1 concluída e serviço PostgreSQL ativo.

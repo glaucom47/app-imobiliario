@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 28/09/2026 - 23:05
-* **Fase Atual:** Fase 1 - Infraestrutura, Base do Projeto e PWA Shell
-* **Status Geral:** Concluída (Git inicializado, auditado e sincronizado com o GitHub)
+* **Última Atualização:** 28/09/2026 - 23:45
+* **Fase Atual:** Fase 2 - Banco de Dados, Persistência e Isolamento Multi-tenant
+* **Status Geral:** Concluída (Modelos ORM, migração Alembic, seed inicial e suíte de testes 100% aprovada)
 
 ---
 
@@ -11,7 +11,7 @@
 | Fase | Descrição | Status |
 |---|---|---|
 | **Fase 1** | Infraestrutura, Base do Projeto e PWA Shell | Concluída |
-| **Fase 2** | Banco de Dados, Persistência e Isolamento Multi-tenant | Pendente |
+| **Fase 2** | Banco de Dados, Persistência e Isolamento Multi-tenant | Concluída |
 | **Fase 3** | Autenticação, Sessão e Controle de Acesso (RBAC) | Pendente |
 | **Fase 4** | Imóveis e Gestão de Carteira Ativa | Pendente |
 | **Fase 5** | Calculadora Visual de Viabilidade Financeira (Client-side / Offline) | Pendente |
@@ -48,17 +48,18 @@
 - [x] Envio (`git push`) para o GitHub com rastreamento da branch `main` concluído com sucesso
 
 ### Fase 2: Banco de Dados, Persistência e Isolamento Multi-tenant
-- [ ] Configuração da conexão com PostgreSQL (`database/connection.py`)
-- [ ] Modelagem da entidade `Tenant` (`app/models/tenant.py`)
-- [ ] Modelagem da entidade `User` (`app/models/user.py`)
-- [ ] Modelagem da entidade `Property` (`app/models/property.py`)
-- [ ] Modelagem da entidade `Visit` (`app/models/visit.py`)
-- [ ] Modelagem da entidade `Objection` (`app/models/objection.py`)
-- [ ] Modelagem da entidade `Contact` (`app/models/contact.py`)
-- [ ] Modelagem das entidades `Settings` e `Log`
-- [ ] Configuração do `env.py` do Alembic para autogenerate
-- [ ] Execução da primeira migração estrutural
-- [ ] Script de seed inicial com dados de teste
+- [x] Configuração da conexão com PostgreSQL (`database/connection.py`) com pool de conexões e suporte ao driver `psycopg2`
+- [x] Modelagem da entidade `Tenant` (`app/models/tenant.py`) com isolamento multi-tenant
+- [x] Modelagem da entidade `User` (`app/models/user.py`) com perfis `diretor` e `consultor`
+- [x] Modelagem da entidade `Property` (`app/models/property.py`) com máquina de estados (*Ativo*, *Reservado*, *Vendido*) e os 3 campos obrigatórios de fechamento
+- [x] Modelagem da entidade `Visit` (`app/models/visit.py`) com notas de voz, nível de interesse (1-5) e feedback
+- [x] Modelagem da entidade `Objection` (`app/models/objection.py`) com catálogo corporativo padronizado (`ObjectionTag`) e ocorrências por visita (`VisitObjection`)
+- [x] Modelagem da entidade `Contact` (`app/models/contact.py`) com data de escritura para notificação de aniversário às 09:00 e anonimização RGPD ('Cliente Anonimizado')
+- [x] Modelagem das entidades `Settings` (`agency_settings`) e `Log` (`audit_logs`)
+- [x] Configuração do `database/migrations/env.py` com importação de `app.models` para autodetecção do schema
+- [x] Criação e validação da migração inicial estrutural Alembic (`0001_initial_schema.py`) testada offline (`alembic upgrade head --sql`)
+- [x] Criação do script de seed inicial (`database/seed.py`) com agência demo, usuários (diretora e consultor com Bcrypt), catálogo de objeções, imóvel ativo e contato pós-venda
+- [x] Criação e aprovação integral da suíte de testes com `pytest` (`tests/test_database.py`) cobrindo 100% dos modelos, relacionamentos e isolamento multi-tenant
 
 ### Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)
 - [ ] Hash de senhas com passlib e bcrypt
@@ -119,6 +120,6 @@
 ---
 
 ## 3. Próximo Passo Recomendado
-
-* **Próxima Fase:** **Fase 2 - Banco de Dados, Persistência e Isolamento Multi-tenant**.
-* **Ação:** Em um novo chat ou iteração, iniciar a configuração do banco PostgreSQL local, implementação dos modelos SQLAlchemy (`Tenant`, `User`, `Property`, `Visit`, `Objection`, `Contact`, `Settings`, `Log`) e geração das migrações com Alembic.
+ 
+* **Próxima Fase:** **Fase 3 - Autenticação, Sessão e Controle de Acesso (RBAC)**.
+* **Ação:** Em um novo chat ou iteração, implementar os utilitários de hash de senha (`bcrypt`), emissão e decodificação de tokens JWT (`python-jose`) com claims obrigatórios (`sub`, `agencia_id`, `role`), esquemas Pydantic (`auth_schema.py`), dependências de autorização FastAPI (`get_current_user`, `require_diretor`, `require_consultor`) e endpoints de autenticação em `app/controllers/auth_controller.py`.

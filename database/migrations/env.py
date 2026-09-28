@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), ".."
 
 from config.config import settings
 from database.connection import Base
+import app.models  # Garante registro de todas as entidades ORM para autogenerate
 
 # Configuração de logging do Alembic
 config = context.config

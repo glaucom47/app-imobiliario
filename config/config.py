@@ -28,7 +28,7 @@ class Settings:
     # Default para desenvolvimento local na porta 5432
     DATABASE_URL: str = os.environ.get(
         "DATABASE_URL",
-        "postgresql://postgres:postgres@localhost:5432/fecho_db"
+        "postgresql+psycopg2://postgres:postgres@localhost:5432/fecho_db"
     )
 
     # Autenticação e Segurança JWT

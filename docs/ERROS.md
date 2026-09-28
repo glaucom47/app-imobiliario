@@ -32,5 +32,5 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 
 - **Sintoma:** Ao executar `git commit -m "Estrutura inicial do projeto"`, o comando falhou com o código 1 e a mensagem: `fatal: unable to auto-detect email address (got 'HP@DESKTOP-CTP0UFU.(none)')`.
 - **Causa:** O Git foi instalado ou inicializado nesta máquina sem uma configuração prévia de nome e e-mail de autor (`user.name` e `user.email`), necessária para assinar os registros de histórico.
-- **Solução aplicada:** Identificação da necessidade de configuração de autor e solicitação ao usuário ou definição de credencial para o repositório.
+- **Solução aplicada:** O usuário informou os dados de identificação e foram configurados `git config --global user.name "Glauco"` e `git config --global user.email "glaucom500@gmail.com"`, permitindo que o commit inicial fosse gerado com sucesso.
 - **Como evitar no futuro:** Sempre verificar a existência de `git config user.name` e `git config user.email` antes de disparar o primeiro commit de um repositório recém-inicializado.

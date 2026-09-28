@@ -43,7 +43,7 @@
 - [x] Criação de `.gitattributes` para padronização de quebras de linha e arquivos binários
 - [x] Inicialização do repositório Git local e definição da branch principal (`main`)
 - [x] Verificação de proteção de arquivos sensíveis (sem vazamento de chaves, senhas, tokens ou caches)
-- [x] Criação do commit inicial de infraestrutura do projeto
+- [x] Criação do commit inicial de infraestrutura do projeto (commit `f6ff02b`: "Estrutura inicial do projeto")
 - [ ] Conexão com repositório remoto no GitHub (pendente de criação pelo usuário)
 - [ ] Envio (`git push`) para o GitHub (pendente após conexão do repositório remoto)
 

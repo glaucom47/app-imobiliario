@@ -30,11 +30,14 @@
     <!-- Conteúdo Principal Dinâmico -->
     <main class="app-main" id="main-content" style="padding: var(--spacing-margin); flex: 1;">
       <!-- Seletor do Imóvel Ativo (Obrigatório em Visitas) -->
-      <section class="card-tier1" id="property-selector-card">
-        <span class="label-caps" style="color: var(--color-on-surface-variant); display: block; margin-bottom: 6px;">Imóvel em Foco</span>
+      <section class="card-tier1" id="property-selector-card" style="cursor: pointer;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span class="label-caps" style="color: var(--color-on-surface-variant);">Imóvel em Foco</span>
+          <span style="font-size: 12px; font-weight: 600; color: var(--color-tertiary);" id="btn-toggle-portfolio-card">Ver Carteira</span>
+        </div>
         <div id="selected-property-info">
-          <p style="font-weight: 600; font-size: 16px;">T3 Duplex Avenida da Liberdade</p>
-          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">€ 2.850.000 • Lisboa</p>
+          <p style="font-weight: 600; font-size: 16px;" id="focus-prop-title">Carregando carteira...</p>
+          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="focus-prop-subtitle">Aguarde um momento</p>
         </div>
       </section>
 
@@ -49,16 +52,198 @@
         <button class="btn-secondary-ghost" id="btn-open-teleprompter" type="button">
           Scripts de Vídeo & Teleprompter
         </button>
+        <button class="btn-secondary-ghost" id="btn-open-portfolio" type="button" style="border-style: solid;">
+          Gestão da Carteira de Imóveis
+        </button>
       </section>
     </main>
 
     <!-- Rodapé de Navegação Rápida -->
     <nav class="app-bottom-nav" style="border-top: var(--border-hairline); padding: 12px var(--spacing-margin); display: flex; justify-content: space-around; background: #ffffff;">
-      <span class="label-caps" style="color: var(--color-primary); cursor: pointer;">Visitas</span>
-      <span class="label-caps" style="color: var(--color-outline); cursor: pointer;">Calculadora</span>
-      <span class="label-caps" style="color: var(--color-outline); cursor: pointer;">Scripts</span>
-      <span class="label-caps" style="color: var(--color-outline); cursor: pointer;">Esfera</span>
+      <span class="label-caps" id="nav-visitas" style="color: var(--color-primary); cursor: pointer;">Visitas</span>
+      <span class="label-caps" id="nav-carteira" style="color: var(--color-outline); cursor: pointer;">Carteira</span>
+      <span class="label-caps" id="nav-calculadora" style="color: var(--color-outline); cursor: pointer;">Calculadora</span>
+      <span class="label-caps" id="nav-scripts" style="color: var(--color-outline); cursor: pointer;">Scripts</span>
+      <span class="label-caps" id="nav-esfera" style="color: var(--color-outline); cursor: pointer;">Esfera</span>
     </nav>
+  </div>
+
+  <!-- Drawer / Gaveta da Carteira de Imóveis -->
+  <div class="fecho-modal-overlay" id="drawer-portfolio">
+    <div class="fecho-drawer-sheet">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Carteira de Imóveis</h3>
+          <span style="font-size: 12px; color: var(--color-outline);" id="portfolio-count-label">0 imóveis cadastrados</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn-card-action btn-card-primary" id="btn-open-new-property" type="button">+ Novo</button>
+          <button class="drawer-close-btn" id="btn-close-portfolio" type="button" aria-label="Fechar">✕</button>
+        </div>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Campo de Pesquisa Rápida -->
+        <div class="fecho-form-group" style="margin-bottom: 12px;">
+          <input type="text" id="property-search-input" class="fecho-input" placeholder="Pesquisar por título, morada ou concelho..." style="height: 42px; font-size: 13px;">
+        </div>
+
+        <!-- Chips de Filtro por Status -->
+        <div class="status-filter-bar" id="portfolio-filter-bar">
+          <button type="button" class="filter-chip-btn active" data-status="">Todos</button>
+          <button type="button" class="filter-chip-btn" data-status="Ativo">Ativos</button>
+          <button type="button" class="filter-chip-btn" data-status="Reservado">Reservados</button>
+          <button type="button" class="filter-chip-btn" data-status="Vendido">Vendidos</button>
+        </div>
+
+        <!-- Lista de Imóveis -->
+        <div id="portfolio-list-container">
+          <p style="text-align: center; color: var(--color-outline); font-size: 13px; padding: 24px 0;">A carregar imóveis...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Cadastro de Novo Imóvel -->
+  <div class="fecho-modal-overlay" id="modal-new-property">
+    <div class="fecho-drawer-sheet" style="max-height: 92vh;">
+      <div class="drawer-header">
+        <h3 style="font-size: 16px; font-weight: 600;">Novo Imóvel na Carteira</h3>
+        <button class="drawer-close-btn" id="btn-close-new-property" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="drawer-body">
+        <form id="form-new-property">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="new-prop-title">Título Comercial *</label>
+            <input type="text" id="new-prop-title" class="fecho-input" placeholder="Ex: T3 Duplex Avenida da Liberdade" required minlength="3">
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <div class="fecho-form-group" style="flex: 1;">
+              <label class="fecho-label" for="new-prop-type">Tipologia *</label>
+              <select id="new-prop-type" class="fecho-input" required>
+                <option value="T0">T0</option>
+                <option value="T1">T1</option>
+                <option value="T2">T2</option>
+                <option value="T3" selected>T3</option>
+                <option value="T4">T4</option>
+                <option value="T5">T5+</option>
+                <option value="Moradia">Moradia</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div class="fecho-form-group" style="flex: 1.4;">
+              <label class="fecho-label" for="new-prop-price">Preço Anunciado (€) *</label>
+              <input type="number" id="new-prop-price" class="fecho-input" placeholder="2850000" min="1" step="any" required>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <div class="fecho-form-group" style="flex: 1.2;">
+              <label class="fecho-label" for="new-prop-region">Região Fiscal *</label>
+              <select id="new-prop-region" class="fecho-input" required>
+                <option value="continente" selected>Continente</option>
+                <option value="madeira">R.A. Madeira</option>
+                <option value="acores">R.A. Açores</option>
+              </select>
+            </div>
+            <div class="fecho-form-group" style="flex: 1;">
+              <label class="fecho-label" for="new-prop-area">Área Bruta (m²)</label>
+              <input type="number" id="new-prop-area" class="fecho-input" placeholder="180" min="1" step="any">
+            </div>
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="new-prop-concelho">Concelho / Localidade</label>
+            <input type="text" id="new-prop-concelho" class="fecho-input" placeholder="Ex: Lisboa, Cascais, Porto">
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="new-prop-address">Morada Completa</label>
+            <input type="text" id="new-prop-address" class="fecho-input" placeholder="Ex: Av. da Liberdade, 150">
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="new-prop-desc">Descrição / Destaques</label>
+            <textarea id="new-prop-desc" class="fecho-input" rows="2" placeholder="Pontos fortes, orientação solar, acabamentos..." style="resize: vertical;"></textarea>
+          </div>
+
+          <div style="border-top: var(--border-hairline); margin: 16px 0 12px; padding-top: 12px;">
+            <span class="label-caps" style="color: var(--color-on-surface-variant); display: block; margin-bottom: 8px;">Dados do Proprietário (Feedback de Visitas)</span>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="new-prop-owner-name">Nome do Proprietário *</label>
+              <input type="text" id="new-prop-owner-name" class="fecho-input" placeholder="Ex: Dr. Miguel Santos" required>
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="new-prop-owner-phone">Telemóvel / WhatsApp *</label>
+              <input type="tel" id="new-prop-owner-phone" class="fecho-input" placeholder="+351912345678" required>
+            </div>
+          </div>
+
+          <div id="new-prop-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; text-align: center;"></div>
+
+          <button type="submit" class="btn-primary-action" id="btn-submit-new-property">Criar Imóvel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Transição de Estado da Máquina de Estados -->
+  <div class="fecho-modal-overlay" id="modal-transition-status">
+    <div class="fecho-drawer-sheet">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Alterar Estado do Imóvel</h3>
+          <span style="font-size: 12px; color: var(--color-outline);" id="transition-prop-title-label"></span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-transition" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="drawer-body">
+        <form id="form-transition-status">
+          <input type="hidden" id="transition-property-id">
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="select-transition-target">Novo Estado do Imóvel</label>
+            <select id="select-transition-target" class="fecho-input" required>
+              <option value="Ativo">Ativo (Disponível em carteira)</option>
+              <option value="Reservado">Reservado (Com proposta/CPCV)</option>
+              <option value="Vendido">Vendido (Escritura realizada)</option>
+            </select>
+          </div>
+
+          <!-- Seção Condicional Exigida Obrigatoriamente ao Transitar para 'Vendido' -->
+          <div class="sold-closing-box" id="sold-closing-inputs">
+            <span class="label-caps" style="color: var(--color-secondary); display: block; margin-bottom: 6px;">
+              Requisitos Obrigatórios de Fecho (FSD)
+            </span>
+            <p style="font-size: 12px; color: var(--color-on-surface-variant); margin-bottom: 12px;">
+              A celebração de venda exige a identificação do comprador para alimentação imediata da Esfera de Influência e notificações anuais de escritura.
+            </p>
+
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="sold-buyer-name">Nome do Comprador *</label>
+              <input type="text" id="sold-buyer-name" class="fecho-input" placeholder="Ex: Alexandre Dumas">
+            </div>
+
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="sold-buyer-phone">Telemóvel do Comprador *</label>
+              <input type="tel" id="sold-buyer-phone" class="fecho-input" placeholder="+351961234567">
+            </div>
+
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="sold-buyer-date">Data da Escritura *</label>
+              <input type="date" id="sold-buyer-date" class="fecho-input">
+            </div>
+          </div>
+
+          <div id="transition-error" style="display: none; color: var(--color-error); font-size: 12px; margin: 12px 0; text-align: center;"></div>
+
+          <button type="submit" class="btn-primary-action" id="btn-submit-transition" style="margin-top: 16px;">
+            Confirmar Alteração
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- Modal / Overlay de Autenticação -->

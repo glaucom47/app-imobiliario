@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 29/09/2026 - 00:05
-* **Fase Atual:** Fase 3 - Autenticação, Sessão e Controle de Acesso (RBAC)
-* **Status Geral:** Concluída (Serviço de autenticação com Bcrypt e JWT, RBAC multi-tenant, endpoints REST `/api/v1/auth`, integração frontend PWA/Backoffice e suíte de testes 100% aprovada)
+* **Última Atualização:** 29/09/2026 - 00:15
+* **Fase Atual:** Fase 4 - Imóveis e Gestão de Carteira Ativa
+* **Status Geral:** Concluída (CRUD completo com isolamento multi-tenant por agencia_id, máquina de estados estrita Ativo -> Reservado -> Vendido com validação obrigatória dos 3 campos de fecho e geração de contacto na Esfera de Influência, interface móvel com seleção de Imóvel em Foco, gaveta de carteira e modais táteis, suíte de 24 testes automatizados 100% aprovada)
 
 ---
 
@@ -13,7 +13,7 @@
 | **Fase 1** | Infraestrutura, Base do Projeto e PWA Shell | Concluída |
 | **Fase 2** | Banco de Dados, Persistência e Isolamento Multi-tenant | Concluída |
 | **Fase 3** | Autenticação, Sessão e Controle de Acesso (RBAC) | Concluída |
-| **Fase 4** | Imóveis e Gestão de Carteira Ativa | Pendente |
+| **Fase 4** | Imóveis e Gestão de Carteira Ativa | Concluída |
 | **Fase 5** | Calculadora Visual de Viabilidade Financeira (Client-side / Offline) | Pendente |
 | **Fase 6** | Visitas, Feedback por Voz e Objeções (Human-in-the-Loop) | Pendente |
 | **Fase 7** | Conteúdo e Scripts de Vídeo Curto com Teleprompter | Pendente |
@@ -73,10 +73,17 @@
 - [x] Suíte de testes automatizados com `pytest` (`tests/test_auth.py`) com 100% de cobertura e 18 testes aprovados no projeto
 
 ### Fase 4: Imóveis e Gestão de Carteira Ativa
-- [ ] Schemas Pydantic de imóveis
-- [ ] Serviço de imóveis com máquina de estados (*Ativo* → *Reservado* → *Vendido*)
-- [ ] Endpoints REST de imóveis (`/api/v1/properties`) com isolamento multi-tenant
-- [ ] Componente visual de listagem de imóveis ativos no mobile PWA
+- [x] Schemas Pydantic tipados em `app/schemas/property_schema.py` (`PropertyCreate`, `PropertyUpdate`, `PropertyTransitionStatus`, `PropertyResponse`, `PropertyListResponse`)
+- [x] Serviço de negócios em `app/services/property_service.py` com isolamento por `agencia_id`, RBAC de consultor/diretor e máquina de estados estrita
+- [x] Validação rigorosa dos 3 campos obrigatórios para 'Vendido' (*Nome do Comprador*, *Telemóvel*, *Data da Escritura*) e inserção automática em `Contact` (Esfera de Influência)
+- [x] Bloqueio de reversão após 'Vendido' (estado terminal de fechamento)
+- [x] Endpoints REST em `app/controllers/properties_controller.py` (`GET`, `POST`, `PUT`, `POST /transition`, `DELETE`)
+- [x] Inclusão de `properties_controller.router` em `app/main.py`
+- [x] Serialização segura de validações Pydantic v2 com `jsonable_encoder` no FastAPI
+- [x] Cliente HTTP em `static/js/api.js` com métodos de CRUD, transição e gestão de Imóvel em Foco (`fecho_selected_property`)
+- [x] Interface móvel em `static/index.html` e `static/js/app.js` com card de foco tátil, gaveta de carteira de imóveis, filtros de status (*Todos*, *Ativo*, *Reservado*, *Vendido*), pesquisa rápida com debounce e modais de novo imóvel e transição de estado
+- [x] Estilos refinados em `static/css/style.css` alinhados a *Editorial PropTech Luxury* com números tabulares (`tnum`) para valores em euros (€)
+- [x] Suíte de testes automatizados com `pytest` (`tests/test_properties.py`) com 100% de aprovação e 24 testes no projeto
 
 ### Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)
 - [ ] Motor matemático de IMT (Continente, Madeira e Açores; HPP e Secundária)
@@ -124,5 +131,6 @@
 
 ## 3. Próximo Passo Recomendado
  
-* **Próxima Fase:** **Fase 4 - Imóveis e Gestão de Carteira Ativa**.
-* **Ação:** Em um novo chat ou iteração, implementar os esquemas Pydantic (`property_schema.py`), a máquina de estados rigorosa (*Ativo* → *Reservado* → *Vendido*) no serviço (`property_service.py`), os endpoints REST em `app/controllers/properties_controller.py` com isolamento por `agencia_id`, e o componente de cartões de imóveis ativos no mobile PWA.
+* **Próxima Fase:** **Fase 5 - Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**.
+* **Ação:** Implementar em `static/js/calculator.js` o motor fiscal de Portugal (escalões de IMT Continente e Ilhas para HPP e Secundária, isenção de IMT Jovem, Imposto do Selo 0,8% e Sistema Price para crédito à habitação), com interface gráfica tátil e partilha estruturada no WhatsApp em 1 clique.
+

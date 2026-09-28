@@ -69,3 +69,18 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 - **Causa:** O console padrão do Windows utiliza a página de código `cp1252`, que não suporta determinados caracteres Unicode estendidos ou emojis emitidos via `print()`.
 - **Solução aplicada:** Adicionou-se `if hasattr(sys.stdout, "reconfigure"): sys.stdout.reconfigure(encoding="utf-8")` na inicialização do script.
 - **Como evitar no futuro:** Garantir configuração explícita de `sys.stdout` para UTF-8 em scripts de linha de comando no Windows.
+
+### 2026-09-29 - Incompatibilidade de argumento 'subdominio' em vez de 'slug' na entidade Tenant
+
+- **Sintoma:** Ao rodar testes em `test_properties.py`, ocorreu `TypeError: 'subdominio' is an invalid keyword argument for Tenant`.
+- **Causa:** A entidade `Tenant` mapeada no SQLAlchemy (`app/models/tenant.py`) define a coluna de identificação web como `slug` e não `subdominio`.
+- **Solução aplicada:** Corrigiu-se a instanciação das fixtures de teste substituindo o parâmetro `subdominio` por `slug`.
+- **Como evitar no futuro:** Sempre inspecionar a definição dos campos nos modelos SQLAlchemy antes de estruturar novas fixtures e scripts.
+
+### 2026-09-29 - Exceção de serialização JSON com objetos ValueError em RequestValidationError no Pydantic v2
+
+- **Sintoma:** Ao disparar requisições inválidas no FastAPI, ocorria erro 500 no `validation_exception_handler` com a mensagem `TypeError: Object of type ValueError is not JSON serializable when serializing dict item 'errors'`.
+- **Causa:** No Pydantic v2, o método `exc.errors()` pode incluir instâncias do erro (`ValueError`) em `ctx['error']`, que não podem ser diretamente serializadas por `json.dumps()` sem um conversor especializado.
+- **Solução aplicada:** Adicionou-se `jsonable_encoder(exc.errors())` no manipulador `validation_exception_handler` em `app/main.py`.
+- **Como evitar no futuro:** Em manipuladores customizados de exceções do FastAPI, sempre utilizar `jsonable_encoder` para garantir compatibilidade JSON de coleções e dicionários do Pydantic.
+

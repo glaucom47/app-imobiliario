@@ -130,12 +130,97 @@ const Api = {
     return data;
   },
 
+  selectedPropertyKey: 'fecho_selected_property',
+
+  getSelectedProperty() {
+    try {
+      const data = localStorage.getItem(this.selectedPropertyKey);
+      return data ? JSON.parse(data) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  setSelectedProperty(property) {
+    if (property) {
+      localStorage.setItem(this.selectedPropertyKey, JSON.stringify(property));
+      window.dispatchEvent(new CustomEvent('fecho:property_selected', { detail: property }));
+    } else {
+      localStorage.removeItem(this.selectedPropertyKey);
+      window.dispatchEvent(new CustomEvent('fecho:property_selected', { detail: null }));
+    }
+  },
+
+  /**
+   * Lista os imóveis da agência com parâmetros opcionais.
+   */
+  async getProperties(params = {}) {
+    const query = new URLSearchParams();
+    if (params.status) query.append('status', params.status);
+    if (params.tipologia) query.append('tipologia', params.tipologia);
+    if (params.consultor_id) query.append('consultor_id', params.consultor_id);
+    if (params.busca) query.append('busca', params.busca);
+    if (params.skip !== undefined) query.append('skip', params.skip);
+    if (params.limit !== undefined) query.append('limit', params.limit);
+
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    return await this.request(`/properties${queryString}`);
+  },
+
+  /**
+   * Obtém detalhes de um imóvel.
+   */
+  async getProperty(id) {
+    return await this.request(`/properties/${id}`);
+  },
+
+  /**
+   * Cria um novo imóvel na carteira da agência.
+   */
+  async createProperty(propertyData) {
+    return await this.request('/properties', {
+      method: 'POST',
+      body: JSON.stringify(propertyData),
+    });
+  },
+
+  /**
+   * Atualiza dados cadastrais de um imóvel.
+   */
+  async updateProperty(id, propertyData) {
+    return await this.request(`/properties/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(propertyData),
+    });
+  },
+
+  /**
+   * Realiza a transição de estado do imóvel na máquina de estados.
+   * Se novo_status === 'Vendido', exige { nome_comprador, telefone_comprador, data_escritura }.
+   */
+  async transitionPropertyStatus(id, transitionData) {
+    return await this.request(`/properties/${id}/transition`, {
+      method: 'POST',
+      body: JSON.stringify(transitionData),
+    });
+  },
+
+  /**
+   * Remove um imóvel sem visitas.
+   */
+  async deleteProperty(id) {
+    return await this.request(`/properties/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
   /**
    * Encerra a sessão do usuário.
    */
   logout() {
     this.setToken(null);
     this.setUser(null);
+    this.setSelectedProperty(null);
     window.dispatchEvent(new CustomEvent('fecho:logout'));
   }
 };

@@ -9,7 +9,7 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 - [x] **Fase 1: Infraestrutura, Base do Projeto e PWA Shell**
 - [x] **Fase 2: Banco de Dados, Persistência e Isolamento Multi-tenant**
 - [x] **Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)**
-- [ ] **Fase 4: Imóveis e Gestão de Carteira Ativa**
+- [x] **Fase 4: Imóveis e Gestão de Carteira Ativa**
 - [ ] **Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**
 - [ ] **Fase 6: Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)**
 - [ ] **Fase 7: Conteúdo e Scripts de Vídeo Curto com Teleprompter**
@@ -57,9 +57,6 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 * **Critérios de Pronto:** Migração executada com sucesso no PostgreSQL; todas as chaves estrangeiras, índices e colunas `agencia_id` criados e validados.
 * **Arquivos e Pastas:** `app/models/`, `database/connection.py`, `database/migrations/`.
 * **Dependências:** Fase 1 concluída e serviço PostgreSQL ativo.
-* **Critérios de Pronto:** Migração executada com sucesso no PostgreSQL; todas as chaves estrangeiras, índices e colunas `agencia_id` criados e validados.
-* **Arquivos e Pastas:** `app/models/`, `database/connection.py`, `database/migrations/`.
-* **Dependências:** Fase 1 concluída e serviço PostgreSQL ativo.
 
 ---
 
@@ -81,13 +78,13 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ### Fase 4: Imóveis e Gestão de Carteira Ativa
 * **Objetivo:** Disponibilizar a gestão operacional de imóveis com validação rigorosa da máquina de estados (*Ativo* → *Reservado* → *Vendido*), filtragem estrita por agência e interface ágil para telemóveis.
 * **Checklist de Tarefas:**
-  - [ ] Criar esquemas Pydantic em `app/schemas/property_schema.py` (criação, atualização, exibição).
-  - [ ] Implementar regras de transição de status no `app/services/property_service.py`.
-  - [ ] Implementar endpoints REST em `app/controllers/properties_controller.py` (`GET`, `POST`, `PUT`, transição de status).
-  - [ ] Desenvolver componente visual no frontend mobile para listagem de imóveis ativos em cartões no estilo *Editorial PropTech Luxury*.
-  - [ ] Implementar seletor rápido de imóvel ativo no topo do fluxo operacional móvel.
-* **Critérios de Pronto:** Operações de CRUD de imóveis funcionam; transições de status inválidas são rejeitadas pela regra de negócio; listagem no mobile é rápida e responsiva.
-* **Arquivos e Pastas:** `app/controllers/properties_controller.py`, `app/services/property_service.py`, `app/schemas/property_schema.py`, `static/js/app.js`.
+  - [x] Criar esquemas Pydantic em `app/schemas/property_schema.py` (criação, atualização, exibição, transição de status).
+  - [x] Implementar regras de transição de status no `app/services/property_service.py` com validação obrigatória dos 3 campos de venda e alimentação da Esfera de Influência.
+  - [x] Implementar endpoints REST em `app/controllers/properties_controller.py` (`GET`, `POST`, `PUT`, `POST /transition`, `DELETE`) com isolamento multi-tenant por `agencia_id`.
+  - [x] Desenvolver componente visual no frontend mobile para listagem de imóveis ativos em cartões no estilo *Editorial PropTech Luxury*.
+  - [x] Implementar seletor rápido de imóvel ativo no topo do fluxo operacional móvel com persistência local e modais táteis de carteira, cadastro e transição de estado.
+* **Critérios de Pronto:** Operações de CRUD de imóveis funcionam; transições de status inválidas são rejeitadas pela regra de negócio; listagem no mobile é rápida e responsiva; 24 testes automatizados 100% aprovados.
+* **Arquivos e Pastas:** `app/controllers/properties_controller.py`, `app/services/property_service.py`, `app/schemas/property_schema.py`, `static/js/app.js`, `static/index.html`, `static/css/style.css`, `tests/test_properties.py`.
 * **Dependências:** Fase 3 concluída.
 
 ---

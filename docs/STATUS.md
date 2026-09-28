@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 28/09/2026 - 22:40
+* **Última Atualização:** 28/09/2026 - 23:05
 * **Fase Atual:** Fase 1 - Infraestrutura, Base do Projeto e PWA Shell
-* **Status Geral:** Concluída (Git inicializado e preparado para backup no GitHub)
+* **Status Geral:** Concluída (Git inicializado, auditado e sincronizado com o GitHub)
 
 ---
 
@@ -44,8 +44,8 @@
 - [x] Inicialização do repositório Git local e definição da branch principal (`main`)
 - [x] Verificação de proteção de arquivos sensíveis (sem vazamento de chaves, senhas, tokens ou caches)
 - [x] Criação do commit inicial de infraestrutura do projeto (commit `f6ff02b`: "Estrutura inicial do projeto")
-- [ ] Conexão com repositório remoto no GitHub (pendente de criação pelo usuário)
-- [ ] Envio (`git push`) para o GitHub (pendente após conexão do repositório remoto)
+- [x] Conexão com repositório remoto no GitHub (`https://github.com/glaucom47/app-imobiliario.git`)
+- [x] Envio (`git push`) para o GitHub com rastreamento da branch `main` concluído com sucesso
 
 ### Fase 2: Banco de Dados, Persistência e Isolamento Multi-tenant
 - [ ] Configuração da conexão com PostgreSQL (`database/connection.py`)

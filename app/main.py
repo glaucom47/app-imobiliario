@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from config.config import settings
-from app.controllers import auth_controller, properties_controller, visits_controller
+from app.controllers import auth_controller, properties_controller, visits_controller, scripts_controller
 
 # Inicialização da aplicação FastAPI
 app = FastAPI(
@@ -34,6 +34,7 @@ app.add_middleware(
 app.include_router(auth_controller.router, prefix=settings.API_V1_STR)
 app.include_router(properties_controller.router, prefix=settings.API_V1_STR)
 app.include_router(visits_controller.router, prefix=settings.API_V1_STR)
+app.include_router(scripts_controller.router, prefix=settings.API_V1_STR)
 
 # Montagem dos arquivos estáticos do frontend/PWA
 if os.path.exists(settings.STATIC_DIR):

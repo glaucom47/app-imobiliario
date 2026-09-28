@@ -610,6 +610,182 @@
     </div>
   </div>
 
+  <!-- Drawer / Gaveta dos Scripts de Vídeo Curto -->
+  <div class="fecho-modal-overlay" id="drawer-scripts">
+    <div class="fecho-drawer-sheet">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Scripts de Vídeo Curto</h3>
+          <span style="font-size: 12px; color: var(--color-outline);" id="scripts-prop-subtitle">Selecione um imóvel para gerar</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-scripts" type="button" aria-label="Fechar">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- 1. Cartão do Imóvel em Foco -->
+        <div class="scripts-prop-card" id="scripts-prop-card">
+          <div>
+            <span class="label-caps" style="color: var(--color-secondary); display: block;" id="scripts-card-tipologia">T3 Duplex</span>
+            <strong style="font-size: 14px; color: var(--color-on-surface); display: block;" id="scripts-card-titulo">Avenida da Liberdade</strong>
+            <span style="font-size: 12px; color: var(--color-outline);" id="scripts-card-localizacao">Lisboa</span>
+          </div>
+          <div style="text-align: right;">
+            <span class="financial-display" style="font-size: 18px;" id="scripts-card-preco">€ 750.000</span>
+          </div>
+        </div>
+
+        <!-- 2. Seletor de Objetivo Comercial -->
+        <div style="margin-bottom: 6px;">
+          <label class="fecho-label">Objetivo Comercial do Vídeo</label>
+          <div class="scripts-objective-grid">
+            <button type="button" class="scripts-obj-btn active" data-obj="angariacao" id="btn-obj-angariacao">
+              <span class="obj-icon">🎯</span>
+              <span class="obj-title">Angariação</span>
+              <span class="obj-badge">Novo no Mercado</span>
+            </button>
+            <button type="button" class="scripts-obj-btn" data-obj="baixa_preco" id="btn-obj-baixa-preco">
+              <span class="obj-icon">📉</span>
+              <span class="obj-title">Baixa de Preço</span>
+              <span class="obj-badge">Oportunidade</span>
+            </button>
+            <button type="button" class="scripts-obj-btn" data-obj="open_house" id="btn-obj-open-house">
+              <span class="obj-icon">🚪</span>
+              <span class="obj-title">Open House</span>
+              <span class="obj-badge">Portas Abertas</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Barra de Métricas de Leitura -->
+        <div class="script-metrics-ribbon">
+          <div class="script-metric-item">
+            <span>⏱️ Ritmo:</span>
+            <span class="script-metric-val" id="script-tempo-estimado">~35s</span>
+          </div>
+          <div class="script-metric-item">
+            <span>📝 Extensão:</span>
+            <span class="script-metric-val" id="script-total-palavras">82 palavras</span>
+          </div>
+          <div class="script-metric-item">
+            <button type="button" class="btn-card-action" id="btn-regenerate-script" style="font-size: 11px; padding: 4px 8px;">
+              🔄 Regenerar
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. Lista dos 3 Blocos Estruturados -->
+        <div class="script-blocks-list" id="script-blocks-list">
+          <!-- Bloco 1: Gancho -->
+          <div class="script-block-card">
+            <div class="script-block-header">
+              <span class="script-block-title">1. Gancho Magnético</span>
+              <span class="script-block-badge">0 a 5s</span>
+            </div>
+            <p class="script-block-content" id="script-block-gancho">A carregar gancho do roteiro...</p>
+          </div>
+
+          <!-- Bloco 2: 2 Destaques -->
+          <div class="script-block-card">
+            <div class="script-block-header">
+              <span class="script-block-title">2. Dois Destaques Irresistíveis</span>
+              <span class="script-block-badge">5 a 25s</span>
+            </div>
+            <p class="script-block-content" id="script-block-destaques">A carregar destaques...</p>
+          </div>
+
+          <!-- Bloco 3: CTA -->
+          <div class="script-block-card">
+            <div class="script-block-header">
+              <span class="script-block-title">3. Chamada para Ação (CTA)</span>
+              <span class="script-block-badge">25 a 35s</span>
+            </div>
+            <p class="script-block-content" id="script-block-cta">A carregar chamada para ação...</p>
+          </div>
+        </div>
+
+        <div id="script-error-msg" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; text-align: center;"></div>
+
+        <!-- 5. Ações Decisivas -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
+          <button type="button" class="btn-cobalt-trigger" id="btn-launch-prompter">
+            🚀 Iniciar no Teleprompter
+          </button>
+          <button type="button" class="btn-primary-action" id="btn-copy-script-text" style="background: var(--color-primary);">
+            📋 Copiar Roteiro Formatado
+          </button>
+          <button type="button" class="btn-secondary-ghost" id="btn-close-scripts-drawer">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal / Overlay Imersivo do Teleprompter (#111111 Solid Backdrop) -->
+  <div class="teleprompter-overlay" id="teleprompter-modal">
+    <!-- Barra Superior de Controles -->
+    <header class="teleprompter-header">
+      <div class="teleprompter-header-left">
+        <span class="teleprompter-header-badge" id="teleprompter-obj-badge">Novo no Mercado</span>
+        <span class="teleprompter-header-title" id="teleprompter-prop-title">Imóvel Selecionado</span>
+      </div>
+
+      <div class="teleprompter-header-center">
+        <!-- Controle de Velocidade -->
+        <div class="teleprompter-ctrl-group">
+          <button type="button" class="teleprompter-icon-btn" id="prompter-speed-down" title="Reduzir Velocidade">-</button>
+          <span class="teleprompter-speed-indicator" id="teleprompter-speed-label">2x</span>
+          <button type="button" class="teleprompter-icon-btn" id="prompter-speed-up" title="Aumentar Velocidade">+</button>
+        </div>
+
+        <!-- Controle de Tamanho de Fonte -->
+        <div class="teleprompter-ctrl-group">
+          <button type="button" class="teleprompter-icon-btn" id="prompter-font-down" title="Diminuir Fonte" style="font-size: 11px;">A-</button>
+          <button type="button" class="teleprompter-icon-btn" id="prompter-font-up" title="Aumentar Fonte" style="font-size: 13px;">A+</button>
+        </div>
+      </div>
+
+      <button type="button" class="teleprompter-close-btn" id="prompter-btn-close" aria-label="Sair do Teleprompter">✕</button>
+    </header>
+
+    <!-- Guia de Olhar Fixo para a Lente da Câmera -->
+    <div class="teleprompter-eye-guide">
+      <span class="teleprompter-eye-guide-marker">👁️ Olhe Aqui</span>
+    </div>
+
+    <!-- Viewport com Rolagem Suave -->
+    <main class="teleprompter-viewport" id="teleprompter-scroll-container">
+      <div class="teleprompter-content" id="teleprompter-text-content">
+        <!-- O texto dinâmico será injetado aqui -->
+      </div>
+    </main>
+
+    <!-- Barra Inferior Flutuante -->
+    <footer class="teleprompter-footer">
+      <div class="teleprompter-footer-info">
+        <span style="font-size: 12px; color: var(--color-secondary); font-weight: 700;" id="teleprompter-time-count">~35s</span>
+        <span style="font-size: 10px; color: rgba(255, 255, 255, 0.6);" id="teleprompter-words-count">82 palavras</span>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button type="button" class="teleprompter-btn-sec" id="prompter-btn-restart">
+          ↺ Reiniciar
+        </button>
+        <button type="button" class="teleprompter-btn-main" id="teleprompter-btn-play-pause">
+          ▶ Iniciar
+        </button>
+        <button type="button" class="teleprompter-btn-sec" id="prompter-btn-copy">
+          📋 Copiar
+        </button>
+      </div>
+    </footer>
+
+    <!-- Overlay de Contagem Regressiva 3-2-1 -->
+    <div class="teleprompter-countdown-overlay" id="teleprompter-countdown-overlay">
+      <div class="teleprompter-countdown-number" id="teleprompter-countdown-number">3</div>
+    </div>
+  </div>
+
   <!-- Modal / Overlay de Autenticação -->
   <div class="auth-overlay" id="auth-modal" style="display: none;">
     <div class="auth-card">

@@ -11,8 +11,8 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 - [x] **Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)**
 - [x] **Fase 4: Imóveis e Gestão de Carteira Ativa**
 - [x] **Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**
-- [ ] **Fase 6: Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)**
-- [ ] **Fase 7: Conteúdo e Scripts de Vídeo Curto com Teleprompter**
+- [x] **Fase 6: Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)**
+- [x] **Fase 7: Conteúdo e Scripts de Vídeo Curto com Teleprompter**
 - [ ] **Fase 8: Pós-Venda, Esfera de Influência e Notificações de Aniversário**
 - [ ] **Fase 9: Backoffice Web da Agência, Métricas e Exportação CSV**
 - [ ] **Fase 10: Auditoria de Segurança, Testes E2E e Polimento Final**
@@ -123,10 +123,10 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ### Fase 7: Conteúdo e Scripts de Vídeo Curto com Teleprompter
 * **Objetivo:** Fornecer geração ágil de roteiros de marketing imobiliário em 3 blocos estruturados (Gancho, 2 Destaques e CTA) orientados por objetivo comercial, integrados a um leitor de teleprompter otimizado para ensaio e gravação em vídeo.
 * **Checklist de Tarefas:**
-  - [ ] Implementar serviço de geração de roteiros em `app/services/script_service.py` cobrindo objetivos: *Angariação*, *Baixa de Preço* e *Open House*.
-  - [ ] Criar endpoints em `app/controllers/scripts_controller.py` para sugerir e salvar scripts por imóvel.
-  - [ ] Construir componente de Teleprompter em `static/js/teleprompter.js` com interface de alto contraste (fundo `#111111`, tipografia legível sob luz solar).
-  - [ ] Implementar controles no teleprompter: contagem regressiva 3-2-1, velocidade de rolagem ajustável, pausar/retomar e botão de cópia de texto integral para clipboard.
+  - [x] Implementar serviço de geração de roteiros em `app/services/script_service.py` cobrindo objetivos: *Angariação*, *Baixa de Preço* e *Open House*.
+  - [x] Criar endpoints em `app/controllers/scripts_controller.py` para sugerir e salvar scripts por imóvel.
+  - [x] Construir componente de Teleprompter em `static/js/teleprompter.js` com interface de alto contraste (fundo `#111111`, tipografia legível sob luz solar).
+  - [x] Implementar controles no teleprompter: contagem regressiva 3-2-1, velocidade de rolagem ajustável, pausar/retomar e botão de cópia de texto integral para clipboard.
 * **Critérios de Pronto:** Roteiro é gerado em menos de 1 segundo para o imóvel selecionado; teleprompter rola suavemente no ecrã do telemóvel sem travas; botão de cópia copia o roteiro formatado.
 * **Arquivos e Pastas:** `app/controllers/scripts_controller.py`, `app/services/script_service.py`, `static/js/teleprompter.js`, `static/index.html`.
 * **Dependências:** Fase 4 concluída.

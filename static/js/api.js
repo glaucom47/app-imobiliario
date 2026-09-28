@@ -272,6 +272,34 @@ const Api = {
   },
 
   /**
+   * Obtém os objetivos comerciais de scripts de marketing.
+   */
+  async getScriptObjectives() {
+    return await this.request('/scripts/objectives');
+  },
+
+  /**
+   * Gera um roteiro em 3 blocos (Gancho, 2 Destaques e CTA).
+   */
+  async generateScript(payload) {
+    return await this.request('/scripts/generate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Obtém sugestão rápida de roteiro para um imóvel específico.
+   */
+  async getPropertyScript(propertyId, params = {}) {
+    const query = new URLSearchParams();
+    if (params.objetivo) query.append('objetivo', params.objetivo);
+    if (params.tom) query.append('tom', params.tom);
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    return await this.request(`/scripts/property/${propertyId}${queryString}`);
+  },
+
+  /**
    * Encerra a sessão do usuário.
    */
   logout() {

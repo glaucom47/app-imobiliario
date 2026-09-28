@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 29/09/2026 - 00:30
-* **Fase Atual:** Fase 6 - Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)
-* **Status Geral:** Concluída (Gravador de áudio no cliente de até 30s em `static/js/audio_recorder.js` com MediaRecorder, Web Speech API e enfileiramento offline; motor semântico de transcrição, inferência de nível de interesse de 1 a 5 e mapeamento de catálogo corporativo de objeções em `app/services/speech_service.py` e `app/services/visit_service.py`; endpoints REST em `app/controllers/visits_controller.py`; ecrã móvel de revisão Human-in-the-Loop em `static/index.html` e `static/css/style.css`; geração automática de prestação de contas editorial e Deep Link para WhatsApp do proprietário em 1 clique; suíte com 47 testes automatizados 100% aprovada)
+* **Última Atualização:** 29/09/2026 - 00:42
+* **Fase Atual:** Fase 7 - Conteúdo e Scripts de Vídeo Curto com Teleprompter
+* **Status Geral:** Concluída (Serviço de geração de roteiros em 3 blocos obrigatórios - Gancho, 2 Destaques e CTA - orientados por objetivos comerciais em `app/services/script_service.py`; esquemas Pydantic em `app/schemas/script_schema.py`; endpoints REST em `app/controllers/scripts_controller.py`; controlador completo de Teleprompter em `static/js/teleprompter.js` com superfície escura `#111111` de alto contraste, contagem 3-2-1, ajuste de velocidade e fonte, cópia para clipboard e gerador offline de contingência; gaveta e overlay imersivo no PWA em `static/index.html` e `static/css/style.css`; orquestração de carteira em `static/js/app.js`; suíte com 63 testes automatizados 100% aprovada)
 
 ---
 
@@ -16,7 +16,7 @@
 | **Fase 4** | Imóveis e Gestão de Carteira Ativa | Concluída |
 | **Fase 5** | Calculadora Visual de Viabilidade Financeira (Client-side / Offline) | Concluída |
 | **Fase 6** | Visitas, Feedback por Voz e Objeções (Human-in-the-Loop) | Concluída |
-| **Fase 7** | Conteúdo e Scripts de Vídeo Curto com Teleprompter | Pendente |
+| **Fase 7** | Conteúdo e Scripts de Vídeo Curto com Teleprompter | Concluída |
 | **Fase 8** | Pós-Venda, Esfera de Influência e Notificações de Aniversário | Pendente |
 | **Fase 9** | Backoffice Web da Agência, Métricas e Exportação CSV | Pendente |
 | **Fase 10** | Auditoria de Segurança, Testes E2E e Polimento Final | Pendente |
@@ -105,10 +105,12 @@
 - [x] Suíte de testes automatizados com `pytest` cobrindo NLP, RBAC, restrições e isolamento multi-tenant (`tests/test_visits.py` - total de 47 testes aprovados no projeto)
 
 ### Fase 7: Conteúdo e Scripts de Vídeo Curto com Teleprompter
-- [ ] Serviço de geração de roteiros em 3 blocos (Gancho, 2 Destaques, CTA)
-- [ ] Endpoints de roteiros por objetivo (Angariação, Baixa de Preço, Open House)
-- [ ] Interface do Teleprompter com fundo `#111111`, contagem 3-2-1 e rolagem suave
-- [ ] Botão de cópia rápida para clipboard
+- [x] Serviço de geração de roteiros em 3 blocos (Gancho, 2 Destaques, CTA) em `app/services/script_service.py`
+- [x] Endpoints de roteiros por objetivo (Angariação, Baixa de Preço, Open House) em `app/controllers/scripts_controller.py`
+- [x] Interface do Teleprompter com fundo `#111111`, contagem 3-2-1 e rolagem suave (`static/js/teleprompter.js`, `static/index.html`, `static/css/style.css`)
+- [x] Controles de velocidade, tamanho de fonte, pausa e gerador offline de contingência
+- [x] Botão de cópia rápida para clipboard com retorno tátil
+- [x] Suíte de testes automatizados com `pytest` e Node.js cobrindo backend e client-side (`tests/test_scripts.py` - total de 63 testes aprovados no projeto)
 
 ### Fase 8: Pós-Venda, Esfera de Influência e Notificações de Aniversário
 - [ ] Validação dos 3 campos ao passar imóvel para Vendido (*Nome*, *Telemóvel*, *Data da Escritura*)
@@ -135,6 +137,7 @@
 
 ## 3. Próximo Passo Recomendado
  
-* **Próxima Fase:** **Fase 7 - Conteúdo e Scripts de Vídeo Curto com Teleprompter**.
-* **Ação:** Implementar o serviço de geração de roteiros de marketing em 3 blocos (Gancho, 2 Destaques e CTA) orientados por objetivo comercial (*Angariação*, *Baixa de Preço*, *Open House*) em `app/services/script_service.py` e endpoints em `app/controllers/scripts_controller.py`, juntamente com o leitor de teleprompter móvel com fundo `#111111`, contagem regressiva 3-2-1 e rolagem tátil suave em `static/js/teleprompter.js`.
+* **Próxima Fase:** **Fase 8 - Pós-Venda, Esfera de Influência e Notificações de Aniversário**.
+* **Ação:** Implementar o fluxo de pós-venda que conecta o fechamento da escritura (recolha obrigatória de *Nome do Comprador*, *Telemóvel* e *Data da Escritura*) à gestão da carteira de relacionamentos em `app/controllers/contacts_controller.py` e `app/services/contact_service.py`, alarme matinal das 09:00 para celebração de escrituras, mensagens relacionais dinâmicas para WhatsApp e rotina de conformidade RGPD para anonimização ('Cliente Anonimizado').
+
 

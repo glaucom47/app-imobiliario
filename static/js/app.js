@@ -1384,6 +1384,278 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // =========================================================================
+  // 11. GESTÃO DE SCRIPTS DE VÍDEO CURTO E TELEPROMPTER (FASE 7)
+  // =========================================================================
+  const btnOpenTeleprompter = document.getElementById('btn-open-teleprompter');
+  const navScripts = document.getElementById('nav-scripts');
+  const drawerScripts = document.getElementById('drawer-scripts');
+  const btnCloseScripts = document.getElementById('btn-close-scripts');
+  const btnCloseScriptsDrawer = document.getElementById('btn-close-scripts-drawer');
+
+  const scriptsPropSubtitle = document.getElementById('scripts-prop-subtitle');
+  const scriptsCardTipologia = document.getElementById('scripts-card-tipologia');
+  const scriptsCardTitulo = document.getElementById('scripts-card-titulo');
+  const scriptsCardLocalizacao = document.getElementById('scripts-card-localizacao');
+  const scriptsCardPreco = document.getElementById('scripts-card-preco');
+
+  const objButtons = document.querySelectorAll('.scripts-obj-btn');
+  const btnRegenerateScript = document.getElementById('btn-regenerate-script');
+  const scriptTempoEstimado = document.getElementById('script-tempo-estimado');
+  const scriptTotalPalavras = document.getElementById('script-total-palavras');
+
+  const scriptBlockGancho = document.getElementById('script-block-gancho');
+  const scriptBlockDestaques = document.getElementById('script-block-destaques');
+  const scriptBlockCta = document.getElementById('script-block-cta');
+  const scriptErrorMsg = document.getElementById('script-error-msg');
+
+  const btnLaunchPrompter = document.getElementById('btn-launch-prompter');
+  const btnCopyScriptText = document.getElementById('btn-copy-script-text');
+
+  // Elementos do Teleprompter
+  const teleprompterModal = document.getElementById('teleprompter-modal');
+  const prompterBtnClose = document.getElementById('prompter-btn-close');
+  const prompterSpeedDown = document.getElementById('prompter-speed-down');
+  const prompterSpeedUp = document.getElementById('prompter-speed-up');
+  const prompterFontDown = document.getElementById('prompter-font-down');
+  const prompterFontUp = document.getElementById('prompter-font-up');
+  const prompterBtnRestart = document.getElementById('prompter-btn-restart');
+  const teleprompterBtnPlayPause = document.getElementById('teleprompter-btn-play-pause');
+  const prompterBtnCopy = document.getElementById('prompter-btn-copy');
+
+  // Estado interno de Scripts
+  let currentScriptObjective = 'angariacao';
+  let currentLoadedScript = null;
+
+  // Inicializa o módulo Teleprompter
+  if (typeof Teleprompter !== 'undefined' && Teleprompter.init) {
+    Teleprompter.init();
+  }
+
+  /**
+   * Abre a gaveta de Scripts para o imóvel ativo ou selecionado.
+   */
+  async function openScriptsDrawer() {
+    let prop = Api.getSelectedProperty();
+
+    // Se não houver imóvel selecionado, tenta selecionar o primeiro da carteira
+    if (!prop) {
+      if (cachedProperties && cachedProperties.length > 0) {
+        prop = cachedProperties[0];
+        Api.setSelectedProperty(prop);
+      } else {
+        try {
+          const resp = await Api.getProperties({ status: 'Ativo', limit: 1 });
+          if (resp && resp.items && resp.items.length > 0) {
+            prop = resp.items[0];
+            Api.setSelectedProperty(prop);
+          }
+        } catch {
+          // segue sem imóvel ou usa fallback
+        }
+      }
+    }
+
+    if (!prop) {
+      alert('Por favor, selecione ou cadastre um imóvel ativo na carteira para gerar roteiros de vídeo.');
+      openPortfolioDrawer();
+      return;
+    }
+
+    // Renderiza dados do imóvel no card do script
+    if (scriptsCardTipologia) scriptsCardTipologia.textContent = prop.tipologia || 'Imóvel';
+    if (scriptsCardTitulo) scriptsCardTitulo.textContent = prop.titulo || 'Imóvel Exclusivo';
+    if (scriptsCardLocalizacao) scriptsCardLocalizacao.textContent = prop.concelho || prop.morada || 'Portugal';
+    if (scriptsCardPreco) {
+      scriptsCardPreco.textContent = prop.preco ? currencyFormatter.format(prop.preco) : 'Sob Consulta';
+    }
+    if (scriptsPropSubtitle) {
+      scriptsPropSubtitle.textContent = `Imóvel ativo #${prop.id}`;
+    }
+
+    if (drawerScripts) {
+      drawerScripts.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    await loadScriptForCurrentSelection();
+  }
+
+  function closeScriptsDrawer() {
+    if (drawerScripts) {
+      drawerScripts.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+
+  /**
+   * Carrega ou gera o roteiro com base no imóvel e objetivo atual.
+   */
+  async function loadScriptForCurrentSelection() {
+    const prop = Api.getSelectedProperty();
+    if (!prop) return;
+
+    if (scriptErrorMsg) scriptErrorMsg.style.display = 'none';
+
+    // Estado visual de carregamento
+    if (scriptBlockGancho) scriptBlockGancho.textContent = 'A gerar gancho magnético...';
+    if (scriptBlockDestaques) scriptBlockDestaques.textContent = 'A selecionar os melhores destaques do imóvel...';
+    if (scriptBlockCta) scriptBlockCta.textContent = 'A estruturar a chamada para ação...';
+
+    try {
+      // Tenta gerar via API
+      const result = await Api.generateScript({
+        property_id: prop.id,
+        objetivo: currentScriptObjective,
+        tom: 'sofisticado',
+      });
+      renderScriptData(result);
+    } catch (err) {
+      console.warn('Falha na API de scripts, utilizando motor offline de contingência:', err);
+      // Fallback offline resiliente
+      if (typeof Teleprompter !== 'undefined' && Teleprompter.generateOfflineScript) {
+        const offlineResult = Teleprompter.generateOfflineScript(prop, currentScriptObjective);
+        renderScriptData(offlineResult);
+      } else {
+        if (scriptErrorMsg) {
+          scriptErrorMsg.textContent = 'Não foi possível gerar o roteiro.';
+          scriptErrorMsg.style.display = 'block';
+        }
+      }
+    }
+  }
+
+  /**
+   * Renderiza os dados do roteiro gerado na interface.
+   */
+  function renderScriptData(scriptData) {
+    currentLoadedScript = scriptData;
+
+    if (scriptBlockGancho) scriptBlockGancho.textContent = scriptData.gancho || '-';
+    if (scriptBlockDestaques) {
+      const d1 = scriptData.destaque_1 || '';
+      const d2 = scriptData.destaque_2 || '';
+      scriptBlockDestaques.textContent = `${d1}\n\n${d2}`.trim() || '-';
+    }
+    if (scriptBlockCta) scriptBlockCta.textContent = scriptData.cta || '-';
+
+    if (scriptTempoEstimado) {
+      scriptTempoEstimado.textContent = `~${scriptData.tempo_estimado_segundos || 35}s`;
+    }
+    if (scriptTotalPalavras) {
+      scriptTotalPalavras.textContent = `${scriptData.total_palavras || 0} palavras`;
+    }
+  }
+
+  // Eventos de Abertura / Fechamento do Drawer de Scripts
+  if (btnOpenTeleprompter) {
+    btnOpenTeleprompter.addEventListener('click', openScriptsDrawer);
+  }
+
+  if (navScripts) {
+    navScripts.addEventListener('click', openScriptsDrawer);
+  }
+
+  if (btnCloseScripts) {
+    btnCloseScripts.addEventListener('click', closeScriptsDrawer);
+  }
+
+  if (btnCloseScriptsDrawer) {
+    btnCloseScriptsDrawer.addEventListener('click', closeScriptsDrawer);
+  }
+
+  // Troca de Objetivos Comerciais (Angariação / Baixa de Preço / Open House)
+  objButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      objButtons.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentScriptObjective = btn.getAttribute('data-obj') || 'angariacao';
+      loadScriptForCurrentSelection();
+    });
+  });
+
+  // Botão de Regeneração
+  if (btnRegenerateScript) {
+    btnRegenerateScript.addEventListener('click', loadScriptForCurrentSelection);
+  }
+
+  // Lançar no Teleprompter
+  if (btnLaunchPrompter) {
+    btnLaunchPrompter.addEventListener('click', () => {
+      if (!currentLoadedScript) {
+        alert('Por favor, aguarde a geração do roteiro.');
+        return;
+      }
+      closeScriptsDrawer();
+      Teleprompter.loadScript(currentLoadedScript);
+      Teleprompter.open();
+    });
+  }
+
+  // Copiar Roteiro do Drawer
+  if (btnCopyScriptText) {
+    btnCopyScriptText.addEventListener('click', async () => {
+      try {
+        await Teleprompter.copyScriptToClipboard();
+        const orig = btnCopyScriptText.textContent;
+        btnCopyScriptText.textContent = '✓ Roteiro Copiado!';
+        btnCopyScriptText.style.background = 'var(--color-secondary)';
+        setTimeout(() => {
+          btnCopyScriptText.textContent = orig;
+          btnCopyScriptText.style.background = 'var(--color-primary)';
+        }, 2000);
+      } catch (err) {
+        alert('Não foi possível copiar para a área de transferência.');
+      }
+    });
+  }
+
+  // Controles do Teleprompter
+  if (prompterBtnClose) {
+    prompterBtnClose.addEventListener('click', () => {
+      Teleprompter.close();
+    });
+  }
+
+  if (prompterSpeedDown) {
+    prompterSpeedDown.addEventListener('click', () => Teleprompter.decreaseSpeed());
+  }
+
+  if (prompterSpeedUp) {
+    prompterSpeedUp.addEventListener('click', () => Teleprompter.increaseSpeed());
+  }
+
+  if (prompterFontDown) {
+    prompterFontDown.addEventListener('click', () => Teleprompter.decreaseFontSize());
+  }
+
+  if (prompterFontUp) {
+    prompterFontUp.addEventListener('click', () => Teleprompter.increaseFontSize());
+  }
+
+  if (prompterBtnRestart) {
+    prompterBtnRestart.addEventListener('click', () => Teleprompter.reset());
+  }
+
+  if (teleprompterBtnPlayPause) {
+    teleprompterBtnPlayPause.addEventListener('click', () => Teleprompter.togglePlay());
+  }
+
+  if (prompterBtnCopy) {
+    prompterBtnCopy.addEventListener('click', async () => {
+      try {
+        await Teleprompter.copyScriptToClipboard();
+        const orig = prompterBtnCopy.textContent;
+        prompterBtnCopy.textContent = '✓ Copiado';
+        setTimeout(() => {
+          prompterBtnCopy.textContent = orig;
+        }, 1800);
+      } catch {
+        // silencia
+      }
+    });
+  }
+
   // 12. Tratamento do Formulário de Login
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {

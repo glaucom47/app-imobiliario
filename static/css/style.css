@@ -999,5 +999,462 @@ body {
   overflow-y: auto;
 }
 
+/* ==========================================================================
+   FASE 7: SCRIPTS DE VÍDEO CURTO & TELEPROMPTER (#111111 DARK MODE)
+   ========================================================================== */
+
+/* Seletor Segmentado de Objetivos Comerciais */
+.scripts-objective-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.scripts-obj-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  border-radius: var(--rounded-md);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+  user-select: none;
+}
+
+.scripts-obj-btn:hover {
+  border-color: var(--color-outline);
+  background: var(--color-surface-container-low);
+}
+
+.scripts-obj-btn.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 10px rgba(17, 17, 17, 0.15);
+}
+
+.scripts-obj-btn .obj-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.scripts-obj-btn .obj-title {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.scripts-obj-btn.active .obj-title {
+  color: #ffffff;
+}
+
+.scripts-obj-btn .obj-badge {
+  font-size: 9px;
+  color: var(--color-outline);
+  margin-top: 2px;
+}
+
+.scripts-obj-btn.active .obj-badge {
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+/* Cartão do Imóvel em Foco para Scripts */
+.scripts-prop-card {
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--rounded-md);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Barra de Métricas do Roteiro */
+.script-metrics-ribbon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--rounded-md);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  font-size: 12px;
+}
+
+.script-metric-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.script-metric-val {
+  font-weight: 700;
+  font-feature-settings: 'tnum' on;
+  color: var(--color-primary);
+}
+
+/* Container de Exibição dos 3 Blocos Estruturados */
+.script-blocks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.script-block-card {
+  background: #ffffff;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--rounded-md);
+  padding: 12px 14px;
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+.script-block-card:hover {
+  border-color: var(--color-outline);
+}
+
+.script-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.script-block-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.script-block-badge {
+  font-size: 10px;
+  font-weight: 600;
+  font-feature-settings: 'tnum' on;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-container);
+  color: var(--color-outline);
+}
+
+.script-block-content {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-on-surface);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* ==========================================================================
+   MODAL / OVERLAY IMERSIVO DO TELEPROMPTER (#111111 SOLID BACKDROP)
+   ========================================================================== */
+.teleprompter-overlay {
+  position: fixed;
+  inset: 0;
+  background: #111111;
+  color: #ffffff;
+  z-index: 1200;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Barra Superior de Controles do Teleprompter */
+.teleprompter-header {
+  height: 60px;
+  padding: 0 16px;
+  background: rgba(17, 17, 17, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(12px);
+  z-index: 20;
+}
+
+.teleprompter-header-left {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 45%;
+}
+
+.teleprompter-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.teleprompter-header-badge {
+  font-size: 10px;
+  color: var(--color-secondary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.teleprompter-header-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teleprompter-ctrl-group {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+  padding: 2px 4px;
+}
+
+.teleprompter-icon-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 0.15s ease;
+}
+
+.teleprompter-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.teleprompter-speed-indicator {
+  font-size: 12px;
+  font-weight: 700;
+  font-feature-settings: 'tnum' on;
+  color: var(--color-secondary);
+  min-width: 24px;
+  text-align: center;
+}
+
+.teleprompter-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.teleprompter-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Área de Rolagem do Texto */
+.teleprompter-viewport {
+  flex: 1;
+  position: relative;
+  overflow-y: scroll;
+  scroll-behavior: auto;
+  padding: 120px 24px 200px;
+  overscroll-behavior: contain;
+}
+
+/* Oculta scrollbars nativas para imersão visual limpa */
+.teleprompter-viewport::-webkit-scrollbar {
+  width: 4px;
+}
+.teleprompter-viewport::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+/* Guia de Foco Visual (Reading Eye Guide Line) */
+.teleprompter-eye-guide {
+  position: absolute;
+  top: 32%;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: linear-gradient(180deg, rgba(197, 168, 128, 0.08) 0%, rgba(197, 168, 128, 0.14) 50%, rgba(197, 168, 128, 0.08) 100%);
+  border-top: 1px dashed rgba(197, 168, 128, 0.35);
+  border-bottom: 1px dashed rgba(197, 168, 128, 0.35);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.teleprompter-eye-guide-marker {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+}
+
+/* Tipografia de Alta Performance para Ensaio */
+.teleprompter-content {
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.65;
+  font-weight: 500;
+  color: #f5f5f5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.prompter-block {
+  margin-bottom: 36px;
+}
+
+.prompter-block-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  margin-bottom: 10px;
+}
+
+.prompter-block-content {
+  margin: 0;
+}
+
+/* Barra Inferior Flutuante de Ações Decisivas */
+.teleprompter-footer {
+  height: 80px;
+  padding: 0 20px;
+  background: rgba(17, 17, 17, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(12px);
+  z-index: 20;
+}
+
+.teleprompter-footer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.teleprompter-btn-main {
+  height: 52px;
+  padding: 0 28px;
+  border-radius: var(--rounded-lg);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  background: var(--color-tertiary);
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(29, 78, 216, 0.4);
+}
+
+.teleprompter-btn-main.is-playing {
+  background: #333333;
+  color: #ffffff;
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.teleprompter-btn-main:hover {
+  transform: translateY(-1px);
+}
+
+.teleprompter-btn-sec {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: var(--rounded-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.teleprompter-btn-sec:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Overlay de Contagem Regressiva 3-2-1 */
+.teleprompter-countdown-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+}
+
+.teleprompter-countdown-number {
+  font-size: 96px;
+  font-weight: 800;
+  color: #ffffff;
+  font-feature-settings: 'tnum' on;
+  letter-spacing: -0.04em;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+}
+
+.pulse-anim {
+  animation: prompterPulse 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes prompterPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+}
+
 
 

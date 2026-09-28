@@ -84,3 +84,11 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 - **Solução aplicada:** Adicionou-se `jsonable_encoder(exc.errors())` no manipulador `validation_exception_handler` em `app/main.py`.
 - **Como evitar no futuro:** Em manipuladores customizados de exceções do FastAPI, sempre utilizar `jsonable_encoder` para garantir compatibilidade JSON de coleções e dicionários do Pydantic.
 
+### 2026-09-29 - Variação de separador de milhar por espaço não-quebrável no toLocaleString('pt-PT') no Node/V8
+
+- **Sintoma:** Ao testar o gerador offline de scripts do teleprompter via Node.js, a asserção `620.000 €` falhou porque a string gerada continha `620\xa0000 €`.
+- **Causa:** Ambientes V8/Node.js recentes implementam a norma CLDR para o locale `pt-PT` utilizando o caractere Unicode `\xa0` (espaço não-quebrável) como agrupador de milhar em vez do ponto tradicional (`.`).
+- **Solução aplicada:** Implementou-se um método utilitário `formatCurrency` em `static/js/teleprompter.js` com expressão regular `replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' €'`, garantindo padronização visual com pontos e total consistência entre navegadores, Node.js e testes automatizados.
+- **Como evitar no futuro:** Para formatação monetária com pontos em JavaScript puro independente de versões de CLDR/V8, utilizar funções determinísticas baseadas em expressões regulares ou normalizadores de whitespace.
+
+

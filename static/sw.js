@@ -4,7 +4,7 @@
  * para motores client-side (Calculadora IMT/Selo e Teleprompter).
  */
 
-const CACHE_NAME = 'fecho-static-v1';
+const CACHE_NAME = 'fecho-static-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/static/manifest.json',

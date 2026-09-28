@@ -463,3 +463,286 @@ body {
   display: block;
 }
 
+/* ==========================================================================
+   Calculadora Visual de Viabilidade Financeira (Editorial PropTech Luxury)
+   ========================================================================== */
+
+/* Barra de Contexto do Imóvel em Foco */
+.calc-context-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(197, 168, 128, 0.1);
+  border: 1px solid rgba(197, 168, 128, 0.25);
+  border-radius: var(--radius-default);
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  gap: 8px;
+}
+
+/* Controles Segmentados (Segmented Control Pill Switchers) */
+.segmented-control {
+  display: flex;
+  background-color: var(--color-surface-container);
+  border: var(--border-hairline);
+  border-radius: var(--radius-default);
+  padding: 3px;
+  gap: 3px;
+}
+
+.segmented-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.segmented-btn.active {
+  background-color: #ffffff;
+  color: var(--color-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(17, 17, 17, 0.08);
+}
+
+/* Card do Toggle de IMT Jovem */
+.calc-jovem-toggle-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-default);
+  padding: 12px 14px;
+  margin-top: 4px;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.calc-jovem-toggle-box.is-active {
+  border-color: var(--color-secondary);
+  background-color: rgba(197, 168, 128, 0.04);
+}
+
+/* Switch Tátil */
+.fecho-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.fecho-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-round {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--color-outline-variant);
+  transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 24px;
+}
+
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.fecho-switch input:checked + .slider-round {
+  background-color: var(--color-primary);
+}
+
+.fecho-switch input:checked + .slider-round:before {
+  transform: translateX(20px);
+}
+
+/* Campo de Valor e Atalhos */
+.fecho-input-lg {
+  font-size: 18px;
+  font-weight: 700;
+  height: 52px;
+  letter-spacing: -0.01em;
+}
+
+.calc-shortcuts-bar {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.calc-shortcut-chip {
+  background: var(--color-surface-container);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-full);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.12s ease;
+}
+
+.calc-shortcut-chip:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+/* Seção de Financiamento Bancário */
+.calc-financiamento-section {
+  background-color: var(--color-surface-container-low);
+  border: var(--border-hairline);
+  border-radius: var(--radius-default);
+  padding: 14px;
+  margin: 16px 0;
+}
+
+.calc-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+/* Slider de Alcance (Range Input) */
+.fecho-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--color-surface-container-high);
+  border-radius: 3px;
+  outline: none;
+  margin: 8px 0;
+}
+
+.fecho-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(17, 17, 17, 0.25);
+  border: 2px solid #ffffff;
+}
+
+.fecho-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(17, 17, 17, 0.25);
+  border: 2px solid #ffffff;
+}
+
+/* Matriz de Decomposição Financeira (Breakdown Card) */
+.calc-breakdown-card {
+  background: #ffffff;
+  border: var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-ambient);
+  margin-top: 16px;
+}
+
+.calc-hero-pmt {
+  text-align: center;
+  padding: 12px 8px 16px;
+  border-bottom: var(--border-hairline);
+}
+
+.calc-pmt-value {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+  margin: 6px 0 2px;
+}
+
+.calc-poupanca-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(197, 168, 128, 0.15);
+  border: 1px solid rgba(197, 168, 128, 0.35);
+  border-radius: var(--radius-default);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #78603e;
+  margin: 12px 0;
+}
+
+.calc-data-matrix {
+  display: flex;
+  flex-direction: column;
+}
+
+.calc-matrix-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(234, 234, 234, 0.6);
+  font-size: 13px;
+}
+
+.calc-row-label {
+  color: var(--color-on-surface-variant);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calc-row-value {
+  font-weight: 600;
+  color: var(--color-primary);
+  text-align: right;
+}
+
+.calc-tag-pill {
+  background: rgba(27, 67, 50, 0.1);
+  color: var(--color-notarized);
+  border-radius: var(--radius-full);
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.calc-matrix-subtotal {
+  padding-top: 12px;
+  border-bottom: var(--border-hairline);
+  background-color: transparent;
+}
+
+.calc-matrix-hero {
+  padding: 14px 0 4px;
+  border-bottom: none;
+}
+
+

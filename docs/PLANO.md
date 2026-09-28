@@ -10,7 +10,7 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 - [x] **Fase 2: Banco de Dados, Persistência e Isolamento Multi-tenant**
 - [x] **Fase 3: Autenticação, Sessão e Controle de Acesso (RBAC)**
 - [x] **Fase 4: Imóveis e Gestão de Carteira Ativa**
-- [ ] **Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**
+- [x] **Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**
 - [ ] **Fase 6: Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)**
 - [ ] **Fase 7: Conteúdo e Scripts de Vídeo Curto com Teleprompter**
 - [ ] **Fase 8: Pós-Venda, Esfera de Influência e Notificações de Aniversário**
@@ -92,15 +92,15 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ### Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)
 * **Objetivo:** Implementar o motor de cálculo financeiro e fiscal 100% no cliente (`calculator.js`), sem requisições de rede, suportando IMT (Continente e Ilhas), Imposto do Selo (0,8%), isenção de IMT Jovem e estimativa de prestação bancária (Sistema Price), com partilha estruturada no WhatsApp.
 * **Checklist de Tarefas:**
-  - [ ] Mapear tabelas oficiais de escalões de IMT em vigor em Portugal (Regimes HPP e Habitação Secundária; Continente, Região Autónoma da Madeira e Região Autónoma dos Açores).
-  - [ ] Implementar lógica de isenção/redução de IMT Jovem até os limites legais.
-  - [ ] Implementar cálculo de Imposto do Selo de aquisição (0,8%) e sobre financiamento bancário.
-  - [ ] Implementar fórmula de amortização do Sistema Price para prestação mensal estimada (Euribor + Spread).
-  - [ ] Criar interface da calculadora com tipografia de números tabulares (`tnum`), alternadores táteis HPP/Secundária e Continente/Ilhas.
-  - [ ] Implementar botão de partilha formatada de simulação diretamente para o WhatsApp do cliente com texto polido e legível.
-  - [ ] Validar funcionamento 100% offline via Service Worker.
+  - [x] Mapear tabelas oficiais de escalões de IMT em vigor em Portugal (Regimes HPP e Habitação Secundária; Continente, Região Autónoma da Madeira e Região Autónoma dos Açores).
+  - [x] Implementar lógica de isenção/redução de IMT Jovem até os limites legais.
+  - [x] Implementar cálculo de Imposto do Selo de aquisição (0,8%) e sobre financiamento bancário.
+  - [x] Implementar fórmula de amortização do Sistema Price para prestação mensal estimada (Euribor + Spread).
+  - [x] Criar interface da calculadora com tipografia de números tabulares (`tnum`), alternadores táteis HPP/Secundária e Continente/Ilhas.
+  - [x] Implementar botão de partilha formatada de simulação diretamente para o WhatsApp do cliente com texto polido e legível.
+  - [x] Validar funcionamento 100% offline via Service Worker.
 * **Critérios de Pronto:** Valores simulados coincidem exatamente com simulações da Autoridade Tributária; cálculos reagem instantaneamente na digitação sem requisição ao servidor; simulação é copiada/partilhada no WhatsApp em 1 clique.
-* **Arquivos e Pastas:** `static/js/calculator.js`, `static/index.html`, `static/css/style.css`.
+* **Arquivos e Pastas:** `static/js/calculator.js`, `static/index.html`, `static/css/style.css`, `static/js/app.js`, `tests/test_calculator.py`.
 * **Dependências:** Fase 1 concluída (pode ser desenvolvida em paralelo com a Fase 4).
 
 ---

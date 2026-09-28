@@ -466,7 +466,331 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 10. Tratamento do Formulário de Login
+  // ==========================================================================
+  // 10. Módulo da Calculadora Visual de Viabilidade Financeira (Fase 5)
+  // ==========================================================================
+  const btnOpenCalculator = document.getElementById('btn-open-calculator');
+  const navCalculadora = document.getElementById('nav-calculadora');
+  const drawerCalculator = document.getElementById('drawer-calculator');
+  const btnCloseCalculator = document.getElementById('btn-close-calculator');
+
+  // Contexto do Imóvel na Calculadora
+  const calcContextBar = document.getElementById('calc-context-bar');
+  const calcFocusTitle = document.getElementById('calc-focus-title');
+  const btnApplyFocusProp = document.getElementById('btn-apply-focus-prop');
+
+  // Entradas da Calculadora
+  const calcTipoBtns = document.querySelectorAll('#calc-tipo-control .segmented-btn');
+  const calcRegiaoBtns = document.querySelectorAll('#calc-regiao-control .segmented-btn');
+  const calcToggleJovem = document.getElementById('calc-toggle-jovem');
+  const calcJovemBox = document.getElementById('calc-jovem-box');
+  const calcValorImovel = document.getElementById('calc-valor-imovel');
+  const calcValorFormatted = document.getElementById('calc-valor-formatted');
+  const calcShortcutChips = document.querySelectorAll('.calc-shortcut-chip');
+  const calcRangeEntrada = document.getElementById('calc-range-entrada');
+  const calcPercentualLabel = document.getElementById('calc-percentual-label');
+  const calcEntradaValorLabel = document.getElementById('calc-entrada-valor-label');
+  const calcMontanteFinanciadoLabel = document.getElementById('calc-montante-financiado-label');
+  const calcPrazo = document.getElementById('calc-prazo');
+  const calcTaxa = document.getElementById('calc-taxa');
+
+  // Saídas e Resultados
+  const calcResultPmt = document.getElementById('calc-result-pmt');
+  const calcPmtDetails = document.getElementById('calc-pmt-details');
+  const calcPoupancaBadge = document.getElementById('calc-poupanca-badge');
+  const calcPoupancaValor = document.getElementById('calc-poupanca-valor');
+  const calcResultImt = document.getElementById('calc-result-imt');
+  const calcImtTag = document.getElementById('calc-imt-tag');
+  const calcResultSeloCompra = document.getElementById('calc-result-selo-compra');
+  const calcRowSeloFinanciamento = document.getElementById('calc-row-selo-financiamento');
+  const calcResultSeloFinanciamento = document.getElementById('calc-result-selo-financiamento');
+  const calcResultTotalImpostos = document.getElementById('calc-result-total-impostos');
+  const calcResultCapitalInicial = document.getElementById('calc-result-capital-inicial');
+  const btnCalcWhatsapp = document.getElementById('btn-calc-whatsapp');
+  const btnCalcCopy = document.getElementById('btn-calc-copy');
+  const btnCalcCopyText = document.getElementById('btn-calc-copy-text');
+
+  // Estado Local da Calculadora
+  const calcState = {
+    tipo: 'hpp',
+    regiao: 'continente',
+    isJovem: false,
+    valorImovel: 350000,
+    percentualEntrada: 20,
+    prazoAnos: 30,
+    taxaJuroAnual: 3.5,
+    lastSimulation: null
+  };
+
+  function updateCalculatorView() {
+    if (!calcValorImovel) return;
+
+    // Atualiza o estado a partir dos inputs
+    const valor = parseFloat(calcValorImovel.value) || 0;
+    calcState.valorImovel = valor;
+    calcState.percentualEntrada = parseInt(calcRangeEntrada ? calcRangeEntrada.value : 20, 10) || 20;
+    calcState.prazoAnos = parseInt(calcPrazo ? calcPrazo.value : 30, 10) || 30;
+    calcState.taxaJuroAnual = parseFloat(calcTaxa ? calcTaxa.value : 3.5) || 0;
+    calcState.isJovem = Boolean(calcToggleJovem && calcToggleJovem.checked);
+
+    if (calcValorFormatted) {
+      calcValorFormatted.textContent = Calculator.formatCurrency(valor);
+    }
+
+    if (calcPercentualLabel) {
+      calcPercentualLabel.textContent = `${calcState.percentualEntrada}%`;
+    }
+
+    // Executa a simulação matemática e fiscal completa
+    const sim = Calculator.simulate({
+      valorImovel: calcState.valorImovel,
+      tipo: calcState.tipo,
+      regiao: calcState.regiao,
+      isJovem: calcState.isJovem,
+      percentualEntrada: calcState.percentualEntrada,
+      prazoAnos: calcState.prazoAnos,
+      taxaJuroAnual: calcState.taxaJuroAnual
+    });
+    calcState.lastSimulation = sim;
+
+    // Atualiza labels de financiamento
+    if (calcEntradaValorLabel) {
+      calcEntradaValorLabel.textContent = Calculator.formatCurrency(sim.valorEntrada);
+    }
+    if (calcMontanteFinanciadoLabel) {
+      calcMontanteFinanciadoLabel.textContent = Calculator.formatCurrency(sim.montanteFinanciado);
+    }
+
+    // Prestação bancária (Price)
+    if (calcResultPmt) {
+      calcResultPmt.innerHTML = `${Calculator.formatCurrency(sim.financiamento.prestacaoMensal)} <span style="font-size: 14px; font-weight: 400; color: var(--color-outline);">/ mês</span>`;
+    }
+    if (calcPmtDetails) {
+      calcPmtDetails.textContent = `${sim.prazoAnos} anos (${sim.financiamento.numeroPrestacoes} prestações) • TAN ${sim.taxaJuroAnual.toFixed(2)}%`;
+    }
+
+    // IMT e Tags de Isenção
+    if (calcResultImt) {
+      calcResultImt.textContent = Calculator.formatCurrency(sim.imt.valorIMT);
+    }
+    if (calcImtTag) {
+      if (sim.imt.isencaoTotal) {
+        calcImtTag.textContent = sim.isJovem ? 'Isenção Jovem' : 'Isento';
+        calcImtTag.style.display = 'inline-block';
+      } else if (sim.imt.isencaoParcial) {
+        calcImtTag.textContent = 'Parcial Jovem';
+        calcImtTag.style.display = 'inline-block';
+      } else {
+        calcImtTag.style.display = 'none';
+      }
+    }
+
+    // Imposto do Selo
+    if (calcResultSeloCompra) {
+      calcResultSeloCompra.textContent = Calculator.formatCurrency(sim.seloCompra.valorSelo);
+    }
+    if (calcResultSeloFinanciamento) {
+      calcResultSeloFinanciamento.textContent = Calculator.formatCurrency(sim.seloFinanciamento);
+    }
+    if (calcRowSeloFinanciamento) {
+      calcRowSeloFinanciamento.style.display = sim.montanteFinanciado > 0 ? 'flex' : 'none';
+    }
+
+    // Totais Fiscais e Capital Próprio Inicial
+    if (calcResultTotalImpostos) {
+      calcResultTotalImpostos.textContent = Calculator.formatCurrency(sim.totais.totalImpostos);
+    }
+    if (calcResultCapitalInicial) {
+      calcResultCapitalInicial.textContent = Calculator.formatCurrency(sim.totais.capitalInicialNecessario);
+    }
+
+    // Badge de Poupança IMT Jovem
+    if (calcPoupancaBadge && calcPoupancaValor) {
+      if (sim.totais.totalPoupancaJovem > 0) {
+        calcPoupancaValor.textContent = Calculator.formatCurrency(sim.totais.totalPoupancaJovem);
+        calcPoupancaBadge.style.display = 'flex';
+      } else {
+        calcPoupancaBadge.style.display = 'none';
+      }
+    }
+  }
+
+  function syncCalculatorWithFocusedProperty() {
+    const focused = Api.getSelectedProperty();
+    if (focused && calcContextBar && calcFocusTitle) {
+      calcFocusTitle.textContent = `${focused.tipologia} • ${focused.titulo} (${currencyFormatter.format(focused.preco)})`;
+      calcContextBar.style.display = 'flex';
+    } else if (calcContextBar) {
+      calcContextBar.style.display = 'none';
+    }
+  }
+
+  function applyFocusedPropertyToCalculator() {
+    const focused = Api.getSelectedProperty();
+    if (!focused) return;
+
+    if (calcValorImovel && focused.preco) {
+      calcValorImovel.value = focused.preco;
+    }
+
+    // Ajusta região fiscal se disponível
+    if (focused.regiao_fiscal) {
+      const reg = focused.regiao_fiscal.toLowerCase();
+      calcRegiaoBtns.forEach((btn) => {
+        if (btn.getAttribute('data-regiao') === reg) {
+          btn.click();
+        }
+      });
+    }
+
+    updateCalculatorView();
+  }
+
+  // Ouvintes de Seleção Segmentada (Tipo de Imóvel e Região)
+  calcTipoBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      calcTipoBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      calcState.tipo = btn.getAttribute('data-tipo');
+
+      // Se for habitação secundária, desabilita visualmente o benefício IMT Jovem
+      if (calcJovemBox) {
+        if (calcState.tipo === 'secundaria') {
+          calcJovemBox.style.opacity = '0.5';
+          calcJovemBox.style.pointerEvents = 'none';
+          if (calcToggleJovem) calcToggleJovem.checked = false;
+        } else {
+          calcJovemBox.style.opacity = '1';
+          calcJovemBox.style.pointerEvents = 'auto';
+        }
+      }
+
+      updateCalculatorView();
+    });
+  });
+
+  calcRegiaoBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      calcRegiaoBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      calcState.regiao = btn.getAttribute('data-regiao');
+      updateCalculatorView();
+    });
+  });
+
+  // Toggle IMT Jovem
+  if (calcToggleJovem) {
+    calcToggleJovem.addEventListener('change', () => {
+      if (calcJovemBox) {
+        calcJovemBox.classList.toggle('is-active', calcToggleJovem.checked);
+      }
+      updateCalculatorView();
+    });
+  }
+
+  // Inputs e Sliders Reativos Instantâneos
+  if (calcValorImovel) {
+    calcValorImovel.addEventListener('input', updateCalculatorView);
+  }
+
+  calcShortcutChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const val = chip.getAttribute('data-val');
+      if (calcValorImovel && val) {
+        calcValorImovel.value = val;
+        updateCalculatorView();
+      }
+    });
+  });
+
+  if (calcRangeEntrada) {
+    calcRangeEntrada.addEventListener('input', updateCalculatorView);
+  }
+
+  if (calcPrazo) {
+    calcPrazo.addEventListener('change', updateCalculatorView);
+  }
+
+  if (calcTaxa) {
+    calcTaxa.addEventListener('input', updateCalculatorView);
+  }
+
+  if (btnApplyFocusProp) {
+    btnApplyFocusProp.addEventListener('click', applyFocusedPropertyToCalculator);
+  }
+
+  // Abertura e Fecho do Drawer da Calculadora
+  function openCalculator() {
+    syncCalculatorWithFocusedProperty();
+    updateCalculatorView();
+    openDrawer(drawerCalculator);
+  }
+
+  if (btnOpenCalculator) {
+    btnOpenCalculator.addEventListener('click', openCalculator);
+  }
+
+  if (navCalculadora) {
+    navCalculadora.addEventListener('click', openCalculator);
+  }
+
+  if (btnCloseCalculator) {
+    btnCloseCalculator.addEventListener('click', () => closeDrawer(drawerCalculator));
+  }
+
+  // Partilha no WhatsApp
+  if (btnCalcWhatsapp) {
+    btnCalcWhatsapp.addEventListener('click', () => {
+      if (!calcState.lastSimulation) updateCalculatorView();
+      const focused = Api.getSelectedProperty();
+      const propTitle = focused ? `${focused.tipologia} • ${focused.titulo}` : '';
+      const text = Calculator.generateWhatsAppText(calcState.lastSimulation, propTitle);
+      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    });
+  }
+
+  // Cópia para Clipboard
+  if (btnCalcCopy) {
+    btnCalcCopy.addEventListener('click', async () => {
+      if (!calcState.lastSimulation) updateCalculatorView();
+      const focused = Api.getSelectedProperty();
+      const propTitle = focused ? `${focused.tipologia} • ${focused.titulo}` : '';
+      const text = Calculator.generateWhatsAppText(calcState.lastSimulation, propTitle);
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          // Fallback para textarea temporário
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+
+        if (btnCalcCopyText) {
+          const original = btnCalcCopyText.textContent;
+          btnCalcCopyText.textContent = '✓ Simulação Copiada!';
+          btnCalcCopy.style.borderColor = 'var(--color-notarized)';
+          btnCalcCopy.style.color = 'var(--color-notarized)';
+          setTimeout(() => {
+            btnCalcCopyText.textContent = original;
+            btnCalcCopy.style.borderColor = '';
+            btnCalcCopy.style.color = '';
+          }, 2000);
+        }
+      } catch (err) {
+        console.warn('[Calculadora] Falha ao copiar texto:', err);
+      }
+    });
+  }
+
+  // 11. Tratamento do Formulário de Login
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();

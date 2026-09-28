@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 29/09/2026 - 00:15
-* **Fase Atual:** Fase 4 - Imóveis e Gestão de Carteira Ativa
-* **Status Geral:** Concluída (CRUD completo com isolamento multi-tenant por agencia_id, máquina de estados estrita Ativo -> Reservado -> Vendido com validação obrigatória dos 3 campos de fecho e geração de contacto na Esfera de Influência, interface móvel com seleção de Imóvel em Foco, gaveta de carteira e modais táteis, suíte de 24 testes automatizados 100% aprovada)
+* **Última Atualização:** 29/09/2026 - 00:25
+* **Fase Atual:** Fase 5 - Calculadora Visual de Viabilidade Financeira (Client-side / Offline)
+* **Status Geral:** Concluída (Motor matemático 100% offline em `static/js/calculator.js` com escalões de IMT Continente e Ilhas, isenção e redução de IMT Jovem pelo DL n.º 48-A/2024, Imposto do Selo de 0,8% e 0,6%, amortização pelo Sistema Price, interface visual tátil com números tabulares tnum, sincronização automática com Imóvel em Foco, partilha formatada no WhatsApp em 1 clique e suíte de 36 testes automatizados 100% aprovada)
 
 ---
 
@@ -14,7 +14,7 @@
 | **Fase 2** | Banco de Dados, Persistência e Isolamento Multi-tenant | Concluída |
 | **Fase 3** | Autenticação, Sessão e Controle de Acesso (RBAC) | Concluída |
 | **Fase 4** | Imóveis e Gestão de Carteira Ativa | Concluída |
-| **Fase 5** | Calculadora Visual de Viabilidade Financeira (Client-side / Offline) | Pendente |
+| **Fase 5** | Calculadora Visual de Viabilidade Financeira (Client-side / Offline) | Concluída |
 | **Fase 6** | Visitas, Feedback por Voz e Objeções (Human-in-the-Loop) | Pendente |
 | **Fase 7** | Conteúdo e Scripts de Vídeo Curto com Teleprompter | Pendente |
 | **Fase 8** | Pós-Venda, Esfera de Influência e Notificações de Aniversário | Pendente |
@@ -86,12 +86,14 @@
 - [x] Suíte de testes automatizados com `pytest` (`tests/test_properties.py`) com 100% de aprovação e 24 testes no projeto
 
 ### Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)
-- [ ] Motor matemático de IMT (Continente, Madeira e Açores; HPP e Secundária)
-- [ ] Lógica de isenção de IMT Jovem
-- [ ] Cálculo de Imposto do Selo (0,8%) de compra e financiamento
-- [ ] Amortização pelo Sistema Price
-- [ ] Interface tátil da calculadora com números tabulares
-- [ ] Integração com Deep Link para partilha no WhatsApp
+- [x] Motor matemático completo de IMT (Continente, Madeira e Açores; HPP e Secundária com 7 escalões oficiais) em `static/js/calculator.js`
+- [x] Lógica de benefício fiscal do IMT Jovem (DL n.º 48-A/2024: isenção total até 316.772€ / 395.965€ e parcial a 8% até ao dobro)
+- [x] Cálculo exato de Imposto do Selo de aquisição (0,8%) e sobre financiamento bancário (0,6%)
+- [x] Amortização e cálculo de prestação mensal estimada pelo Sistema Price
+- [x] Interface tátil da calculadora em `static/index.html` e `static/css/style.css` com números tabulares (`tnum`), seletores segmentados, switch de IMT Jovem e atalhos rápidos de valores
+- [x] Sincronização em tempo real com o Imóvel em Foco da carteira
+- [x] Gerador de mensagem formatada e Deep Link para partilha imediata no WhatsApp ou cópia para área de transferência
+- [x] Suíte de testes automatizados com `pytest` e Node.js em `tests/test_calculator.py` e validação de assets estáticos em `tests/test_health.py` (total de 36 testes aprovados no projeto)
 
 ### Fase 6: Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)
 - [ ] Gravador de áudio no cliente (até 30 segundos)
@@ -131,6 +133,6 @@
 
 ## 3. Próximo Passo Recomendado
  
-* **Próxima Fase:** **Fase 5 - Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**.
-* **Ação:** Implementar em `static/js/calculator.js` o motor fiscal de Portugal (escalões de IMT Continente e Ilhas para HPP e Secundária, isenção de IMT Jovem, Imposto do Selo 0,8% e Sistema Price para crédito à habitação), com interface gráfica tátil e partilha estruturada no WhatsApp em 1 clique.
+* **Próxima Fase:** **Fase 6 - Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)**.
+* **Ação:** Implementar o gravador de notas de voz de até 30 segundos no cliente (`static/js/audio_recorder.js`), schemas e endpoints de visitas e objeções no backend (`app/controllers/visits_controller.py`, `app/services/visit_service.py`), tela de revisão (*Human-in-the-Loop*) e envio de feedback formatado ao proprietário via WhatsApp.
 

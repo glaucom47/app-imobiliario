@@ -242,6 +242,180 @@
             Confirmar Alteração
           </button>
         </form>
+  <!-- Drawer / Gaveta da Calculadora Visual de Viabilidade Financeira (Fase 5) -->
+  <div class="fecho-modal-overlay" id="drawer-calculator">
+    <div class="fecho-drawer-sheet" style="max-height: 94vh;">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Calculadora de Viabilidade</h3>
+          <span style="font-size: 12px; color: var(--color-outline);">IMT, Selo e Prestação Bancária (100% Offline)</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-calculator" type="button" aria-label="Fechar">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Barra de Contexto do Imóvel em Foco -->
+        <div class="calc-context-bar" id="calc-context-bar" style="display: none;">
+          <div style="flex: 1; min-width: 0;">
+            <span class="label-caps" style="color: var(--color-secondary); font-size: 10px;">Imóvel em Foco</span>
+            <p style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;" id="calc-focus-title">-</p>
+          </div>
+          <button type="button" class="btn-demo-pill" id="btn-apply-focus-prop" style="margin: 0; padding: 4px 10px; font-size: 11px;">Carregar Dados</button>
+        </div>
+
+        <!-- Seletor Segmentado: Finalidade (HPP vs Secundária) -->
+        <div class="fecho-form-group" style="margin-bottom: 12px;">
+          <label class="fecho-label">Finalidade da Aquisição</label>
+          <div class="segmented-control" id="calc-tipo-control">
+            <button type="button" class="segmented-btn active" data-tipo="hpp">Habitação Própria Permanente</button>
+            <button type="button" class="segmented-btn" data-tipo="secundaria">Secundária / Investimento</button>
+          </div>
+        </div>
+
+        <!-- Seletor Segmentado: Região Fiscal (Continente vs Ilhas) -->
+        <div class="fecho-form-group" style="margin-bottom: 12px;">
+          <label class="fecho-label">Região Fiscal</label>
+          <div class="segmented-control" id="calc-regiao-control">
+            <button type="button" class="segmented-btn active" data-regiao="continente">Continente</button>
+            <button type="button" class="segmented-btn" data-regiao="madeira">R.A. Madeira</button>
+            <button type="button" class="segmented-btn" data-regiao="acores">R.A. Açores</button>
+          </div>
+        </div>
+
+        <!-- Benefício IMT Jovem (DL 48-A/2024) -->
+        <div class="calc-jovem-toggle-box" id="calc-jovem-box">
+          <div style="flex: 1; padding-right: 12px;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-weight: 600; font-size: 13px;">Benefício IMT Jovem</span>
+              <span class="status-pill status-pill-secondary" style="font-size: 9px; padding: 2px 6px;">Até 35 anos</span>
+            </div>
+            <p style="font-size: 11px; color: var(--color-on-surface-variant); margin-top: 2px;">
+              Isenção de IMT e Selo até 316.772€ (Continente) ou 395.965€ (Ilhas) para primeira HPP.
+            </p>
+          </div>
+          <label class="fecho-switch">
+            <input type="checkbox" id="calc-toggle-jovem">
+            <span class="slider-round"></span>
+          </label>
+        </div>
+
+        <!-- Valor do Imóvel (€) -->
+        <div class="fecho-form-group" style="margin-top: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <label class="fecho-label" for="calc-valor-imovel">Valor de Aquisição do Imóvel (€) *</label>
+            <span style="font-size: 12px; font-weight: 600; color: var(--color-primary);" class="tnum" id="calc-valor-formatted">€ 350.000</span>
+          </div>
+          <input type="number" id="calc-valor-imovel" class="fecho-input fecho-input-lg tnum" placeholder="350000" min="0" step="5000" value="350000">
+          <!-- Atalhos rápidos de valor -->
+          <div class="calc-shortcuts-bar">
+            <button type="button" class="calc-shortcut-chip" data-val="180000">180k</button>
+            <button type="button" class="calc-shortcut-chip" data-val="250000">250k</button>
+            <button type="button" class="calc-shortcut-chip" data-val="350000">350k</button>
+            <button type="button" class="calc-shortcut-chip" data-val="500000">500k</button>
+            <button type="button" class="calc-shortcut-chip" data-val="850000">850k</button>
+            <button type="button" class="calc-shortcut-chip" data-val="1200000">1.2M</button>
+          </div>
+        </div>
+
+        <!-- Seção de Financiamento Bancário -->
+        <div class="calc-financiamento-section">
+          <div class="calc-section-header">
+            <span class="label-caps" style="color: var(--color-primary);">Financiamento Bancário (Sistema Price)</span>
+            <span style="font-size: 12px; font-weight: 600; color: var(--color-tertiary);" class="tnum" id="calc-montante-financiado-label">€ 280.000</span>
+          </div>
+
+          <!-- Slider de Entrada -->
+          <div class="fecho-form-group" style="margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+              <span style="color: var(--color-on-surface-variant);">Entrada Inicial: <b id="calc-percentual-label">20%</b></span>
+              <span style="font-weight: 600;" class="tnum" id="calc-entrada-valor-label">€ 70.000</span>
+            </div>
+            <input type="range" id="calc-range-entrada" min="10" max="60" step="5" value="20" class="fecho-range">
+          </div>
+
+          <!-- Prazo e Taxa Anual -->
+          <div style="display: flex; gap: 12px;">
+            <div class="fecho-form-group" style="flex: 1.2;">
+              <label class="fecho-label" for="calc-prazo">Prazo (Anos)</label>
+              <select id="calc-prazo" class="fecho-input" style="height: 42px;">
+                <option value="15">15 anos (180 m)</option>
+                <option value="20">20 anos (240 m)</option>
+                <option value="25">25 anos (300 m)</option>
+                <option value="30" selected>30 anos (360 m)</option>
+                <option value="35">35 anos (420 m)</option>
+                <option value="40">40 anos (480 m)</option>
+              </select>
+            </div>
+            <div class="fecho-form-group" style="flex: 1;">
+              <label class="fecho-label" for="calc-taxa">Taxa TAN (%)</label>
+              <input type="number" id="calc-taxa" class="fecho-input tnum" style="height: 42px;" value="3.5" min="0" max="15" step="0.1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Matriz de Decomposição Financeira e Fiscal (Editorial Luxury) -->
+        <div class="calc-breakdown-card">
+          <!-- Prestação Mensal em Destaque de Escala -->
+          <div class="calc-hero-pmt">
+            <span class="label-caps" style="color: var(--color-on-surface-variant);">Prestação Mensal Estimada</span>
+            <div class="calc-pmt-value tnum" id="calc-result-pmt">€ 0,00 <span style="font-size: 14px; font-weight: 400; color: var(--color-outline);">/ mês</span></div>
+            <span style="font-size: 11px; color: var(--color-outline);" id="calc-pmt-details">Taxa Euribor + Spread indicativa</span>
+          </div>
+
+          <!-- Banner Dourado de Poupança IMT Jovem se houver benefício -->
+          <div class="calc-poupanca-badge" id="calc-poupanca-badge" style="display: none;">
+            <span>✨ Poupança com IMT Jovem:</span>
+            <strong class="tnum" id="calc-poupanca-valor">€ 0,00</strong>
+          </div>
+
+          <!-- Tabela de Linhas Limpas de Decomposição -->
+          <div class="calc-data-matrix">
+            <div class="calc-matrix-row">
+              <span class="calc-row-label">
+                IMT (Aquisição)
+                <span class="calc-tag-pill" id="calc-imt-tag" style="display: none;">Isento</span>
+              </span>
+              <span class="calc-row-value tnum" id="calc-result-imt">€ 0,00</span>
+            </div>
+
+            <div class="calc-matrix-row">
+              <span class="calc-row-label">Imposto do Selo Aquisição (0,8%)</span>
+              <span class="calc-row-value tnum" id="calc-result-selo-compra">€ 0,00</span>
+            </div>
+
+            <div class="calc-matrix-row" id="calc-row-selo-financiamento">
+              <span class="calc-row-label">Imposto do Selo Financiamento (0,6%)</span>
+              <span class="calc-row-value tnum" id="calc-result-selo-financiamento">€ 0,00</span>
+            </div>
+
+            <div class="calc-matrix-row calc-matrix-subtotal">
+              <span class="calc-row-label" style="font-weight: 600;">Total de Impostos de Escritura</span>
+              <span class="calc-row-value tnum" style="font-weight: 700; color: var(--color-primary);" id="calc-result-total-impostos">€ 0,00</span>
+            </div>
+
+            <div class="calc-matrix-row calc-matrix-hero">
+              <div>
+                <span style="display: block; font-weight: 700; font-size: 13px; color: var(--color-primary);">Capital Próprio Inicial</span>
+                <span style="font-size: 11px; color: var(--color-outline);">Entrada Inicial + Impostos</span>
+              </div>
+              <span class="calc-row-value tnum" style="font-size: 18px; font-weight: 700; color: var(--color-tertiary);" id="calc-result-capital-inicial">€ 0,00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botões de Ação Decisiva -->
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 20px;">
+          <button type="button" class="btn-cobalt-trigger" id="btn-calc-whatsapp" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>Partilhar no WhatsApp</span>
+          </button>
+          <button type="button" class="btn-secondary-ghost" id="btn-calc-copy" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span id="btn-calc-copy-text">Copiar Simulação</span>
+          </button>
+        </div>
+
+        <p style="font-size: 11px; color: var(--color-outline); text-align: center; margin-top: 14px; line-height: 1.4;">
+          Cálculos em conformidade com o Código do IMT e DL n.º 48-A/2024. Valores informativos 100% offline.
+        </p>
       </div>
     </div>
   </div>

@@ -242,6 +242,10 @@
             Confirmar Alteração
           </button>
         </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Drawer / Gaveta da Calculadora Visual de Viabilidade Financeira (Fase 5) -->
   <div class="fecho-modal-overlay" id="drawer-calculator">
     <div class="fecho-drawer-sheet" style="max-height: 94vh;">
@@ -416,6 +420,192 @@
         <p style="font-size: 11px; color: var(--color-outline); text-align: center; margin-top: 14px; line-height: 1.4;">
           Cálculos em conformidade com o Código do IMT e DL n.º 48-A/2024. Valores informativos 100% offline.
         </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawer / Gaveta de Gravação de Feedback de Visita e Revisão Human-in-the-Loop (Fase 6) -->
+  <div class="fecho-modal-overlay" id="drawer-voice-visit">
+    <div class="fecho-drawer-sheet" style="max-height: 94vh;">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Feedback de Visita</h3>
+          <span style="font-size: 12px; color: var(--color-outline);">Gravação 30s & Human-in-the-Loop</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-voice-visit" type="button" aria-label="Fechar">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Contexto do Imóvel em Foco -->
+        <div class="voice-property-banner" id="voice-property-banner">
+          <div style="flex: 1; min-width: 0;">
+            <span class="label-caps" style="color: var(--color-secondary); font-size: 10px;">Imóvel Selecionado</span>
+            <p style="font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;" id="voice-prop-title">T3 Duplex Avenida da Liberdade</p>
+            <p style="font-size: 11px; color: var(--color-outline);" id="voice-prop-owner">Proprietário: -</p>
+          </div>
+          <button type="button" class="btn-demo-pill" id="btn-change-voice-prop" style="margin: 0; padding: 4px 8px; font-size: 11px;">Mudar</button>
+        </div>
+
+        <!-- Alerta de Imóvel Obrigatório se não houver seleção -->
+        <div id="voice-no-prop-alert" style="display: none; background: var(--color-error-container); border: 1px solid var(--color-error); border-radius: var(--rounded-md); padding: 12px; margin-bottom: 14px; text-align: center;">
+          <p style="color: var(--color-on-error-container); font-size: 13px; font-weight: 600;">Seleção de Imóvel Obrigatória</p>
+          <p style="color: var(--color-on-error-container); font-size: 12px; margin: 4px 0 8px;">Conforme o FSD, o registro de visita exige a vinculação prévia a um imóvel ativo.</p>
+          <button type="button" class="btn-primary-action" id="btn-select-prop-for-voice" style="padding: 6px 14px; font-size: 12px;">Escolher Imóvel da Carteira</button>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- ESTÁGIO 1: GRAVADOR DE ÁUDIO / ENTRADA DE NOTAS              -->
+        <!-- ============================================================= -->
+        <div id="voice-stage-recording">
+          <!-- Alternador de Modo: Voz vs Digitação -->
+          <div class="segmented-control" id="voice-mode-control" style="margin-bottom: 18px;">
+            <button type="button" class="segmented-btn active" id="btn-mode-mic">🎤 Gravar Voz (30s)</button>
+            <button type="button" class="segmented-btn" id="btn-mode-text">✍️ Digitar Notas</button>
+          </div>
+
+          <!-- Painel do Modo Microfone -->
+          <div id="voice-panel-mic" style="text-align: center; padding: 10px 0 20px;">
+            <!-- Temporizador Tátil Circular -->
+            <div class="voice-timer-container">
+              <div class="voice-timer-display tnum" id="voice-timer-label">00:00</div>
+              <span class="label-caps" style="color: var(--color-outline);">Limite Máximo: 00:30</span>
+              <div class="voice-progress-track">
+                <div class="voice-progress-bar" id="voice-progress-bar" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Gatilho Háptico Cobalt com Pulso Ring -->
+            <div class="voice-trigger-wrapper" style="margin: 24px 0;">
+              <button type="button" class="btn-audio-record-pulse" id="btn-audio-trigger" aria-label="Iniciar Gravação">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring-outer"></div>
+                <span class="voice-mic-icon" id="voice-mic-icon">🎙️</span>
+              </button>
+            </div>
+
+            <p style="font-size: 13px; font-weight: 500; color: var(--color-primary); min-height: 20px;" id="voice-status-text">
+              Toque no botão para iniciar o relato da visita
+            </p>
+            <p style="font-size: 11px; color: var(--color-outline); margin-top: 4px;">
+              Fale livremente sobre a reação do cliente, objeções e interesse.
+            </p>
+
+            <!-- Transcrição ao Vivo (Web Speech API) -->
+            <div class="voice-live-transcript-box" id="voice-live-transcript-box" style="display: none;">
+              <span class="label-caps" style="color: var(--color-tertiary); display: block; margin-bottom: 4px;">Transcrição em Tempo Real:</span>
+              <p style="font-size: 12px; font-style: italic; color: var(--color-on-surface);" id="voice-live-transcript-text">-</p>
+            </div>
+
+            <!-- Ações do Gravador -->
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 20px;">
+              <button type="button" class="btn-card-action btn-card-primary" id="btn-stop-and-review" style="display: none;">
+                ✓ Parar e Rever
+              </button>
+              <button type="button" class="btn-card-action" id="btn-cancel-voice" style="display: none;">
+                Cancelar
+              </button>
+              <button type="button" class="btn-demo-pill" id="btn-demo-voice-sim" style="font-size: 11px;">
+                💡 Simular Nota Demo
+              </button>
+            </div>
+          </div>
+
+          <!-- Painel do Modo Digitação Alternativa -->
+          <div id="voice-panel-text" style="display: none; padding: 4px 0 16px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="voice-manual-text">Notas Orais / Relato da Visita *</label>
+              <textarea id="voice-manual-text" class="fecho-input" rows="4" placeholder="Ex: O cliente Dr. Silva adorou a sala e a luz natural, mas achou o preço um pouco elevado e fez reparos ao ruído da rua. Tem forte intenção de avançar com proposta." style="resize: vertical; font-size: 13px;"></textarea>
+            </div>
+            <button type="button" class="btn-cobalt-trigger" id="btn-process-manual-text" style="margin-top: 8px;">
+              Estruturar e Rever (Human-in-the-Loop)
+            </button>
+          </div>
+        </div>
+
+        <!-- ============================================================= -->
+        <!-- ESTÁGIO 2: ECRÃ DE REVISÃO HUMAN-IN-THE-LOOP                -->
+        <!-- ============================================================= -->
+        <div id="voice-stage-review" style="display: none;">
+          <div class="hitl-review-header">
+            <span class="status-pill status-pill-notarized" style="font-size: 10px; padding: 2px 8px;">
+              Human-in-the-Loop • Validação Prévia
+            </span>
+            <span style="font-size: 11px; color: var(--color-outline);" id="hitl-duration-label">Áudio: 0s</span>
+          </div>
+
+          <form id="form-hitl-review">
+            <!-- 1. Transcrição / Notas Estruturadas Editáveis -->
+            <div class="fecho-form-group" style="margin-top: 12px;">
+              <label class="fecho-label" for="hitl-notes-input">Notas e Resumo da Visita *</label>
+              <textarea id="hitl-notes-input" class="fecho-input" rows="3" required style="resize: vertical; font-size: 13px;"></textarea>
+            </div>
+
+            <!-- 2. Seletor Tátil de Nível de Interesse (1 a 5) -->
+            <div class="fecho-form-group">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                <label class="fecho-label" style="margin: 0;">Nível de Interesse do Cliente *</label>
+                <span style="font-size: 12px; font-weight: 600; color: var(--color-secondary);" id="hitl-interest-label">3 - Em Avaliação</span>
+              </div>
+              <div class="hitl-star-rating-bar" id="hitl-star-rating-bar">
+                <button type="button" class="hitl-star-btn" data-level="1" title="1 - Sem Interesse">★ 1</button>
+                <button type="button" class="hitl-star-btn" data-level="2" title="2 - Baixo">★ 2</button>
+                <button type="button" class="hitl-star-btn active" data-level="3" title="3 - Médio">★ 3</button>
+                <button type="button" class="hitl-star-btn" data-level="4" title="4 - Elevado">★ 4</button>
+                <button type="button" class="hitl-star-btn" data-level="5" title="5 - Proposta Iminente">★ 5</button>
+              </div>
+            </div>
+
+            <!-- 3. Objeções Padronizadas da Agência (Chips Táteis) -->
+            <div class="fecho-form-group">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                <label class="fecho-label" style="margin: 0;">Objeções Levantadas (Catálogo Agência)</label>
+                <span style="font-size: 11px; color: var(--color-outline);" id="hitl-objections-count">0 selecionadas</span>
+              </div>
+              <div class="hitl-objection-chips-grid" id="hitl-objection-chips-grid">
+                <span style="font-size: 12px; color: var(--color-outline);">A carregar catálogo de tags...</span>
+              </div>
+            </div>
+
+            <!-- 4. Dados Opcionais do Cliente Visitante -->
+            <div style="border-top: var(--border-hairline); margin: 16px 0 12px; padding-top: 12px;">
+              <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Dados do Cliente Visitante (Opcional)</span>
+              <div style="display: flex; gap: 10px;">
+                <div class="fecho-form-group" style="flex: 1.2;">
+                  <label class="fecho-label" for="hitl-client-name">Nome do Visitante</label>
+                  <input type="text" id="hitl-client-name" class="fecho-input" placeholder="Ex: Dr. Silva">
+                </div>
+                <div class="fecho-form-group" style="flex: 1;">
+                  <label class="fecho-label" for="hitl-client-phone">Telemóvel</label>
+                  <input type="tel" id="hitl-client-phone" class="fecho-input" placeholder="+35191...">
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Cartão de Pré-visualização da Mensagem para WhatsApp do Proprietário -->
+            <div class="hitl-feedback-preview-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="label-caps" style="color: var(--color-tertiary);">Pré-visualização WhatsApp Proprietário</span>
+                <span class="status-pill status-pill-secondary" style="font-size: 9px;" id="hitl-preview-phone">-</span>
+              </div>
+              <pre class="hitl-preview-text" id="hitl-preview-text">A gerar mensagem...</pre>
+            </div>
+
+            <div id="hitl-error" style="display: none; color: var(--color-error); font-size: 12px; margin: 10px 0; text-align: center;"></div>
+
+            <!-- 6. Botões Decisivos -->
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
+              <button type="submit" class="btn-cobalt-trigger" id="btn-hitl-save-and-whatsapp">
+                📱 Guardar Visita & Enviar no WhatsApp
+              </button>
+              <button type="button" class="btn-primary-action" id="btn-hitl-save-only" style="background: var(--color-primary);">
+                ✓ Apenas Guardar Visita
+              </button>
+              <button type="button" class="btn-secondary-ghost" id="btn-hitl-back-record">
+                ← Voltar / Regravar Áudio
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>

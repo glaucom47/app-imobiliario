@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (btnClosePortfolio) btnClosePortfolio.addEventListener('click', () => closeDrawer(drawerPortfolio));
 
   // Fechar ao clicar no backdrop
-  [drawerPortfolio, modalNewProperty, modalTransitionStatus].forEach((overlay) => {
+  [drawerPortfolio, modalNewProperty, modalTransitionStatus, drawerCalculator, drawerVoiceVisit].forEach((overlay) => {
     if (overlay) {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
@@ -790,7 +790,601 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 11. Tratamento do Formulário de Login
+  // ==========================================================================
+  // 11. Módulo de Feedback de Visita por Voz (30s) e Human-in-the-Loop (Fase 6)
+  // ==========================================================================
+  const btnOpenVoice = document.getElementById('btn-open-voice');
+  const navVisitas = document.getElementById('nav-visitas');
+  const drawerVoiceVisit = document.getElementById('drawer-voice-visit');
+  const btnCloseVoiceVisit = document.getElementById('btn-close-voice-visit');
+
+  const voicePropertyBanner = document.getElementById('voice-property-banner');
+  const voicePropTitle = document.getElementById('voice-prop-title');
+  const voicePropOwner = document.getElementById('voice-prop-owner');
+  const btnChangeVoiceProp = document.getElementById('btn-change-voice-prop');
+  const voiceNoPropAlert = document.getElementById('voice-no-prop-alert');
+  const btnSelectPropForVoice = document.getElementById('btn-select-prop-for-voice');
+
+  const voiceStageRecording = document.getElementById('voice-stage-recording');
+  const voiceStageReview = document.getElementById('voice-stage-review');
+  const btnModeMic = document.getElementById('btn-mode-mic');
+  const btnModeText = document.getElementById('btn-mode-text');
+  const voicePanelMic = document.getElementById('voice-panel-mic');
+  const voicePanelText = document.getElementById('voice-panel-text');
+
+  const voiceTimerLabel = document.getElementById('voice-timer-label');
+  const voiceProgressBar = document.getElementById('voice-progress-bar');
+  const btnAudioTrigger = document.getElementById('btn-audio-trigger');
+  const voiceStatusText = document.getElementById('voice-status-text');
+  const voiceLiveTranscriptBox = document.getElementById('voice-live-transcript-box');
+  const voiceLiveTranscriptText = document.getElementById('voice-live-transcript-text');
+  const btnStopAndReview = document.getElementById('btn-stop-and-review');
+  const btnCancelVoice = document.getElementById('btn-cancel-voice');
+  const btnDemoVoiceSim = document.getElementById('btn-demo-voice-sim');
+  const voiceManualText = document.getElementById('voice-manual-text');
+  const btnProcessManualText = document.getElementById('btn-process-manual-text');
+
+  // Elementos do Ecrã de Revisão (HITL)
+  const hitlDurationLabel = document.getElementById('hitl-duration-label');
+  const formHitlReview = document.getElementById('form-hitl-review');
+  const hitlNotesInput = document.getElementById('hitl-notes-input');
+  const hitlInterestLabel = document.getElementById('hitl-interest-label');
+  const hitlStarBtns = document.querySelectorAll('.hitl-star-btn');
+  const hitlObjectionChipsGrid = document.getElementById('hitl-objection-chips-grid');
+  const hitlObjectionsCount = document.getElementById('hitl-objections-count');
+  const hitlClientName = document.getElementById('hitl-client-name');
+  const hitlClientPhone = document.getElementById('hitl-client-phone');
+  const hitlPreviewPhone = document.getElementById('hitl-preview-phone');
+  const hitlPreviewText = document.getElementById('hitl-preview-text');
+  const hitlError = document.getElementById('hitl-error');
+  const btnHitlSaveAndWhatsapp = document.getElementById('btn-hitl-save-and-whatsapp');
+  const btnHitlSaveOnly = document.getElementById('btn-hitl-save-only');
+  const btnHitlBackRecord = document.getElementById('btn-hitl-back-record');
+
+  // Estado Local do Módulo de Visita
+  const voiceVisitState = {
+    durationSeconds: 0,
+    transcript: '',
+    structuredNotes: '',
+    interestLevel: 3,
+    selectedTagIds: new Set(),
+    selectedTagNames: new Set(),
+    audioBase64: null,
+    audioBlob: null,
+    catalogTags: [],
+    shouldOpenWhatsApp: true,
+  };
+
+  const interestDescriptions = {
+    1: '1 - Sem Interesse / Descartado',
+    2: '2 - Baixo / Reticente',
+    3: '3 - Médio / Em Avaliação',
+    4: '4 - Elevado / Forte Candidato',
+    5: '5 - Proposta Iminente / Entusiasmo Total',
+  };
+
+  // Carrega tags corporativas da agência se necessário
+  async function loadAgencyTags() {
+    if (voiceVisitState.catalogTags.length > 0) return voiceVisitState.catalogTags;
+    try {
+      const tags = await Api.getObjectionTags();
+      voiceVisitState.catalogTags = tags || [];
+    } catch (err) {
+      console.warn('[Visitas] Falha ao carregar tags de objeção:', err);
+      // Fallback com tags essenciais
+      voiceVisitState.catalogTags = [
+        { id: 1, tag: 'Preço Elevado', categoria: 'preco' },
+        { id: 2, tag: 'Área Inferior ao Esperado', categoria: 'dimensao' },
+        { id: 3, tag: 'Ruído da Rua / Zona Movimentada', categoria: 'localizacao' },
+        { id: 4, tag: 'Falta de Garagem / Estacionamento', categoria: 'caracteristica' },
+        { id: 5, tag: 'Exposição Solar Fraca', categoria: 'caracteristica' },
+        { id: 6, tag: 'Necessita de Obras Profundas', categoria: 'estado' },
+        { id: 7, tag: 'Piso Elevado sem Elevador', categoria: 'caracteristica' },
+      ];
+    }
+    return voiceVisitState.catalogTags;
+  }
+
+  function renderObjectionChips() {
+    if (!hitlObjectionChipsGrid) return;
+    if (!voiceVisitState.catalogTags.length) {
+      hitlObjectionChipsGrid.innerHTML = '<span style="font-size: 12px; color: var(--color-outline);">Nenhuma tag cadastrada.</span>';
+      return;
+    }
+
+    hitlObjectionChipsGrid.innerHTML = voiceVisitState.catalogTags.map((t) => {
+      const isActive = voiceVisitState.selectedTagIds.has(t.id);
+      return `
+        <button type="button" class="objection-chip ${isActive ? 'active' : ''}" data-tag-id="${t.id}" data-tag-name="${t.tag}">
+          ${t.tag}
+        </button>
+      `;
+    }).join('');
+
+    hitlObjectionChipsGrid.querySelectorAll('.objection-chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const tId = parseInt(chip.getAttribute('data-tag-id'), 10);
+        const tName = chip.getAttribute('data-tag-name');
+        if (voiceVisitState.selectedTagIds.has(tId)) {
+          voiceVisitState.selectedTagIds.delete(tId);
+          voiceVisitState.selectedTagNames.delete(tName);
+          chip.classList.remove('active');
+        } else {
+          voiceVisitState.selectedTagIds.add(tId);
+          voiceVisitState.selectedTagNames.add(tName);
+          chip.classList.add('active');
+        }
+
+        if (hitlObjectionsCount) {
+          const c = voiceVisitState.selectedTagIds.size;
+          hitlObjectionsCount.textContent = `${c} ${c === 1 ? 'selecionada' : 'selecionadas'}`;
+        }
+        updateHitlWhatsAppPreview();
+      });
+    });
+
+    if (hitlObjectionsCount) {
+      const c = voiceVisitState.selectedTagIds.size;
+      hitlObjectionsCount.textContent = `${c} ${c === 1 ? 'selecionada' : 'selecionadas'}`;
+    }
+  }
+
+  function updateHitlInterestUI(level) {
+    voiceVisitState.interestLevel = level;
+    hitlStarBtns.forEach((btn) => {
+      const bLevel = parseInt(btn.getAttribute('data-level'), 10);
+      btn.classList.toggle('active', bLevel === level);
+    });
+
+    if (hitlInterestLabel) {
+      hitlInterestLabel.textContent = interestDescriptions[level] || `${level} de 5`;
+    }
+    updateHitlWhatsAppPreview();
+  }
+
+  function updateHitlWhatsAppPreview() {
+    const focused = Api.getSelectedProperty();
+    const user = Api.getUser();
+    const notes = hitlNotesInput ? hitlNotesInput.value.trim() : '';
+
+    const text = AudioRecorder.generateWhatsAppFeedback({
+      propriedade: focused,
+      consultorNome: user ? user.nome : 'Consultor Imobiliário',
+      nivelInteresse: voiceVisitState.interestLevel,
+      notasEstruturadas: notes,
+      objectionNames: Array.from(voiceVisitState.selectedTagNames),
+    });
+
+    if (hitlPreviewText) {
+      hitlPreviewText.textContent = text;
+    }
+
+    if (hitlPreviewPhone && focused) {
+      hitlPreviewPhone.textContent = focused.telefone_proprietario
+        ? `WhatsApp: ${focused.telefone_proprietario}`
+        : 'Sem telemóvel cadastrado';
+    }
+  }
+
+  function transitionToReviewStage(data) {
+    if (voiceStageRecording) voiceStageRecording.style.display = 'none';
+    if (voiceStageReview) voiceStageReview.style.display = 'block';
+
+    voiceVisitState.durationSeconds = data.audio_duracao_segundos || 0;
+    voiceVisitState.transcript = data.transcricao || '';
+    voiceVisitState.structuredNotes = data.notas_estruturadas || data.transcricao || '';
+
+    if (hitlDurationLabel) {
+      hitlDurationLabel.textContent = voiceVisitState.durationSeconds > 0
+        ? `Áudio: ${voiceVisitState.durationSeconds}s gravados`
+        : 'Entrada escrita de notas';
+    }
+
+    if (hitlNotesInput) {
+      hitlNotesInput.value = voiceVisitState.structuredNotes;
+    }
+
+    // Pré-seleciona nível de interesse retornado da IA/NLP
+    updateHitlInterestUI(data.nivel_interesse || 3);
+
+    // Pré-seleciona tags detectadas
+    voiceVisitState.selectedTagIds.clear();
+    voiceVisitState.selectedTagNames.clear();
+
+    if (data.detected_tag_ids && data.detected_tag_ids.length > 0) {
+      data.detected_tag_ids.forEach((id) => voiceVisitState.selectedTagIds.add(id));
+    }
+    if (data.detected_tags && data.detected_tags.length > 0) {
+      data.detected_tags.forEach((name) => voiceVisitState.selectedTagNames.add(name));
+    }
+
+    // Se as tags foram detectadas apenas por nome, busca os IDs correspondentes no catálogo
+    if (voiceVisitState.selectedTagNames.size > 0 && voiceVisitState.catalogTags.length > 0) {
+      voiceVisitState.catalogTags.forEach((t) => {
+        for (const name of voiceVisitState.selectedTagNames) {
+          if (name.toLowerCase() === t.tag.toLowerCase()) {
+            voiceVisitState.selectedTagIds.add(t.id);
+          }
+        }
+      });
+    }
+
+    renderObjectionChips();
+    updateHitlWhatsAppPreview();
+  }
+
+  function resetToRecordingStage() {
+    if (voiceStageRecording) voiceStageRecording.style.display = 'block';
+    if (voiceStageReview) voiceStageReview.style.display = 'none';
+
+    if (voiceTimerLabel) voiceTimerLabel.textContent = '00:00';
+    if (voiceProgressBar) voiceProgressBar.style.width = '0%';
+    if (voiceStatusText) {
+      voiceStatusText.textContent = 'Toque no botão para iniciar o relato da visita';
+      voiceStatusText.style.color = 'var(--color-primary)';
+    }
+    if (btnAudioTrigger) {
+      btnAudioTrigger.classList.remove('is-recording');
+    }
+    if (btnStopAndReview) btnStopAndReview.style.display = 'none';
+    if (btnCancelVoice) btnCancelVoice.style.display = 'none';
+    if (voiceLiveTranscriptBox) voiceLiveTranscriptBox.style.display = 'none';
+    if (voiceLiveTranscriptText) voiceLiveTranscriptText.textContent = '-';
+  }
+
+  function syncVoicePropertyContext() {
+    const focused = Api.getSelectedProperty();
+    if (focused) {
+      if (voicePropertyBanner) voicePropertyBanner.style.display = 'flex';
+      if (voiceNoPropAlert) voiceNoPropAlert.style.display = 'none';
+      if (voicePropTitle) voicePropTitle.textContent = `${focused.tipologia} • ${focused.titulo}`;
+      if (voicePropOwner) {
+        voicePropOwner.textContent = `Proprietário: ${focused.nome_proprietario || 'Não informado'} (${focused.telefone_proprietario || 'Sem tel.'})`;
+      }
+    } else {
+      if (voicePropertyBanner) voicePropertyBanner.style.display = 'none';
+      if (voiceNoPropAlert) voiceNoPropAlert.style.display = 'block';
+    }
+  }
+
+  async function openVoiceVisit() {
+    syncVoicePropertyContext();
+    await loadAgencyTags();
+    resetToRecordingStage();
+    openDrawer(drawerVoiceVisit);
+  }
+
+  if (btnOpenVoice) btnOpenVoice.addEventListener('click', openVoiceVisit);
+  if (navVisitas) navVisitas.addEventListener('click', openVoiceVisit);
+  if (btnCloseVoiceVisit) {
+    btnCloseVoiceVisit.addEventListener('click', () => {
+      AudioRecorder.cancelRecording();
+      closeDrawer(drawerVoiceVisit);
+    });
+  }
+
+  if (btnChangeVoiceProp || btnSelectPropForVoice) {
+    const handler = () => {
+      closeDrawer(drawerVoiceVisit);
+      handleOpenPortfolio();
+    };
+    if (btnChangeVoiceProp) btnChangeVoiceProp.addEventListener('click', handler);
+    if (btnSelectPropForVoice) btnSelectPropForVoice.addEventListener('click', handler);
+  }
+
+  // Alternador de Modo de Entrada (Microfone vs Digitação)
+  if (btnModeMic && btnModeText) {
+    btnModeMic.addEventListener('click', () => {
+      btnModeMic.classList.add('active');
+      btnModeText.classList.remove('active');
+      if (voicePanelMic) voicePanelMic.style.display = 'block';
+      if (voicePanelText) voicePanelText.style.display = 'none';
+    });
+
+    btnModeText.addEventListener('click', () => {
+      btnModeText.classList.add('active');
+      btnModeMic.classList.remove('active');
+      if (voicePanelMic) voicePanelMic.style.display = 'none';
+      if (voicePanelText) voicePanelText.style.display = 'block';
+    });
+  }
+
+  // Callbacks do Gravador de Áudio
+  AudioRecorder.onTick = (currentSeconds, remainingSeconds, percent) => {
+    if (voiceTimerLabel) {
+      const mins = String(Math.floor(currentSeconds / 60)).padStart(2, '0');
+      const secs = String(currentSeconds % 60).padStart(2, '0');
+      voiceTimerLabel.textContent = `${mins}:${secs}`;
+    }
+    if (voiceProgressBar) {
+      voiceProgressBar.style.width = `${percent}%`;
+    }
+    if (voiceStatusText) {
+      voiceStatusText.textContent = `A gravar relato (${remainingSeconds}s restantes)...`;
+      voiceStatusText.style.color = 'var(--color-error)';
+    }
+  };
+
+  AudioRecorder.onTranscript = (transcriptText) => {
+    if (voiceLiveTranscriptBox && voiceLiveTranscriptText) {
+      voiceLiveTranscriptBox.style.display = 'block';
+      voiceLiveTranscriptText.textContent = `"${transcriptText}"`;
+    }
+  };
+
+  AudioRecorder.onError = (err) => {
+    if (voiceStatusText) {
+      voiceStatusText.textContent = 'Acesso ao microfone indisponível. Utilize a aba "Digitar Notas" ou o botão Demo.';
+      voiceStatusText.style.color = 'var(--color-error)';
+    }
+    if (btnAudioTrigger) btnAudioTrigger.classList.remove('is-recording');
+    if (btnStopAndReview) btnStopAndReview.style.display = 'none';
+  };
+
+  AudioRecorder.onStop = async (result) => {
+    if (btnAudioTrigger) btnAudioTrigger.classList.remove('is-recording');
+    if (voiceStatusText) {
+      voiceStatusText.textContent = 'Processando e estruturando notas da visita com IA...';
+      voiceStatusText.style.color = 'var(--color-tertiary)';
+    }
+
+    const focused = Api.getSelectedProperty();
+
+    try {
+      // Dispara chamada para o endpoint de processamento semântico
+      const processed = await Api.processVisitAudio({
+        raw_text: result.transcript,
+        audio_duracao_segundos: result.durationSeconds,
+        audio_base64: result.audioBase64,
+        property_id: focused ? focused.id : null,
+      });
+
+      transitionToReviewStage(processed);
+    } catch (err) {
+      console.warn('[Visitas] Processamento no servidor falhou ou offline. Utilizando parser local:', err);
+      // Fallback local se o servidor estiver inacessível
+      transitionToReviewStage({
+        transcricao: result.transcript || 'Relato verbal da visita gravado em campo.',
+        notas_estruturadas: result.transcript
+          ? `• ${result.transcript}`
+          : '• Visita realizada. Sem observações adicionais.',
+        nivel_interesse: 3,
+        audio_duracao_segundos: result.durationSeconds,
+        detected_tags: [],
+        detected_tag_ids: [],
+      });
+    }
+  };
+
+  // Botão de Gatilho de Gravação
+  if (btnAudioTrigger) {
+    btnAudioTrigger.addEventListener('click', async () => {
+      const focused = Api.getSelectedProperty();
+      if (!focused) {
+        if (voiceNoPropAlert) voiceNoPropAlert.style.display = 'block';
+        return;
+      }
+
+      if (!AudioRecorder.isRecording) {
+        try {
+          await AudioRecorder.startRecording();
+          btnAudioTrigger.classList.add('is-recording');
+          if (btnStopAndReview) btnStopAndReview.style.display = 'inline-block';
+          if (btnCancelVoice) btnCancelVoice.style.display = 'inline-block';
+        } catch (err) {
+          console.warn('[AudioRecorder] Falha ao iniciar:', err);
+        }
+      } else {
+        AudioRecorder.stopRecording();
+      }
+    });
+  }
+
+  if (btnStopAndReview) {
+    btnStopAndReview.addEventListener('click', () => {
+      AudioRecorder.stopRecording();
+    });
+  }
+
+  if (btnCancelVoice) {
+    btnCancelVoice.addEventListener('click', () => {
+      AudioRecorder.cancelRecording();
+      resetToRecordingStage();
+    });
+  }
+
+  // Simulação Demo de Nota Oral (para homologação e testes ágeis)
+  if (btnDemoVoiceSim) {
+    btnDemoVoiceSim.addEventListener('click', async () => {
+      const focused = Api.getSelectedProperty();
+      const sampleText = "O cliente Dr. Silva adorou a sala e a luminosidade do terraço, mas achou o preço um pouco elevado e fez reparos ao ruído da rua. Tem forte intenção de avançar com proposta formal se ajustarmos o valor.";
+      
+      if (voiceStatusText) {
+        voiceStatusText.textContent = 'Simulando áudio de 24s e estruturando notas...';
+      }
+
+      try {
+        const processed = await Api.processVisitAudio({
+          raw_text: sampleText,
+          audio_duracao_segundos: 24,
+          property_id: focused ? focused.id : null,
+        });
+        transitionToReviewStage(processed);
+      } catch (e) {
+        transitionToReviewStage({
+          transcricao: sampleText,
+          notas_estruturadas: "• O cliente Dr. Silva adorou a sala e a luminosidade do terraço.\n• Achou o preço um pouco elevado e fez reparos ao ruído da rua.\n• Tem forte intenção de avançar com proposta formal.",
+          nivel_interesse: 4,
+          audio_duracao_segundos: 24,
+          detected_tags: ['Preço Elevado', 'Ruído da Rua / Zona Movimentada'],
+          detected_tag_ids: [],
+        });
+      }
+    });
+  }
+
+  // Processamento manual da aba "Digitar Notas"
+  if (btnProcessManualText && voiceManualText) {
+    btnProcessManualText.addEventListener('click', async () => {
+      const raw = voiceManualText.value.trim();
+      if (!raw) {
+        alert('Por favor, introduza as notas ou relato da visita.');
+        return;
+      }
+      const focused = Api.getSelectedProperty();
+
+      btnProcessManualText.disabled = true;
+      btnProcessManualText.textContent = 'A estruturar...';
+
+      try {
+        const processed = await Api.processVisitAudio({
+          raw_text: raw,
+          audio_duracao_segundos: 0,
+          property_id: focused ? focused.id : null,
+        });
+        transitionToReviewStage(processed);
+      } catch (err) {
+        transitionToReviewStage({
+          transcricao: raw,
+          notas_estruturadas: `• ${raw}`,
+          nivel_interesse: 3,
+          audio_duracao_segundos: 0,
+          detected_tags: [],
+          detected_tag_ids: [],
+        });
+      } finally {
+        btnProcessManualText.disabled = false;
+        btnProcessManualText.textContent = 'Estruturar e Rever (Human-in-the-Loop)';
+      }
+    });
+  }
+
+  // Interatividade no Ecrã de Revisão HITL
+  hitlStarBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const level = parseInt(btn.getAttribute('data-level'), 10);
+      updateHitlInterestUI(level);
+    });
+  });
+
+  if (hitlNotesInput) {
+    hitlNotesInput.addEventListener('input', () => {
+      updateHitlWhatsAppPreview();
+    });
+  }
+
+  if (btnHitlBackRecord) {
+    btnHitlBackRecord.addEventListener('click', () => {
+      resetToRecordingStage();
+    });
+  }
+
+  // Submissão do Ecrã de Revisão Human-in-the-Loop
+  async function submitHitlReview(sendWhatsApp = true) {
+    const focused = Api.getSelectedProperty();
+    if (!focused) {
+      if (hitlError) {
+        hitlError.textContent = 'Selecione um imóvel antes de salvar a visita.';
+        hitlError.style.display = 'block';
+      }
+      return;
+    }
+
+    const notes = hitlNotesInput ? hitlNotesInput.value.trim() : '';
+    if (!notes) {
+      if (hitlError) {
+        hitlError.textContent = 'O resumo ou notas da visita não podem estar em branco.';
+        hitlError.style.display = 'block';
+      }
+      return;
+    }
+
+    const payload = {
+      property_id: focused.id,
+      cliente_nome: hitlClientName ? hitlClientName.value.trim() : null,
+      cliente_telefone: hitlClientPhone ? hitlClientPhone.value.trim() : null,
+      audio_duracao_segundos: voiceVisitState.durationSeconds || null,
+      transcricao: voiceVisitState.transcript || notes,
+      notas_estruturadas: notes,
+      nivel_interesse: voiceVisitState.interestLevel,
+      objection_tag_ids: Array.from(voiceVisitState.selectedTagIds),
+      feedback_enviado_proprietario: sendWhatsApp,
+    };
+
+    if (btnHitlSaveAndWhatsapp) btnHitlSaveAndWhatsapp.disabled = true;
+    if (btnHitlSaveOnly) btnHitlSaveOnly.disabled = true;
+
+    try {
+      let created = null;
+
+      // Se houver conexão de rede
+      if (navigator.onLine) {
+        created = await Api.createVisit(payload);
+      } else {
+        // Enfileira offline
+        AudioRecorder.enqueueOfflineVisit(payload);
+      }
+
+      // Se solicitado disparo do WhatsApp, abre imediatamente o Deep Link
+      if (sendWhatsApp) {
+        const text = (created && created.whatsapp_feedback_text) || AudioRecorder.generateWhatsAppFeedback({
+          propriedade: focused,
+          consultorNome: Api.getUser() ? Api.getUser().nome : 'Consultor',
+          nivelInteresse: payload.nivel_interesse,
+          notasEstruturadas: payload.notas_estruturadas,
+          objectionNames: Array.from(voiceVisitState.selectedTagNames),
+        });
+
+        const waUrl = (created && created.whatsapp_deep_link) || AudioRecorder.getWhatsAppDeepLink(
+          focused.telefone_proprietario,
+          text
+        );
+        window.open(waUrl, '_blank');
+      }
+
+      closeDrawer(drawerVoiceVisit);
+      alert(sendWhatsApp
+        ? '✓ Visita registrada com sucesso! A abrir WhatsApp com o feedback ao proprietário...'
+        : '✓ Visita registrada com sucesso na carteira.');
+
+    } catch (err) {
+      console.warn('[Visitas] Erro ao registrar visita online, salvando na fila offline:', err);
+      AudioRecorder.enqueueOfflineVisit(payload);
+
+      if (sendWhatsApp) {
+        const text = AudioRecorder.generateWhatsAppFeedback({
+          propriedade: focused,
+          consultorNome: Api.getUser() ? Api.getUser().nome : 'Consultor',
+          nivelInteresse: payload.nivel_interesse,
+          notasEstruturadas: payload.notas_estruturadas,
+          objectionNames: Array.from(voiceVisitState.selectedTagNames),
+        });
+        const waUrl = AudioRecorder.getWhatsAppDeepLink(focused.telefone_proprietario, text);
+        window.open(waUrl, '_blank');
+      }
+
+      closeDrawer(drawerVoiceVisit);
+      alert('✓ Visita salva na fila offline do telemóvel. Será sincronizada assim que restabelecida a ligação.');
+    } finally {
+      if (btnHitlSaveAndWhatsapp) btnHitlSaveAndWhatsapp.disabled = false;
+      if (btnHitlSaveOnly) btnHitlSaveOnly.disabled = false;
+    }
+  }
+
+  if (formHitlReview) {
+    formHitlReview.addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitHitlReview(true);
+    });
+  }
+
+  if (btnHitlSaveOnly) {
+    btnHitlSaveOnly.addEventListener('click', () => {
+      submitHitlReview(false);
+    });
+  }
+
+  // 12. Tratamento do Formulário de Login
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();

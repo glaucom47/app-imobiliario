@@ -745,4 +745,259 @@ body {
   border-bottom: none;
 }
 
+/* ==========================================================================
+   FASE 6: FEEDBACK DE VISITAS, GRAVADOR DE 30S E HUMAN-IN-THE-LOOP
+   ========================================================================== */
+
+/* Banner de Contexto do Imóvel */
+.voice-property-banner {
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--rounded-md);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 10px;
+}
+
+/* Temporizador Tátil Circular */
+.voice-timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.voice-timer-display {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-primary);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.voice-progress-track {
+  width: 140px;
+  height: 4px;
+  background: var(--color-surface-container-high);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.voice-progress-bar {
+  height: 100%;
+  background: var(--color-tertiary);
+  transition: width 0.25s linear;
+}
+
+/* Gatilho Háptico Redondo com Anéis de Pulso (Editorial Luxury) */
+.voice-trigger-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 110px;
+}
+
+.btn-audio-record-pulse {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--color-tertiary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(29, 78, 216, 0.35);
+  transition: transform 0.15s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+  z-index: 2;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-audio-record-pulse:active {
+  transform: scale(0.94);
+}
+
+.btn-audio-record-pulse.is-recording {
+  background-color: var(--color-error);
+  box-shadow: 0 4px 20px rgba(186, 26, 26, 0.45);
+}
+
+.pulse-ring,
+.pulse-ring-outer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.btn-audio-record-pulse.is-recording ~ .pulse-ring,
+.btn-audio-record-pulse.is-recording .pulse-ring {
+  width: 104px;
+  height: 104px;
+  border: 2px solid rgba(186, 26, 26, 0.4);
+  animation: audioPulseRing 1.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.btn-audio-record-pulse.is-recording ~ .pulse-ring-outer,
+.btn-audio-record-pulse.is-recording .pulse-ring-outer {
+  width: 126px;
+  height: 126px;
+  border: 1px solid rgba(186, 26, 26, 0.25);
+  animation: audioPulseRing 1.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1) 0.35s;
+}
+
+@keyframes audioPulseRing {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Caixa de Transcrição ao Vivo */
+.voice-live-transcript-box {
+  background: var(--color-surface-container-low);
+  border: 1px dashed var(--color-outline-variant);
+  border-radius: var(--rounded-md);
+  padding: 10px 12px;
+  margin-top: 14px;
+  text-align: left;
+}
+
+/* ==========================================================================
+   ECRÃ DE REVISÃO HUMAN-IN-THE-LOOP
+   ========================================================================== */
+.hitl-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: var(--border-hairline);
+  margin-bottom: 8px;
+}
+
+/* Seletor Tátil de Nível de Interesse (1 a 5) */
+.hitl-star-rating-bar {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.hitl-star-btn {
+  flex: 1;
+  height: 42px;
+  border-radius: var(--rounded-md);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.hitl-star-btn:hover {
+  background: var(--color-surface-container-high);
+}
+
+.hitl-star-btn.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.15);
+}
+
+/* Grade de Chips de Objeções Padronizadas */
+.hitl-objection-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 42px;
+}
+
+.objection-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.objection-chip:hover {
+  border-color: var(--color-outline);
+}
+
+.objection-chip.active {
+  background: var(--color-primary-container);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.objection-chip.active:before {
+  content: "✓";
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-secondary);
+}
+
+/* Card de Pré-visualização WhatsApp */
+.hitl-feedback-preview-card {
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--rounded-md);
+  padding: 12px;
+  margin-top: 14px;
+}
+
+.hitl-preview-text {
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-on-surface);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #ffffff;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--rounded-sm);
+  padding: 10px;
+  margin: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+
 

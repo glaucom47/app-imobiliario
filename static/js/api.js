@@ -215,6 +215,63 @@ const Api = {
   },
 
   /**
+   * Obtém o catálogo de tags de objeções da agência.
+   */
+  async getObjectionTags() {
+    return await this.request('/visits/tags');
+  },
+
+  /**
+   * Processa nota de voz ou texto oral para estruturação inteligente (Human-in-the-Loop).
+   */
+  async processVisitAudio(payload) {
+    return await this.request('/visits/audio', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Registra a visita no sistema com suas objeções vinculadas.
+   */
+  async createVisit(visitData) {
+    return await this.request('/visits', {
+      method: 'POST',
+      body: JSON.stringify(visitData),
+    });
+  },
+
+  /**
+   * Lista visitas da agência.
+   */
+  async getVisits(params = {}) {
+    const query = new URLSearchParams();
+    if (params.property_id) query.append('property_id', params.property_id);
+    if (params.consultor_id) query.append('consultor_id', params.consultor_id);
+    if (params.skip !== undefined) query.append('skip', params.skip);
+    if (params.limit !== undefined) query.append('limit', params.limit);
+
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    return await this.request(`/visits${queryString}`);
+  },
+
+  /**
+   * Obtém detalhes de uma visita.
+   */
+  async getVisit(id) {
+    return await this.request(`/visits/${id}`);
+  },
+
+  /**
+   * Marca o feedback ao proprietário como enviado.
+   */
+  async markVisitFeedbackSent(id) {
+    return await this.request(`/visits/${id}/feedback-sent`, {
+      method: 'PATCH',
+    });
+  },
+
+  /**
    * Encerra a sessão do usuário.
    */
   logout() {

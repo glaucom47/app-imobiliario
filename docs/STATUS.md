@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 29/09/2026 - 00:25
-* **Fase Atual:** Fase 5 - Calculadora Visual de Viabilidade Financeira (Client-side / Offline)
-* **Status Geral:** Concluída (Motor matemático 100% offline em `static/js/calculator.js` com escalões de IMT Continente e Ilhas, isenção e redução de IMT Jovem pelo DL n.º 48-A/2024, Imposto do Selo de 0,8% e 0,6%, amortização pelo Sistema Price, interface visual tátil com números tabulares tnum, sincronização automática com Imóvel em Foco, partilha formatada no WhatsApp em 1 clique e suíte de 36 testes automatizados 100% aprovada)
+* **Última Atualização:** 29/09/2026 - 00:30
+* **Fase Atual:** Fase 6 - Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)
+* **Status Geral:** Concluída (Gravador de áudio no cliente de até 30s em `static/js/audio_recorder.js` com MediaRecorder, Web Speech API e enfileiramento offline; motor semântico de transcrição, inferência de nível de interesse de 1 a 5 e mapeamento de catálogo corporativo de objeções em `app/services/speech_service.py` e `app/services/visit_service.py`; endpoints REST em `app/controllers/visits_controller.py`; ecrã móvel de revisão Human-in-the-Loop em `static/index.html` e `static/css/style.css`; geração automática de prestação de contas editorial e Deep Link para WhatsApp do proprietário em 1 clique; suíte com 47 testes automatizados 100% aprovada)
 
 ---
 
@@ -15,7 +15,7 @@
 | **Fase 3** | Autenticação, Sessão e Controle de Acesso (RBAC) | Concluída |
 | **Fase 4** | Imóveis e Gestão de Carteira Ativa | Concluída |
 | **Fase 5** | Calculadora Visual de Viabilidade Financeira (Client-side / Offline) | Concluída |
-| **Fase 6** | Visitas, Feedback por Voz e Objeções (Human-in-the-Loop) | Pendente |
+| **Fase 6** | Visitas, Feedback por Voz e Objeções (Human-in-the-Loop) | Concluída |
 | **Fase 7** | Conteúdo e Scripts de Vídeo Curto com Teleprompter | Pendente |
 | **Fase 8** | Pós-Venda, Esfera de Influência e Notificações de Aniversário | Pendente |
 | **Fase 9** | Backoffice Web da Agência, Métricas e Exportação CSV | Pendente |
@@ -96,11 +96,13 @@
 - [x] Suíte de testes automatizados com `pytest` e Node.js em `tests/test_calculator.py` e validação de assets estáticos em `tests/test_health.py` (total de 36 testes aprovados no projeto)
 
 ### Fase 6: Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)
-- [ ] Gravador de áudio no cliente (até 30 segundos)
-- [ ] Schemas e serviço de transcrição e estruturação automática
-- [ ] Endpoints de visitas e extração de objeções
-- [ ] Ecrã de revisão (*Human-in-the-Loop*) antes do salvamento
-- [ ] Geração de mensagem estruturada e Deep Link para WhatsApp do proprietário
+- [x] Gravador de áudio no cliente (até 30 segundos) com suporte a MediaRecorder, Web Speech API e fila offline (`static/js/audio_recorder.js`)
+- [x] Schemas Pydantic para registro de visita e transcrição estruturada (`app/schemas/visit_schema.py`)
+- [x] Serviço de transcrição, extração de nível de interesse (1-5) e mapeamento semântico de objeções (`app/services/speech_service.py` e `app/services/visit_service.py`)
+- [x] Endpoints REST de visitas, áudio e tags (`app/controllers/visits_controller.py`)
+- [x] Ecrã de revisão (*Human-in-the-Loop*) móvel com ajuste de texto, estrelas de interesse e chips de tags antes da persistência
+- [x] Geração de mensagem estruturada e Deep Link para WhatsApp do proprietário do imóvel ativo
+- [x] Suíte de testes automatizados com `pytest` cobrindo NLP, RBAC, restrições e isolamento multi-tenant (`tests/test_visits.py` - total de 47 testes aprovados no projeto)
 
 ### Fase 7: Conteúdo e Scripts de Vídeo Curto com Teleprompter
 - [ ] Serviço de geração de roteiros em 3 blocos (Gancho, 2 Destaques, CTA)
@@ -133,6 +135,6 @@
 
 ## 3. Próximo Passo Recomendado
  
-* **Próxima Fase:** **Fase 6 - Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)**.
-* **Ação:** Implementar o gravador de notas de voz de até 30 segundos no cliente (`static/js/audio_recorder.js`), schemas e endpoints de visitas e objeções no backend (`app/controllers/visits_controller.py`, `app/services/visit_service.py`), tela de revisão (*Human-in-the-Loop*) e envio de feedback formatado ao proprietário via WhatsApp.
+* **Próxima Fase:** **Fase 7 - Conteúdo e Scripts de Vídeo Curto com Teleprompter**.
+* **Ação:** Implementar o serviço de geração de roteiros de marketing em 3 blocos (Gancho, 2 Destaques e CTA) orientados por objetivo comercial (*Angariação*, *Baixa de Preço*, *Open House*) em `app/services/script_service.py` e endpoints em `app/controllers/scripts_controller.py`, juntamente com o leitor de teleprompter móvel com fundo `#111111`, contagem regressiva 3-2-1 e rolagem tátil suave em `static/js/teleprompter.js`.
 

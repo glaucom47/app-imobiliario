@@ -1,0 +1,24 @@
+{
+  "name": "Fecho - Assistente Imobiliário",
+  "short_name": "Fecho",
+  "description": "Assistente móvel de fechamento, visitas por voz, cálculo fiscal (IMT/Selo) e inteligência de mercado imobiliário em Portugal.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FBFBFB",
+  "theme_color": "#111111",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/img/screen.png",
+      "sizes": "234x56",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/img/logo.png",
+      "sizes": "234x56",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

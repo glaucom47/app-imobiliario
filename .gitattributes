@@ -1,0 +1,30 @@
+# Normalização automática de quebras de linha (EOL)
+* text=auto eol=lf
+
+# Código Python
+*.py text eol=lf diff=python
+
+# Web e Frontend (HTML, CSS, JS, JSON)
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+
+# Documentação
+*.md text eol=lf
+
+# Configurações e Scripts
+*.ini text eol=lf
+*.txt text eol=lf
+*.mako text eol=lf
+*.sh text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Imagens e Arquivos Binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary

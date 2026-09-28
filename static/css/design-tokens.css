@@ -1,0 +1,101 @@
+/**
+ * Editorial PropTech Luxury - Design Tokens
+ * Extraído estritamente de docs/DESIGN.md para o sistema Fecho (fecho.pt)
+ */
+
+:root {
+  /* Cores Estruturais e Minerais */
+  --color-primary: #111111;              /* Deep Onyx - Tipografia e ações principais */
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1c1b1b;
+  --color-on-primary-container: #858383;
+
+  --color-secondary: #C5A880;            /* Champagne Ore - Destaques de prestígio e fechamento */
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fedeb2;
+  --color-on-secondary-container: #78603e;
+
+  --color-tertiary: #1D4ED8;             /* Deep Cobalt - Gatilhos de ação interativa (gravação/cálculo) */
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #001551;
+  --color-on-tertiary-container: #547aff;
+
+  /* Superfícies e Neutral */
+  --color-background: #FBFBFB;           /* Warm Alabaster Canvas */
+  --color-on-background: #1a1c1c;
+
+  --color-surface: #f9f9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-bright: #f9f9f9;
+  --color-surface-container-lowest: #ffffff; /* Tier 1 Cards */
+  --color-surface-container-low: #f3f3f3;
+  --color-surface-container: #eeeeee;
+  --color-surface-container-high: #e8e8e8;
+  --color-surface-container-highest: #e2e2e2;
+  --color-on-surface: #1a1c1c;
+  --color-on-surface-variant: #444748;
+
+  /* Molduras e Divisores Hairline */
+  --color-hairline: #EAEAEA;              /* Divisor de 0.5px a 1px */
+  --color-hairline-accent: #E2E4E8;
+  --color-outline: #747878;
+  --color-outline-variant: #c4c7c7;
+
+  /* Semântica e Notariado */
+  --color-notarized: #1B4332;             /* Muted Olive Emerald - Escrituras e assinaturas */
+  --color-error: #991B1B;                 /* Deep Crimson - Objeções críticas e avisos legais */
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+
+  /* Tipografia */
+  --font-family-base: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-feature-tabular: 'tnum' on, 'cv01' on;
+
+  /* Arredondamento (Shape Radius) */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-default: 0.5rem; /* 8px */
+  --radius-md: 0.75rem;   /* 12px */
+  --radius-lg: 1.0rem;    /* 16px */
+  --radius-xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+  /* Espaçamentos */
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1.0rem;
+  --spacing-space-lg: 1.5rem;
+  --spacing-space-xl: 2.5rem;
+  --spacing-gutter: 1.0rem;
+  --spacing-gutter-desktop: 1.5rem;
+  --spacing-margin: 1.25rem;
+  --spacing-margin-desktop: 3.0rem;
+
+  /* Elevação Arquitetural */
+  --border-hairline: 1px solid var(--color-hairline);
+  --shadow-ambient: 0 12px 36px -4px rgba(17, 17, 17, 0.05), 0 2px 8px -2px rgba(17, 17, 17, 0.03);
+  --backdrop-tactile: blur(16px) saturate(180%);
+}
+
+/* Utilitários tipográficos obrigatórios */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: var(--font-feature-tabular);
+}
+
+.label-caps {
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.financial-display {
+  font-family: var(--font-family-base);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+  font-feature-settings: var(--font-feature-tabular);
+}

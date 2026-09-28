@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fecho - Painel de Gestão da Agência</title>
+
+  <!-- Estilos e Design Tokens (Editorial PropTech Luxury) -->
+  <link rel="stylesheet" href="/static/css/design-tokens.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="backoffice-shell" id="backoffice-app">
+    <!-- Cabeçalho do Backoffice -->
+    <header style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-margin); border-bottom: var(--border-hairline); margin-bottom: var(--spacing-lg);">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <img src="/static/img/screen.png" alt="Fecho" class="brand-logo">
+        <span class="label-caps" style="color: var(--color-outline); padding-left: 12px; border-left: var(--border-hairline);">Direção Comercial</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="status-pill status-pill-notarized" id="agency-name-badge">Agência Imobiliária</span>
+        <button class="btn-secondary-ghost" style="width: auto; padding: 0 16px; height: 38px; font-size: 13px;" id="btn-export-csv">
+          Exportar CSV
+        </button>
+      </div>
+    </header>
+
+    <!-- Grid de Indicadores e KPIs da Agência -->
+    <main style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-margin);">
+      <div class="card-tier1">
+        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Visitas Realizadas (Mês)</span>
+        <div class="financial-display" id="kpi-total-visitas">--</div>
+        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Assiduidade dos consultores</p>
+      </div>
+
+      <div class="card-tier1">
+        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Taxa de Adesão ao Feedback</span>
+        <div class="financial-display" id="kpi-taxa-adesao">--%</div>
+        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Auditorias de voz concluídas</p>
+      </div>
+
+      <div class="card-tier1">
+        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Objeções Frequentes</span>
+        <div class="financial-display" style="font-size: 20px;" id="kpi-top-objecao">--</div>
+        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Base para renegociação de preço</p>
+      </div>
+    </main>
+
+    <!-- Área de Visualização Gráfica e Tabela -->
+    <section class="card-tier1" style="margin-top: var(--spacing-lg);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin);">
+        <h2 style="font-size: 18px; font-weight: 600;">Estatística Consolidada de Objeções por Imóvel</h2>
+        <span class="label-caps" style="color: var(--color-secondary);">Inteligência de Mercado</span>
+      </div>
+      <div id="objections-chart-placeholder" style="padding: 40px; text-align: center; color: var(--color-outline); background: var(--color-surface); border-radius: var(--radius-default); border: var(--border-hairline);">
+        Gráfico consolidado de objeções carregará nesta área após a inicialização dos dados.
+      </div>
+    </section>
+  </div>
+
+  <script src="/static/js/api.js"></script>
+</body>
+</html>

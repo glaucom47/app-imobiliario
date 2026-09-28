@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#111111">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Fecho - Assistente Imobiliário</title>
+
+  <!-- Manifesto PWA -->
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/img/logo.png">
+
+  <!-- Estilos e Design Tokens (Editorial PropTech Luxury) -->
+  <link rel="stylesheet" href="/static/css/design-tokens.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-shell" id="app">
+    <!-- Cabeçalho com Logotipo Oficial -->
+    <header class="app-header">
+      <img src="/static/img/screen.png" alt="Fecho" class="brand-logo" id="brand-logo">
+      <span class="status-pill status-pill-secondary" id="active-tenant-badge">Agência</span>
+    </header>
+
+    <!-- Conteúdo Principal Dinâmico -->
+    <main class="app-main" id="main-content" style="padding: var(--spacing-margin); flex: 1;">
+      <!-- Seletor do Imóvel Ativo (Obrigatório em Visitas) -->
+      <section class="card-tier1" id="property-selector-card">
+        <span class="label-caps" style="color: var(--color-on-surface-variant); display: block; margin-bottom: 6px;">Imóvel em Foco</span>
+        <div id="selected-property-info">
+          <p style="font-weight: 600; font-size: 16px;">Carregando imóvel ativo...</p>
+        </div>
+      </section>
+
+      <!-- Grade de Ações Rápidas de Campo -->
+      <section class="actions-grid" style="display: flex; flex-direction: column; gap: var(--spacing-space-sm);">
+        <button class="btn-cobalt-trigger" id="btn-open-voice" type="button">
+          Gravar Feedback de Visita (30s)
+        </button>
+        <button class="btn-primary-action" id="btn-open-calculator" type="button">
+          Calculadora IMT & Selo
+        </button>
+        <button class="btn-secondary-ghost" id="btn-open-teleprompter" type="button">
+          Scripts de Vídeo & Teleprompter
+        </button>
+      </section>
+    </main>
+
+    <!-- Rodapé de Navegação Rápida -->
+    <nav class="app-bottom-nav" style="border-top: var(--border-hairline); padding: 12px var(--spacing-margin); display: flex; justify-content: space-around; background: #ffffff;">
+      <span class="label-caps" style="color: var(--color-primary);">Visitas</span>
+      <span class="label-caps" style="color: var(--color-outline);">Calculadora</span>
+      <span class="label-caps" style="color: var(--color-outline);">Scripts</span>
+      <span class="label-caps" style="color: var(--color-outline);">Esfera</span>
+    </nav>
+  </div>
+
+  <!-- Scripts da Aplicação -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/calculator.js"></script>
+  <script src="/static/js/teleprompter.js"></script>
+  <script src="/static/js/audio_recorder.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

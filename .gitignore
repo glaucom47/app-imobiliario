@@ -1,0 +1,64 @@
+# Ambientes Virtuais e Dependências Python
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Bytecode e Caches do Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Testes e Cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Distribuição e Empacotamento
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Logs e Arquivos de Execução
+logs/*.log
+*.log
+!logs/.gitkeep
+
+# Arquivos Temporários
+*.tmp
+*.temp
+*~
+
+# Proteção Preventiva de Segredos e Chaves
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+
+# Dumps e Backups de Banco de Dados
+*.sql
+*.dump
+*.bak
+*.sql.gz
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores e IDEs
+.idea/
+.vscode/
+*.swp
+*.swo

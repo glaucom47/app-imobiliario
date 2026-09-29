@@ -464,6 +464,133 @@ body {
 }
 
 /* ==========================================================================
+   CARTÃO HERÓI DE IMÓVEL EM FOCO (CALOR ARQUITETURAL - EDITORIAL LUXURY)
+   ========================================================================== */
+.hero-property-card {
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(17, 17, 17, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-property-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(17, 17, 17, 0.08);
+}
+
+.hero-image-box {
+  height: 164px;
+  position: relative;
+  background: #242220;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 14px;
+  box-sizing: border-box;
+}
+
+.hero-svg-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.05) 0%, rgba(17, 17, 17, 0.82) 100%);
+  pointer-events: none;
+}
+
+.hero-top-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exclusive-badge {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(197, 168, 128, 0.5);
+  color: #78603e;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hero-location-pill {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.hero-bottom-info {
+  position: relative;
+  z-index: 2;
+  color: #ffffff;
+}
+
+.hero-prop-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #eedcc6;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.hero-price-val {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.hero-commission {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d6be9a;
+}
+
+.hero-details-row {
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border-top: 1px solid #f0f0ee;
+  font-size: 11px;
+  color: #555550;
+}
+
+/* ==========================================================================
    Calculadora Visual de Viabilidade Financeira (Editorial PropTech Luxury)
    ========================================================================== */
 
@@ -1460,14 +1587,14 @@ body {
    FASE 8: PÓS-VENDA, ESFERA DE INFLUÊNCIA E ANIVERSÁRIOS DE ESCRITURA
    ========================================================================== */
 
-/* Banner Matinal das 09:00 */
+/* Banner Matinal das 09:00 com Calor Arquitetural */
 .anniversary-morning-card {
-  background: linear-gradient(135deg, rgba(197, 168, 128, 0.16) 0%, rgba(246, 246, 244, 0.9) 100%);
-  border: 1px solid rgba(197, 168, 128, 0.45);
+  background: linear-gradient(135deg, rgba(223, 202, 172, 0.32) 0%, rgba(248, 245, 240, 0.98) 100%);
+  border: 1px solid rgba(197, 168, 128, 0.55);
   border-radius: var(--radius-lg);
   padding: 14px 16px;
   margin-bottom: var(--spacing-space-md);
-  box-shadow: 0 4px 16px rgba(197, 168, 128, 0.12);
+  box-shadow: 0 4px 18px rgba(197, 168, 128, 0.2);
   animation: fadeInBanner 0.4s ease-out;
 }
 
@@ -1868,6 +1995,8 @@ body.sunlight-mode {
 }
 
 body.sunlight-mode .card-tier1,
+body.sunlight-mode .hero-property-card,
+body.sunlight-mode .anniversary-morning-card,
 body.sunlight-mode .modal-card,
 body.sunlight-mode .drawer-container,
 body.sunlight-mode .btn-secondary-ghost,
@@ -1876,6 +2005,39 @@ body.sunlight-mode .backoffice-nav-tabs,
 body.sunlight-mode .export-card {
   border: 1.5px solid #000000 !important;
   box-shadow: none !important;
+}
+
+body.sunlight-mode .hero-property-card {
+  background: #ffffff !important;
+}
+
+body.sunlight-mode .hero-image-box {
+  background: #000000 !important;
+}
+
+body.sunlight-mode .exclusive-badge {
+  background: #ffffff !important;
+  border: 1.5px solid #000000 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+body.sunlight-mode .hero-location-pill {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  font-weight: 700 !important;
+}
+
+body.sunlight-mode .hero-details-row {
+  border-top: 1.5px solid #000000 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+body.sunlight-mode .anniversary-morning-card {
+  background: #ffffff !important;
+  border: 1.5px solid #000000 !important;
 }
 
 body.sunlight-mode .label-caps {

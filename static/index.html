@@ -61,34 +61,88 @@
         </div>
       </section>
 
-      <!-- Seletor do Imóvel Ativo (Obrigatório em Visitas) -->
-      <section class="card-tier1" id="property-selector-card" style="cursor: pointer;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <span class="label-caps" style="color: var(--color-on-surface-variant);">Imóvel em Foco</span>
-          <span style="font-size: 12px; font-weight: 600; color: var(--color-tertiary);" id="btn-toggle-portfolio-card">Ver Carteira</span>
+      <!-- Seletor do Imóvel Ativo (Obrigatório em Visitas) com Calor Arquitetural -->
+      <section class="hero-property-card" id="property-selector-card" style="cursor: pointer; margin-bottom: var(--spacing-margin);">
+        <div class="hero-image-box" id="hero-image-area">
+          <!-- SVG Arquitetônico de Penthouse Contemporânea ao Pôr do Sol (Golden Hour) -->
+          <svg class="hero-svg-bg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="warmSunsetApp" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#C5A880"/>
+                <stop offset="45%" stop-color="#DFCAAC"/>
+                <stop offset="100%" stop-color="#F2E6D5"/>
+              </linearGradient>
+            </defs>
+            <rect width="400" height="200" fill="url(#warmSunsetApp)"/>
+            <path d="M0 130 L20 125 L40 132 L70 120 L100 128 L140 115 L180 124 L220 118 L260 124 L300 112 L340 122 L380 119 L400 125 L400 200 L0 200 Z" fill="#9C876D" opacity="0.4"/>
+            <polygon points="30,200 30,70 260,35 370,55 370,200" fill="#242220"/>
+            <polygon points="50,85 160,65 160,170 50,170" fill="#EBD9C2" opacity="0.55"/>
+            <polygon points="175,62 340,78 340,170 175,170" fill="#DFCAAC" opacity="0.65"/>
+            <rect x="0" y="165" width="400" height="35" fill="#1A1816"/>
+            <rect x="200" y="172" width="180" height="20" rx="3" fill="#3D5A80" opacity="0.75"/>
+          </svg>
+
+          <div class="hero-gradient-overlay"></div>
+
+          <div class="hero-top-row">
+            <span class="exclusive-badge" id="focus-prop-status-badge">⭐ Imóvel em Foco</span>
+            <span class="hero-location-pill" id="focus-prop-location">Portugal</span>
+          </div>
+
+          <div class="hero-bottom-info">
+            <div class="hero-prop-title" id="focus-prop-title">Carregando carteira...</div>
+            <div class="hero-price-row">
+              <span class="hero-price-val tnum" id="focus-prop-price">Aguarde um momento</span>
+              <span class="hero-commission tnum" id="focus-prop-subtitle"></span>
+            </div>
+          </div>
         </div>
-        <div id="selected-property-info">
-          <p style="font-weight: 600; font-size: 16px;" id="focus-prop-title">Carregando carteira...</p>
-          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="focus-prop-subtitle">Aguarde um momento</p>
+
+        <div class="hero-details-row">
+          <div style="display: flex; gap: 10px;" id="focus-prop-meta">
+            <span>📐 <b id="focus-prop-area">-- m²</b></span>
+            <span>🏢 <b id="focus-prop-type">Imóvel</b></span>
+          </div>
+          <span style="color: var(--color-tertiary); font-weight: 700; font-size: 12px;" id="btn-toggle-portfolio-card">Ver Carteira →</span>
         </div>
       </section>
 
-      <!-- Grade de Ações Rápidas de Campo -->
+      <!-- Grade de Ações Rápidas de Campo com Calor Arquitetural -->
       <section class="actions-grid" style="display: flex; flex-direction: column; gap: var(--spacing-space-sm);">
-        <button class="btn-cobalt-trigger" id="btn-open-voice" type="button">
-          Gravar Feedback de Visita (30s)
+        <button class="btn-cobalt-trigger" id="btn-open-voice" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">🎙️</span>
+            <span>Gravar Feedback de Visita (30s)</span>
+          </div>
+          <span style="font-size: 11px; background: rgba(255,255,255,0.25); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Voz & IA</span>
         </button>
-        <button class="btn-primary-action" id="btn-open-calculator" type="button">
-          Calculadora IMT & Selo
+        <button class="btn-primary-action" id="btn-open-calculator" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; border: 1px solid rgba(197, 168, 128, 0.25);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px; color: var(--color-secondary);">🧮</span>
+            <span>Calculadora IMT & Selo</span>
+          </div>
+          <span style="font-size: 11px; color: var(--color-secondary); font-weight: 600;">100% Offline</span>
         </button>
-        <button class="btn-secondary-ghost" id="btn-open-teleprompter" type="button">
-          Scripts de Vídeo & Teleprompter
+        <button class="btn-secondary-ghost" id="btn-open-teleprompter" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px;">🎬</span>
+            <span>Scripts de Vídeo & Teleprompter</span>
+          </div>
+          <span style="font-size: 10px; color: var(--color-outline); font-weight: 700; letter-spacing: 0.06em;">3 BLOCOS</span>
         </button>
-        <button class="btn-secondary-ghost" id="btn-open-portfolio" type="button" style="border-style: solid;">
-          Gestão da Carteira de Imóveis
+        <button class="btn-secondary-ghost" id="btn-open-portfolio" type="button" style="border-style: solid; display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px;">🏢</span>
+            <span>Gestão da Carteira de Imóveis</span>
+          </div>
+          <span style="font-size: 11px; color: var(--color-tertiary); font-weight: 600;">Ver Todos</span>
         </button>
-        <button class="btn-secondary-ghost" id="btn-open-contacts" type="button" style="border-style: solid; border-color: rgba(197, 168, 128, 0.4);">
-          Esfera de Influência & Pós-Venda
+        <button class="btn-secondary-ghost" id="btn-open-contacts" type="button" style="border-style: solid; border-color: rgba(197, 168, 128, 0.4); display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px;">👥</span>
+            <span>Esfera de Influência & Pós-Venda</span>
+          </div>
+          <span style="font-size: 11px; color: #78603e; font-weight: 600;">09:00</span>
         </button>
       </section>
     </main>

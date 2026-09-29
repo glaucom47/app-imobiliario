@@ -186,17 +186,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     maximumFractionDigits: 0,
   });
 
-  // 3. Atualização da Interface do Imóvel em Foco
+  // 3. Atualização da Interface do Imóvel em Foco (Calor Arquitetural)
   function renderFocusProperty(property) {
     if (!focusPropTitle || !focusPropSubtitle) return;
 
+    const focusPropPrice = document.getElementById('focus-prop-price');
+    const focusPropLocation = document.getElementById('focus-prop-location');
+    const focusPropArea = document.getElementById('focus-prop-area');
+    const focusPropType = document.getElementById('focus-prop-type');
+    const focusPropStatusBadge = document.getElementById('focus-prop-status-badge');
+
     if (property) {
       const priceFormatted = currencyFormatter.format(property.preco);
+      const commissionFormatted = currencyFormatter.format(property.preco * 0.05);
+      const locationText = property.concelho || property.distrito || 'Portugal';
+
       focusPropTitle.textContent = `${property.tipologia} • ${property.titulo}`;
-      focusPropSubtitle.textContent = `${priceFormatted} • ${property.concelho || property.distrito || 'Portugal'}`;
+      focusPropSubtitle.textContent = `5% Com.: ${commissionFormatted}`;
+
+      if (focusPropPrice) focusPropPrice.textContent = priceFormatted;
+      if (focusPropLocation) focusPropLocation.textContent = locationText;
+      if (focusPropArea) focusPropArea.textContent = property.area_bruta ? `${property.area_bruta} m²` : '-- m²';
+      if (focusPropType) focusPropType.textContent = property.tipologia || 'Imóvel';
+      if (focusPropStatusBadge) {
+        if (property.status === 'Reservado') {
+          focusPropStatusBadge.textContent = '🔒 Reservado';
+        } else if (property.status === 'Vendido') {
+          focusPropStatusBadge.textContent = '✅ Vendido';
+        } else {
+          focusPropStatusBadge.textContent = '⭐ Imóvel em Foco';
+        }
+      }
     } else {
       focusPropTitle.textContent = 'Nenhum imóvel em foco';
-      focusPropSubtitle.textContent = 'Toque aqui para selecionar da carteira';
+      focusPropSubtitle.textContent = 'Toque aqui para selecionar';
+      if (focusPropPrice) focusPropPrice.textContent = 'Selecione da carteira';
+      if (focusPropLocation) focusPropLocation.textContent = 'Portugal';
+      if (focusPropArea) focusPropArea.textContent = '-- m²';
+      if (focusPropType) focusPropType.textContent = 'Imóvel';
+      if (focusPropStatusBadge) focusPropStatusBadge.textContent = '⭐ Sem Imóvel';
     }
   }
 

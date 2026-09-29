@@ -1914,7 +1914,113 @@ body.sunlight-mode .btn-primary-action {
   }
 }
 
+/* ==========================================================================
+   REFINOS ERGONÔMICOS E OUTDOOR UX (AUDITORIA DE ARQUITETURA DE DESIGN)
+   ========================================================================== */
 
+/* 1. Badge Persistente de Fila Offline (Caves / Garagens) */
+.status-pill-offline-queue {
+  background-color: rgba(197, 168, 128, 0.18);
+  color: #78603e;
+  border: 1px solid rgba(197, 168, 128, 0.45);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  transition: all 0.25s ease;
+  user-select: none;
+}
 
+.status-pill-offline-queue:hover {
+  background-color: rgba(197, 168, 128, 0.28);
+}
 
+.status-pill-offline-queue.synced-flash {
+  background-color: rgba(27, 67, 50, 0.15) !important;
+  color: #1b4332 !important;
+  border-color: #1b4332 !important;
+}
+
+/* 2. Barra Inferior Móvel Tátil com Safe Area para iOS e Android */
+.app-bottom-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  border-top: var(--border-hairline);
+  padding: 8px var(--spacing-margin) max(10px, env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: var(--backdrop-tactile);
+  -webkit-backdrop-filter: var(--backdrop-tactile);
+  box-shadow: 0 -2px 10px rgba(17, 17, 17, 0.03);
+}
+
+.nav-tab-item {
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 8px;
+  color: var(--color-outline);
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease;
+  text-decoration: none;
+  min-width: 54px;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-tab-item:active {
+  transform: scale(0.94);
+}
+
+.nav-tab-item .nav-tab-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.nav-tab-item .nav-tab-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.nav-tab-item.active {
+  color: var(--color-primary);
+}
+
+.nav-tab-item.active .nav-tab-label {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.nav-tab-item.active::after {
+  content: "";
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--color-secondary);
+  margin-top: 1px;
+}
+
+/* 3. Prevenção de Auto-Zoom do Safari Móvel (16px em Inputs) */
+@media (max-width: 768px) {
+  .fecho-input,
+  select.fecho-input,
+  textarea.fecho-input {
+    font-size: 16px !important;
+  }
+}
 

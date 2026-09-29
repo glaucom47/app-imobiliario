@@ -22,6 +22,12 @@
     <header class="app-header">
       <img src="/static/img/screen.png" alt="Fecho" class="brand-logo" id="brand-logo">
       <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- Badge Persistente de Fila Offline (Caves / Garagens) -->
+        <button id="btn-offline-queue-badge" class="status-pill status-pill-offline-queue" style="display: none;" title="Notas salvas na fila local pendentes de sincronização">
+          <span style="font-size: 12px;">⚡</span>
+          <span id="offline-queue-count">0</span>
+          <span>local</span>
+        </button>
         <button id="btn-sunlight-toggle" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px;" title="Alternar Modo Luz Solar Intensa">
           <span style="font-size: 13px;">☀️</span>
           <span style="font-size: 11px; font-weight: 600;" id="sunlight-label">Luz Solar</span>
@@ -87,13 +93,28 @@
       </section>
     </main>
 
-    <!-- Rodapé de Navegação Rápida -->
-    <nav class="app-bottom-nav" style="border-top: var(--border-hairline); padding: 12px var(--spacing-margin); display: flex; justify-content: space-around; background: #ffffff;">
-      <span class="label-caps" id="nav-visitas" style="color: var(--color-primary); cursor: pointer;">Visitas</span>
-      <span class="label-caps" id="nav-carteira" style="color: var(--color-outline); cursor: pointer;">Carteira</span>
-      <span class="label-caps" id="nav-calculadora" style="color: var(--color-outline); cursor: pointer;">Calculadora</span>
-      <span class="label-caps" id="nav-scripts" style="color: var(--color-outline); cursor: pointer;">Scripts</span>
-      <span class="label-caps" id="nav-esfera" style="color: var(--color-outline); cursor: pointer;">Esfera</span>
+    <!-- Rodapé de Navegação Rápida com Safe Area e Microícones -->
+    <nav class="app-bottom-nav" id="app-bottom-nav">
+      <button type="button" class="nav-tab-item" id="nav-visitas" title="Visitas">
+        <span class="nav-tab-icon">🎙️</span>
+        <span class="nav-tab-label">Visitas</span>
+      </button>
+      <button type="button" class="nav-tab-item" id="nav-carteira" title="Carteira">
+        <span class="nav-tab-icon">🏢</span>
+        <span class="nav-tab-label">Carteira</span>
+      </button>
+      <button type="button" class="nav-tab-item" id="nav-calculadora" title="Calculadora">
+        <span class="nav-tab-icon">🧮</span>
+        <span class="nav-tab-label">Calculadora</span>
+      </button>
+      <button type="button" class="nav-tab-item" id="nav-scripts" title="Scripts">
+        <span class="nav-tab-icon">🎬</span>
+        <span class="nav-tab-label">Scripts</span>
+      </button>
+      <button type="button" class="nav-tab-item" id="nav-esfera" title="Esfera">
+        <span class="nav-tab-icon">👥</span>
+        <span class="nav-tab-label">Esfera</span>
+      </button>
     </nav>
   </div>
 

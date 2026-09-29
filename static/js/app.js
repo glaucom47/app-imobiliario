@@ -62,7 +62,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log(`[PWA] Conectividade de rede: ${isOnline ? 'Online' : 'Offline'}`);
   }
 
-  window.addEventListener('online', () => updateNetworkStatus(true));
+  // 1.2 Badge Persistente de Fila Offline (Caves / Garagens)
+  const btnOfflineQueueBadge = document.getElementById('btn-offline-queue-badge');
+  const offlineQueueCount = document.getElementById('offline-queue-count');
+
+  function updateOfflineQueueBadge(count) {
+    if (!btnOfflineQueueBadge || !offlineQueueCount) return;
+    if (count > 0) {
+      offlineQueueCount.textContent = count;
+      btnOfflineQueueBadge.style.display = 'inline-flex';
+      btnOfflineQueueBadge.title = `${count} nota(s) de visita local(is) aguardando sincronização. Toque para sincronizar.`;
+    } else {
+      btnOfflineQueueBadge.style.display = 'none';
+    }
+  }
+
+  // Verifica contagem inicial de notas na fila offline
+  if (typeof AudioRecorder !== 'undefined' && typeof AudioRecorder.getOfflineQueue === 'function') {
+    updateOfflineQueueBadge(AudioRecorder.getOfflineQueue().length);
+  }
+
+  // Ouve evento disparado quando uma nota for adicionada ou sincronizada
+  window.addEventListener('fecho:offline_queue_changed', (e) => {
+    const count = (e.detail && typeof e.detail.count === 'number')
+      ? e.detail.count
+      : (typeof AudioRecorder !== 'undefined' ? AudioRecorder.getOfflineQueue().length : 0);
+    updateOfflineQueueBadge(count);
+  });
+
+  // Clique no badge para sincronização manual sob demanda
+  if (btnOfflineQueueBadge) {
+    btnOfflineQueueBadge.addEventListener('click', async () => {
+      if (!navigator.onLine) {
+        alert('Ainda sem ligação à Internet. As notas guardadas localmente serão sincronizadas automaticamente assim que recuperar sinal móvel.');
+        return;
+      }
+      btnOfflineQueueBadge.classList.add('synced-flash');
+      btnOfflineQueueBadge.innerHTML = '<span>⚡</span> A sincronizar...';
+      try {
+        const synced = await AudioRecorder.syncOfflineQueue(Api);
+        btnOfflineQueueBadge.innerHTML = `<span>✓</span> ${synced} sincronizada(s)`;
+        setTimeout(() => {
+          btnOfflineQueueBadge.classList.remove('synced-flash');
+          updateOfflineQueueBadge(AudioRecorder.getOfflineQueue().length);
+        }, 2200);
+      } catch (err) {
+        console.warn('[PWA] Falha na sincronização manual:', err);
+        btnOfflineQueueBadge.classList.remove('synced-flash');
+        updateOfflineQueueBadge(AudioRecorder.getOfflineQueue().length);
+      }
+    });
+  }
+
+  window.addEventListener('online', () => {
+    updateNetworkStatus(true);
+    if (typeof AudioRecorder !== 'undefined' && AudioRecorder.getOfflineQueue) {
+      updateOfflineQueueBadge(AudioRecorder.getOfflineQueue().length);
+    }
+  });
   window.addEventListener('offline', () => updateNetworkStatus(false));
   if (typeof navigator.onLine === 'boolean') {
     updateNetworkStatus(navigator.onLine);
@@ -315,11 +372,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 7. Abertura e Fechamento de Drawers e Modais
+  // 7. Abertura e Fechamento de Drawers e Sincronização da Bottom Nav
+  const navTabItems = document.querySelectorAll('.nav-tab-item');
+  function setActiveNavTab(tabId) {
+    navTabItems.forEach((btn) => {
+      btn.classList.toggle('active', btn.id === tabId);
+    });
+  }
+
   function openDrawer(drawerElement) {
     if (drawerElement) {
       drawerElement.classList.add('active');
       document.body.style.overflow = 'hidden';
+
+      // Sincroniza a aba correspondente na barra inferior tátil
+      if (drawerElement.id === 'drawer-voice-visit') setActiveNavTab('nav-visitas');
+      else if (drawerElement.id === 'drawer-portfolio') setActiveNavTab('nav-carteira');
+      else if (drawerElement.id === 'drawer-calculator') setActiveNavTab('nav-calculadora');
+      else if (drawerElement.id === 'drawer-scripts') setActiveNavTab('nav-scripts');
+      else if (drawerElement.id === 'drawer-contacts') setActiveNavTab('nav-esfera');
     }
   }
 
@@ -327,6 +398,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (drawerElement) {
       drawerElement.classList.remove('active');
       document.body.style.overflow = '';
+      
+      const anyActive = document.querySelector('.fecho-modal-overlay.active');
+      if (!anyActive) {
+        setActiveNavTab(null);
+      }
     }
   }
 

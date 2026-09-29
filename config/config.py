@@ -17,12 +17,17 @@ class Settings:
     API_V1_STR: str = "/api/v1"
 
     # Ambiente de execução: development | production | test
-    ENVIRONMENT: str = os.environ.get("ENVIRONMENT", "development")
+    ENVIRONMENT: str = os.environ.get("ENVIRONMENT", "development").lower().strip()
 
     # Servidor ASGI
     HOST: str = os.environ.get("HOST", "0.0.0.0")
     PORT: int = int(os.environ.get("PORT", "8000"))
-    DEBUG: bool = os.environ.get("DEBUG", "true").lower() == "true"
+    DEBUG: bool = (
+        os.environ.get(
+            "DEBUG",
+            "false" if os.environ.get("ENVIRONMENT", "development").lower().strip() == "production" else "true"
+        ).lower().strip() == "true"
+    )
 
     # Banco de Dados PostgreSQL
     # Default para desenvolvimento local na porta 5432
@@ -60,6 +65,25 @@ class Settings:
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     STATIC_DIR: str = os.path.join(BASE_DIR, "static")
     LOGS_DIR: str = os.path.join(BASE_DIR, "logs")
+
+    @classmethod
+    def validate_production_settings(cls) -> None:
+        """
+        Valida que configurações críticas de segurança estejam estritamente
+        atendidas quando executando em ambiente de produção (PaaS).
+        """
+        if cls.ENVIRONMENT == "production":
+            insecure_keys = (
+                "fecho-dev-insecure-secret-key-replace-in-production-paas",
+                "secret",
+                "change-me",
+            )
+            if cls.SECRET_KEY in insecure_keys or len(cls.SECRET_KEY) < 32:
+                raise ValueError(
+                    "Configuração Insegura Crítica: Em ambiente de produção (ENVIRONMENT=production), "
+                    "a variável SECRET_KEY deve ser configurada no painel do PaaS com chave de alta "
+                    "entropia contendo no mínimo 32 caracteres."
+                )
 
 
 settings = Settings()

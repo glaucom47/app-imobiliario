@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 29/09/2026 - 18:10
-* **Fase Atual:** Fase 10 - Auditoria de Segurança, Testes E2E, Polimento Ergonômico de Design e Homologação (UAT)
-* **Status Geral:** Concluída e Operacional (Servidor ASGI Uvicorn ativo em `http://localhost:8000`; corrigido bug crítico de Temporal Dead Zone em `app.js` que impedia o funcionamento dos botões e listeners da interface; adicionada função defensiva `escapeHtml`; Service Worker atualizado para `fecho-static-v4` com expurgo de cache antigo; suíte de testes automatizados com 99 testes 100% aprovados)
+* **Última Atualização:** 29/09/2026 - 20:05
+* **Fase Atual:** Revisão de Segurança Pré-Publicação Concluída
+* **Status Geral:** Concluída e Operacional (Revisão integral de segurança e boas práticas pré-publicação realizada; travas ativas contra SECRET_KEY insegura em produção e fallback indevido para SQLite implementadas; sanitização universal contra XSS com escapeHtml aplicada no mobile e no backoffice; desativação de /docs e /redoc em produção; Service Worker atualizado para fecho-static-v5; suíte de testes expandida para 101 testes automatizados com 100% de aprovação)
 
 ---
 

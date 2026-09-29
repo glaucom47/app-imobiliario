@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       renderPortfolioCards(cachedProperties);
     } catch (err) {
-      portfolioListContainer.innerHTML = `<p style="text-align: center; color: var(--color-error); font-size: 13px; padding: 24px 0;">Erro ao carregar carteira: ${err.message}</p>`;
+      portfolioListContainer.innerHTML = `<p style="text-align: center; color: var(--color-error); font-size: 13px; padding: 24px 0;">Erro ao carregar carteira: ${escapeHtml(err.message)}</p>`;
     }
   }
 
@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (status === 'Vendido') {
       return '<span class="status-pill" style="background: var(--color-surface-container-high); color: var(--color-primary); font-size: 11px;">Vendido</span>';
     }
-    return `<span class="status-pill" style="font-size: 11px;">${status}</span>`;
+    return `<span class="status-pill" style="font-size: 11px;">${escapeHtml(status)}</span>`;
   }
 
   function renderPortfolioCards(properties) {
@@ -352,9 +352,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="property-card ${isSelected ? 'is-selected' : ''}" data-property-id="${p.id}">
           <div class="property-card-header">
             <div style="flex: 1; padding-right: 8px;">
-              <span class="label-caps" style="color: var(--color-secondary);">${p.tipologia}${p.area_bruta ? ` • ${p.area_bruta} m²` : ''}</span>
-              <h4 class="property-title">${p.titulo}</h4>
-              <p class="property-location">${locationText}</p>
+              <span class="label-caps" style="color: var(--color-secondary);">${escapeHtml(p.tipologia)}${p.area_bruta ? ` • ${p.area_bruta} m²` : ''}</span>
+              <h4 class="property-title">${escapeHtml(p.titulo)}</h4>
+              <p class="property-location">${escapeHtml(locationText)}</p>
             </div>
             <div>
               ${getStatusBadgeHtml(p.status)}
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 6px;">
             <span class="property-price">${priceFmt}</span>
-            <span style="font-size: 11px; color: var(--color-outline);">Consultor: ${p.consultor_nome || 'Agência'}</span>
+            <span style="font-size: 11px; color: var(--color-outline);">Consultor: ${escapeHtml(p.consultor_nome || 'Agência')}</span>
           </div>
 
           <div class="property-actions-row">
@@ -1072,8 +1072,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     hitlObjectionChipsGrid.innerHTML = voiceVisitState.catalogTags.map((t) => {
       const isActive = voiceVisitState.selectedTagIds.has(t.id);
       return `
-        <button type="button" class="objection-chip ${isActive ? 'active' : ''}" data-tag-id="${t.id}" data-tag-name="${t.tag}">
-          ${t.tag}
+        <button type="button" class="objection-chip ${isActive ? 'active' : ''}" data-tag-id="${t.id}" data-tag-name="${escapeHtml(t.tag)}">
+          ${escapeHtml(t.tag)}
         </button>
       `;
     }).join('');

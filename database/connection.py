@@ -29,18 +29,35 @@ def _init_engine():
                 pool_pre_ping=True,
                 pool_size=10,
                 max_overflow=20,
-                connect_args={"connect_timeout": 3},
+                connect_args={"connect_timeout": 5},
             )
             with pg_engine.connect() as conn:
                 pass
             return pg_engine
         except (OperationalError, Exception) as exc:
+            if settings.ENVIRONMENT == "production":
+                logger.error(
+                    "Erro Crítico: Não foi possível conectar ao PostgreSQL de produção em '%s': %s. "
+                    "O fallback para SQLite está estritamente bloqueado em ambiente de produção.",
+                    db_url,
+                    exc,
+                )
+                raise RuntimeError(
+                    f"Falha de conexão com o banco de dados PostgreSQL gerenciado em produção: {exc}"
+                ) from exc
+
             logger.warning(
                 "Aviso: Não foi possível conectar ao PostgreSQL em '%s' (%s). "
                 "Ativando fallback automático para base de dados local SQLite (database/fecho_dev.db) para desenvolvimento.",
                 db_url,
                 exc,
             )
+
+    if settings.ENVIRONMENT == "production":
+        raise RuntimeError(
+            "Configuração Insegura: O ambiente de produção (ENVIRONMENT=production) exige banco de dados "
+            "PostgreSQL configurado na variável DATABASE_URL."
+        )
 
     # Fallback para SQLite local de desenvolvimento
     sqlite_file = os.path.join(settings.BASE_DIR, "database", "fecho_dev.db")
@@ -93,8 +110,15 @@ def ensure_initialized():
     db = SessionLocal()
     try:
         if db.query(User).count() == 0:
-            from database.seed import seed_database
-            seed_database(db=db)
+            if settings.ENVIRONMENT == "production":
+                logger.info(
+                    "Ambiente de produção (ENVIRONMENT=production) detectado com banco vazio: "
+                    "Seed automático de demonstração bloqueado por segurança. "
+                    "Utilize script administrativo seguro para provisionamento da agência e diretor."
+                )
+            else:
+                from database.seed import seed_database
+                seed_database(db=db)
     except Exception as e:
         logger.warning("Aviso durante a inicialização automática do banco: %s", e)
     finally:

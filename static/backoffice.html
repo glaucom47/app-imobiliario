@@ -456,6 +456,17 @@
     let currentAnalyticsData = null;
     let selectedKpiDays = 30;
 
+    // Sanitizador de HTML contra XSS
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       // 0. Modo Luz Solar Intensa e Monitoramento de Rede
       const btnSunlightBo = document.getElementById('btn-sunlight-toggle-bo');
@@ -671,8 +682,8 @@
             const dataUltima = c.ultima_visita ? new Date(c.ultima_visita).toLocaleDateString('pt-PT') : 'Sem registo';
             return `
               <tr>
-                <td style="font-weight: 600; color: var(--color-primary);">${c.nome}</td>
-                <td style="color: var(--color-outline);">${c.email}</td>
+                <td style="font-weight: 600; color: var(--color-primary);">${escapeHtml(c.nome)}</td>
+                <td style="color: var(--color-outline);">${escapeHtml(c.email)}</td>
                 <td style="text-align: center; font-weight: 600; font-variant-numeric: tabular-nums;">${c.total_visitas}</td>
                 <td style="text-align: center; font-variant-numeric: tabular-nums;">${c.visitas_com_feedback}</td>
                 <td>
@@ -739,8 +750,8 @@
             chartContainer.innerHTML = data.distribuicao.map(item => `
               <div class="obj-bar-row">
                 <div class="obj-bar-label">
-                  <span>${item.tag}</span>
-                  <span class="label-caps" style="color: var(--color-outline); font-size: 10px;">${item.categoria}</span>
+                  <span>${escapeHtml(item.tag)}</span>
+                  <span class="label-caps" style="color: var(--color-outline); font-size: 10px;">${escapeHtml(item.categoria)}</span>
                 </div>
                 <div class="obj-bar-track">
                   <div class="obj-bar-fill" style="width: ${Math.min(100, item.percentual_visitas)}%;"></div>
@@ -838,8 +849,8 @@
           tbody.innerHTML = tags.map(t => `
             <tr>
               <td style="color: var(--color-outline); font-size: 12px;">#${t.id}</td>
-              <td style="font-weight: 600; color: var(--color-primary);">${t.tag}</td>
-              <td><span class="status-pill status-pill-secondary">${t.categoria}</span></td>
+              <td style="font-weight: 600; color: var(--color-primary);">${escapeHtml(t.tag)}</td>
+              <td><span class="status-pill status-pill-secondary">${escapeHtml(t.categoria)}</span></td>
               <td style="text-align: center;">
                 <span class="status-pill ${t.ativo ? 'status-pill-notarized' : 'status-pill-error'}">
                   ${t.ativo ? 'Ativa' : 'Inativa'}

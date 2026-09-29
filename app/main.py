@@ -30,6 +30,7 @@ from app.middleware.security import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gerenciamento de ciclo de vida moderno da aplicação ASGI."""
+    settings.validate_production_settings()
     ensure_initialized()
     yield
 
@@ -38,8 +39,8 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Assistente imobiliário focado em visitas, cálculo fiscal (IMT/Selo), scripts e inteligência de mercado.",
     version=settings.VERSION,
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
     lifespan=lifespan
 )
 

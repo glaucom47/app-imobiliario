@@ -575,7 +575,7 @@ def test_pwa_manifest_and_service_worker_served(client):
     sw_resp = client.get("/static/sw.js")
     assert sw_resp.status_code == status.HTTP_200_OK
     sw_text = sw_resp.text
-    assert "fecho-static-v4" in sw_text
+    assert "fecho-static-v5" in sw_text
     assert "/static/js/calculator.js" in sw_text
     assert "/static/js/teleprompter.js" in sw_text
 
@@ -662,3 +662,68 @@ def test_sunlight_contrast_mode_tokens_and_styles():
     assert "offline-status-banner" in index_html
     assert "btn-sunlight-toggle-bo" in bo_html
     assert "offline-status-banner-bo" in bo_html
+
+
+# ==============================================================================
+# 8. TRAVAS DE SEGURANÇA E GUARDRAILS DE PRODUÇÃO (PAAS)
+# ==============================================================================
+
+def test_production_security_guardrails_secret_key():
+    """
+    Verifica se a aplicação bloqueia inicialização em produção caso a SECRET_KEY
+    seja a chave padrão insegura de desenvolvimento ou possua menos de 32 caracteres.
+    """
+    import pytest
+    from config.config import Settings
+
+    # Salva estado original
+    orig_env = Settings.ENVIRONMENT
+    orig_key = Settings.SECRET_KEY
+
+    try:
+        Settings.ENVIRONMENT = "production"
+        Settings.SECRET_KEY = "fecho-dev-insecure-secret-key-replace-in-production-paas"
+
+        # Deve lançar ValueError recusando chave padrão
+        with pytest.raises(ValueError, match="Configuração Insegura Crítica"):
+            Settings.validate_production_settings()
+
+        # Deve recusar chave fraca curta (< 32 caracteres)
+        Settings.SECRET_KEY = "chave-curta-insegura"
+        with pytest.raises(ValueError, match="Configuração Insegura Crítica"):
+            Settings.validate_production_settings()
+
+        # Com chave forte (64 caracteres), deve passar sem exceções
+        Settings.SECRET_KEY = "a" * 64
+        Settings.validate_production_settings()
+
+    finally:
+        Settings.ENVIRONMENT = orig_env
+        Settings.SECRET_KEY = orig_key
+
+
+def test_production_sqlite_fallback_blocked():
+    """
+    Verifica se em ambiente de produção (ENVIRONMENT=production) o fallback
+    automático para SQLite e o seed de demonstração são estritamente bloqueados.
+    """
+    import pytest
+    from config.config import settings
+    from database.connection import _init_engine
+
+    orig_env = settings.ENVIRONMENT
+    orig_url = settings.DATABASE_URL
+
+    try:
+        settings.ENVIRONMENT = "production"
+        # URL PostgreSQL inválida para simular falha de conexão na nuvem
+        settings.DATABASE_URL = "postgresql+psycopg2://user:pass@127.0.0.1:54399/invalido_db"
+
+        # Em produção, deve lançar RuntimeError e NUNCA fazer fallback silencioso para SQLite
+        with pytest.raises(RuntimeError, match="Falha de conexão com o banco de dados PostgreSQL"):
+            _init_engine()
+
+    finally:
+        settings.ENVIRONMENT = orig_env
+        settings.DATABASE_URL = orig_url
+

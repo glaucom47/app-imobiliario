@@ -149,3 +149,25 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
   4. Elevou-se a versão do cache do Service Worker para `fecho-static-v4` em `static/sw.js` e forçou-se a checagem de atualização imediata no carregamento da aplicação;
   5. Validou-se a suíte de 99 testes automatizados com 100% de sucesso.
 - **Como evitar no futuro:** Nunca referenciar variáveis declaradas com `const`/`let` antes da sua linha de inicialização. Preferir sempre seleção declarativa pelo DOM (`document.querySelectorAll`) para componentes genéricos (como modais e overlays). Testar o ciclo de vida do script em ambiente DOM simulado antes de entregas.
+
+### 2026-09-29 - Omissão de sanitização escapeHtml em cards de imóveis e tabelas do backoffice (Risco XSS)
+
+- **Sintoma:** Durante a auditoria de segurança pré-publicação, identificou-se que embora a função `escapeHtml` existisse no módulo de contatos, dados dinâmicos como títulos de imóveis, localização, nomes de consultores e tags de objeção eram inseridos via `innerHTML` em `static/js/app.js` e `static/backoffice.html` sem filtragem.
+- **Causa:** Construção de templates literais em Vanilla JS interpolando propriedades de objetos diretamente no DOM sem a passagem sistemática pela rotina de escape.
+- **Solução aplicada:**
+  1. Aplicou-se `escapeHtml` em todas as variáveis interpoladas em `renderPortfolioCards` e `renderObjectionChips` em `static/js/app.js`;
+  2. Declarou-se a função utilitária `escapeHtml` e aplicou-se a sanitização nas tabelas de consultores, tags e gráfico de distribuição em `static/backoffice.html`;
+  3. Elevou-se o cache do Service Worker para `fecho-static-v5` em `static/sw.js` para garantir atualização imediata nos navegadores dos clientes.
+- **Como evitar no futuro:** Em aplicações com Vanilla JS, nunca concatenar dados dinâmicos não confiáveis em propriedades `innerHTML` sem envolver em função sanitizadora padronizada ou priorizar `textContent` e nós DOM declarativos.
+
+### 2026-09-29 - Risco de execução em produção com SECRET_KEY padrão ou fallback silencioso para SQLite
+
+- **Sintoma:** Em caso de falha de conexão com o PostgreSQL em produção ou omissão da variável `SECRET_KEY` no painel do PaaS, o sistema aceitaria a chave padrão insegura de desenvolvimento e faria fallback automático para um banco SQLite efêmero com criação de contas demo com senhas conhecidas.
+- **Causa:** Ausência de validação de guardrails no `lifespan` do FastAPI e fallback indiscriminado de banco de dados em `database/connection.py` sem checagem do ambiente `ENVIRONMENT`.
+- **Solução aplicada:**
+  1. Implementou-se `Settings.validate_production_settings()` no `config/config.py`, bloqueando a inicialização em produção (`ENVIRONMENT=production`) se `SECRET_KEY` for a chave padrão ou tiver menos de 32 caracteres;
+  2. Bloqueou-se o fallback para SQLite em `database/connection.py` se `ENVIRONMENT == "production"`, forçando encerramento com mensagem explícita;
+  3. Desativou-se o seed automático de contas de teste de demonstração em produção;
+  4. Adicionaram-se testes automatizados específicos cobrindo esses guardrails em `tests/test_security_multitenant_stress.py`.
+- **Como evitar no futuro:** Sempre implementar verificações de guarda explícitas no ciclo de vida (startup) da aplicação que impeçam a inicialização em ambientes produtivos caso segredos ou infraestruturas críticas estejam em modo permissivo de desenvolvimento.
+

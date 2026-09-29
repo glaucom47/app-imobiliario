@@ -1040,36 +1040,133 @@
     </div>
   </div>
 
-  <!-- Modal / Overlay de Autenticação -->
+  <!-- Modal / Overlay de Autenticação e Registo -->
   <div class="auth-overlay" id="auth-modal" style="display: none;">
     <div class="auth-card">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="/static/img/screen.png" alt="Fecho" style="height: 32px; margin-bottom: 12px;">
-        <h2 style="font-size: 18px; font-weight: 600;">Acesso ao Assistente</h2>
-        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Introduza as suas credenciais profissionais</p>
+      <div style="text-align: center; margin-bottom: 16px;">
+        <img src="/static/img/screen.png" alt="Fecho" style="height: 32px; margin-bottom: 8px;">
+        <h2 style="font-size: 18px; font-weight: 600;" id="auth-modal-title">Acesso ao Assistente</h2>
+        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="auth-modal-subtitle">Introduza as suas credenciais ou registe a sua conta</p>
       </div>
 
-      <form id="login-form">
-        <div class="fecho-form-group">
-          <label class="fecho-label" for="login-email">E-mail Corporativo</label>
-          <input type="email" id="login-email" class="fecho-input" placeholder="consultor@fecho.pt" required autocomplete="username">
+      <!-- Abas de Navegação: Iniciar Sessão vs Criar Conta -->
+      <div class="auth-nav-tabs">
+        <button type="button" class="auth-nav-tab active" id="auth-tab-btn-login">Iniciar Sessão</button>
+        <button type="button" class="auth-nav-tab" id="auth-tab-btn-register">Criar Conta</button>
+      </div>
+
+      <!-- PAINEL 1: INICIAR SESSÃO (LOGIN) -->
+      <div id="auth-panel-login">
+        <form id="login-form">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="login-email">E-mail Profissional</label>
+            <input type="email" id="login-email" class="fecho-input" placeholder="consultor@fecho.pt" required autocomplete="username">
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="login-password">Palavra-passe</label>
+            <input type="password" id="login-password" class="fecho-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+
+          <div id="login-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 16px; text-align: center;"></div>
+
+          <button type="submit" class="btn-primary-action" id="btn-submit-login">Iniciar Sessão</button>
+        </form>
+
+        <!-- Acesso Rápido para Demonstração / Homologação -->
+        <div class="demo-credentials-box">
+          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 4px;">Acesso de Teste (1 Toque):</span>
+          <button type="button" class="btn-demo-pill" id="btn-demo-consultor">Consultor Demo</button>
+          <button type="button" class="btn-demo-pill" id="btn-demo-diretor">Diretora Demo</button>
+        </div>
+      </div>
+
+      <!-- PAINEL 2: CRIAR CONTA (REGISTO) -->
+      <div id="auth-panel-register" style="display: none;">
+        <!-- Seletor de Perfil: Diretor / Agência vs Consultor -->
+        <div class="auth-role-selector">
+          <button type="button" class="auth-role-btn active" id="btn-role-agency">🏢 Nova Agência</button>
+          <button type="button" class="auth-role-btn" id="btn-role-consultor">👤 Consultor</button>
         </div>
 
-        <div class="fecho-form-group">
-          <label class="fecho-label" for="login-password">Palavra-passe</label>
-          <input type="password" id="login-password" class="fecho-input" placeholder="••••••••" required autocomplete="current-password">
-        </div>
+        <!-- Formulário A: Nova Agência (Diretor) -->
+        <form id="register-agency-form">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="reg-agency-name">Nome da Agência *</label>
+            <input type="text" id="reg-agency-name" class="fecho-input" placeholder="ex: Sol & Mar Imobiliária" required minlength="2">
+          </div>
 
-        <div id="login-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 16px; text-align: center;"></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="reg-agency-concelho">Concelho</label>
+              <input type="text" id="reg-agency-concelho" class="fecho-input" placeholder="ex: Lisboa / Cascais">
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="reg-agency-nif">NIF (Opcional)</label>
+              <input type="text" id="reg-agency-nif" class="fecho-input" placeholder="500000000">
+            </div>
+          </div>
 
-        <button type="submit" class="btn-primary-action" id="btn-submit-login">Iniciar Sessão</button>
-      </form>
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="reg-agency-director-name">Nome do Diretor / Broker *</label>
+            <input type="text" id="reg-agency-director-name" class="fecho-input" placeholder="ex: Marta Silva" required minlength="2">
+          </div>
 
-      <!-- Acesso Rápido para Demonstração / Homologação -->
-      <div class="demo-credentials-box">
-        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 4px;">Acesso de Teste (1 Toque):</span>
-        <button type="button" class="btn-demo-pill" id="btn-demo-consultor">Consultor Demo</button>
-        <button type="button" class="btn-demo-pill" id="btn-demo-diretor">Diretora Demo</button>
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="reg-agency-director-email">E-mail Corporativo *</label>
+            <input type="email" id="reg-agency-director-email" class="fecho-input" placeholder="direcao@agencia.pt" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="reg-agency-director-phone">Telemóvel</label>
+              <input type="tel" id="reg-agency-director-phone" class="fecho-input" placeholder="+351 912 345 678">
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="reg-agency-password">Palavra-passe *</label>
+              <input type="password" id="reg-agency-password" class="fecho-input" placeholder="Mínimo 6 carateres" required minlength="6">
+            </div>
+          </div>
+
+          <div id="register-agency-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; text-align: center;"></div>
+
+          <button type="submit" class="btn-primary-action" id="btn-submit-reg-agency">Criar Agência e Entrar</button>
+        </form>
+
+        <!-- Formulário B: Consultor Imobiliário -->
+        <form id="register-consultor-form" style="display: none;">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="reg-consultor-agency">Selecione a sua Agência *</label>
+            <select id="reg-consultor-agency" class="fecho-input" required style="height: 48px;">
+              <option value="" disabled selected>A carregar agências ativas...</option>
+            </select>
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="reg-consultor-name">Nome Completo *</label>
+            <input type="text" id="reg-consultor-name" class="fecho-input" placeholder="ex: João Santos" required minlength="2">
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="reg-consultor-email">E-mail Profissional *</label>
+            <input type="email" id="reg-consultor-email" class="fecho-input" placeholder="joao@agencia.pt" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="reg-consultor-phone">Telemóvel</label>
+              <input type="tel" id="reg-consultor-phone" class="fecho-input" placeholder="+351 961 234 567">
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="reg-consultor-password">Palavra-passe *</label>
+              <input type="password" id="reg-consultor-password" class="fecho-input" placeholder="Mínimo 6 carateres" required minlength="6">
+            </div>
+          </div>
+
+          <div id="register-consultor-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; text-align: center;"></div>
+
+          <button type="submit" class="btn-primary-action" id="btn-submit-reg-consultor">Registar Consultor e Entrar</button>
+        </form>
       </div>
     </div>
   </div>

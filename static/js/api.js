@@ -130,6 +130,45 @@ const Api = {
     return data;
   },
 
+  /**
+   * Regista uma nova agência e o respetivo utilizador diretor.
+   */
+  async registerAgency(payload) {
+    const data = await this.request('/auth/register-agency', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (data && data.access_token) {
+      this.setToken(data.access_token);
+      this.setUser(data.user);
+      window.dispatchEvent(new CustomEvent('fecho:authenticated', { detail: data.user }));
+    }
+    return data;
+  },
+
+  /**
+   * Regista um novo consultor associado a uma agência.
+   */
+  async registerConsultor(payload) {
+    const data = await this.request('/auth/register-consultor', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    if (data && data.access_token) {
+      this.setToken(data.access_token);
+      this.setUser(data.user);
+      window.dispatchEvent(new CustomEvent('fecho:authenticated', { detail: data.user }));
+    }
+    return data;
+  },
+
+  /**
+   * Obtém lista de agências ativas para seleção de consultores no registo.
+   */
+  async getActiveAgencies() {
+    return await this.request('/auth/agencies');
+  },
+
   selectedPropertyKey: 'fecho_selected_property',
 
   getSelectedProperty() {
@@ -448,6 +487,75 @@ const Api = {
     a.click();
     a.remove();
     window.URL.revokeObjectURL(downloadUrl);
+  },
+
+  // ==========================================
+  // CAPTAÇÃO E ANGARIAÇÃO (LEADS & FONTES ABERTAS)
+  // ==========================================
+
+  async getLeads(params = {}) {
+    const query = new URLSearchParams();
+    if (params.fonte) query.append('fonte', params.fonte);
+    if (params.status) query.append('status', params.status);
+    if (params.concelho) query.append('concelho', params.concelho);
+    if (params.tipologia) query.append('tipologia', params.tipologia);
+    if (params.consultor_id) query.append('consultor_id', params.consultor_id);
+    if (params.busca) query.append('busca', params.busca);
+    if (params.skip !== undefined) query.append('skip', params.skip);
+    if (params.limit !== undefined) query.append('limit', params.limit);
+
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    return await this.request(`/leads${queryString}`);
+  },
+
+  async getLeadStats() {
+    return await this.request('/leads/stats');
+  },
+
+  async getLead(id) {
+    return await this.request(`/leads/${id}`);
+  },
+
+  async createManualLead(leadData) {
+    return await this.request('/leads/manual', {
+      method: 'POST',
+      body: JSON.stringify(leadData),
+    });
+  },
+
+  async extractLeadUrl(url) {
+    return await this.request('/leads/extrair-url', {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    });
+  },
+
+  async triggerLeadScan(scanData = {}) {
+    return await this.request('/leads/varredura', {
+      method: 'POST',
+      body: JSON.stringify(scanData),
+    });
+  },
+
+  async convertLead(id, convertData = {}) {
+    return await this.request(`/leads/${id}/converter`, {
+      method: 'POST',
+      body: JSON.stringify(convertData),
+    });
+  },
+
+  async updateLeadStatus(id, statusData) {
+    return await this.request(`/leads/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(statusData),
+    });
+  },
+
+  async registerLeadRgpd(id, data = {}) {
+    return await this.request(`/leads/${id}/oposicao-rgpd`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
 
   /**

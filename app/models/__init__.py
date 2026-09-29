@@ -11,6 +11,7 @@ from app.models.objection import ObjectionTag, VisitObjection
 from app.models.contact import Contact
 from app.models.settings import Settings
 from app.models.log import Log
+from app.models.lead import LeadAngariacao, LeadBlacklist
 
 __all__ = [
     "Base",
@@ -23,4 +24,6 @@ __all__ = [
     "Contact",
     "Settings",
     "Log",
+    "LeadAngariacao",
+    "LeadBlacklist",
 ]

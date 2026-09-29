@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 29/09/2026 - 21:50
-* **Fase Atual:** Documentação Final de Manutenção Concluída (Modo Manutenção Ativo)
-* **Status Geral:** Concluído, Documentado e Operacional. O sistema está 100% pronto para manutenção e evolução com segurança. Foram criados os manuais definitivos de manutenção e operação (`docs/MANUTENCAO.md`), o guia prático para pessoas leigas solicitarem mudanças para IA (`docs/COMO-PEDIR-MUDANCAS.md`), o arquivo de contexto operacional da IA foi atualizado para o modo manutenção (`AGENTS.md`), e a suíte com 101 testes automatizados permanece com 100% de aprovação.
+* **Última Atualização:** 30/09/2026 - 00:40
+* **Fase Atual:** Modo Manutenção e Evolução Contínua (Módulo Entregue: Captação e Angariação de Fontes Abertas & FSBO)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O novo módulo de **Captação e Angariação de Imóveis** foi integralmente implementado e integrado à plataforma Fecho: inclui scrapers modulares de hasta pública (`e-leiloes.pt`) e de anúncios de particulares (`OLX Portugal`), nova aba no Backoffice da Diretora com KPIs e filtros avançados, conversão transacional em 1 clique para imóvel ativo da carteira (`Property`), governança e lista de exclusão do RGPD (Art. 21) e captura rápida via URL. A suíte automatizada foi expandida para **108 testes com 100% de aprovação**.
 
 ---
 
@@ -20,7 +20,8 @@
 | **Fase 8** | Pós-Venda, Esfera de Influência e Notificações de Aniversário | Concluída |
 | **Fase 9** | Backoffice Web da Agência, Métricas e Exportação CSV | Concluída |
 | **Fase 10** | Auditoria de Segurança, Testes E2E e Polimento Final | Concluída |
-| **Documentação Final** | Manuais de Manutenção, Guia de Prompts e Modo Manutenção | Concluída |
+| **Módulo Novo** | Captação e Angariação de Imóveis (Fontes Abertas: e-leiloes.pt e OLX FSBO) | Concluído |
+| **Documentação Final** | Manuais de Manutenção, FSD Atualizado e Modo Manutenção | Concluída |
 
 ---
 
@@ -51,8 +52,15 @@
   - 10 regras de segurança inegociáveis;
   - Cuidados para não quebrar funcionalidades existentes;
   - Obrigatoriedade de rodar testes automatizados (`pytest -v`) e atualizar arquivos vivos.
+- [x] **Módulo de Captação e Angariação de Imóveis (Fontes Abertas & FSBO):**
+  - Entidades `LeadAngariacao` e `LeadBlacklist` com migração Alembic aplicada;
+  - Scrapers modulares para `e-leiloes.pt` e `OLX Portugal` (Particulares);
+  - Camada de serviço com conversão transacional em 1 clique gerando imóvel `Ativo`;
+  - Governança RGPD com bloqueio por telefone em blacklist e mascaramento de dados;
+  - Nova aba no Backoffice da Diretora com KPIs, filtros e modais com `escapeHtml`;
+  - 7 novos testes automatizados dedicados cobrindo isolamento multi-tenant, conversão, auditoria e RGPD.
 - [x] **Validação Técnica e Suíte de Testes:**
-  - 101 testes automatizados executados e 100% aprovados (`pytest -v`);
+  - 108 testes automatizados executados e 100% aprovados (`pytest -v`);
   - Zero falhas de sintaxe em scripts frontend (`node -c static/js/*.js`);
   - Guardrails de produção e proteção de isolamento multi-tenant validados.
 

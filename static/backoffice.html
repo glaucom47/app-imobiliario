@@ -62,6 +62,7 @@
         <button class="bo-tab-btn" data-tab="tab-tags">Catálogo de Objeções</button>
         <button class="bo-tab-btn" data-tab="tab-settings">Parâmetros Financeiros</button>
         <button class="bo-tab-btn" data-tab="tab-export">Centro de Exportação CSV</button>
+        <button class="bo-tab-btn" data-tab="tab-leads">Captação & Angariação</button>
       </nav>
 
       <!-- ===================================================================
@@ -377,6 +378,127 @@
           </div>
         </div>
       </div>
+
+      <!-- ===================================================================
+           ABA 6: CAPTAÇÃO E ANGARIAÇÃO (FONTES ABERTAS & FSBO)
+           =================================================================== -->
+      <div id="tab-leads" class="bo-tab-content">
+        <!-- Barra de Ações e Filtro de Captação -->
+        <div class="bo-filter-bar">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Oportunidades de Captação & Angariação</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">
+              Leilões públicos judiciais (e-leilões.pt) e proprietários particulares (OLX Portugal)
+            </p>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <button class="status-pill" style="border: 1px solid var(--color-secondary); background: var(--color-secondary-container); color: var(--color-on-secondary-container); cursor: pointer; height: 38px; padding: 0 14px; font-size: 12px; font-weight: 600;" id="btn-trigger-scan">
+              ⚡ Executar Varredura
+            </button>
+            <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 38px; padding: 0 14px; font-size: 12px; font-weight: 600;" id="btn-open-extract-url">
+              🔗 Capturar via Link
+            </button>
+            <button class="btn-primary-action" style="width: auto; height: 38px; padding: 0 16px; font-size: 12px;" id="btn-open-manual-lead">
+              + Inserir Oportunidade
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Indicadores de Captação -->
+        <main style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-margin); margin-bottom: var(--spacing-lg);">
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Total Oportunidades</span>
+            <div class="financial-display" id="lead-kpi-total">0</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Na zona da agência</p>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-secondary); display: block; margin-bottom: 8px;">Hastas Públicas (e-Leilões)</span>
+            <div class="financial-display" style="color: var(--color-secondary);" id="lead-kpi-eleiloes">0</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Execuções e penhoras judiciais</p>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Particulares (OLX FSBO)</span>
+            <div class="financial-display" id="lead-kpi-olx">0</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Venda direta proprietário</p>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Taxa de Conversão</span>
+            <div class="financial-display" id="lead-kpi-conversao">0%</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="lead-kpi-convertidas-label">0 convertidas na carteira</p>
+          </div>
+        </main>
+
+        <!-- Filtros Rápidos de Listagem -->
+        <section class="card-tier1" style="padding: 16px; margin-bottom: var(--spacing-md);">
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 160px;">
+              <label class="label-caps" style="font-size: 11px; margin-bottom: 4px; display: block;">Fonte</label>
+              <select id="filter-lead-fonte" class="fecho-input" style="height: 38px; font-size: 13px;">
+                <option value="">Todas as Fontes</option>
+                <option value="e-leiloes">e-Leilões (Hasta Pública)</option>
+                <option value="olx">OLX (Particulares)</option>
+                <option value="manual">Manual / Registadas</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 160px;">
+              <label class="label-caps" style="font-size: 11px; margin-bottom: 4px; display: block;">Estado da Prospecção</label>
+              <select id="filter-lead-status" class="fecho-input" style="height: 38px; font-size: 13px;">
+                <option value="">Todos os Estados</option>
+                <option value="Novo">Novo (Aguardando Abordagem)</option>
+                <option value="Em Prospeccao">Em Prospecção</option>
+                <option value="Convertido">Convertido na Carteira</option>
+                <option value="Descartado">Descartado</option>
+                <option value="Oposicao_RGPD">Oposição RGPD</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 160px;">
+              <label class="label-caps" style="font-size: 11px; margin-bottom: 4px; display: block;">Concelho</label>
+              <input type="text" id="filter-lead-concelho" class="fecho-input" placeholder="ex: Lisboa, Cascais..." style="height: 38px; font-size: 13px;">
+            </div>
+            <div style="flex: 1; min-width: 160px;">
+              <label class="label-caps" style="font-size: 11px; margin-bottom: 4px; display: block;">Pesquisa Livre</label>
+              <input type="text" id="filter-lead-busca" class="fecho-input" placeholder="Título, rua, referência..." style="height: 38px; font-size: 13px;">
+            </div>
+            <div style="align-self: flex-end;">
+              <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 38px; padding: 0 16px; font-size: 12px; font-weight: 600;" id="btn-apply-lead-filters">
+                Filtrar
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tabela de Oportunidades -->
+        <section class="card-tier1">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin);">
+            <h3 style="font-size: 16px; font-weight: 600;">Oportunidades Disponíveis para Angariação</h3>
+            <span class="label-caps" style="color: var(--color-secondary);" id="leads-count-label">A carregar...</span>
+          </div>
+
+          <div class="bo-table-container">
+            <table class="bo-table">
+              <thead>
+                <tr>
+                  <th>Fonte</th>
+                  <th>Imóvel & Referência</th>
+                  <th>Tipologia / Zona</th>
+                  <th style="text-align: right;">Preço Pedido / Base</th>
+                  <th>Contacto / Anunciante</th>
+                  <th>Estado</th>
+                  <th style="text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="leads-table-body">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar oportunidades de captação...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -416,38 +538,247 @@
     </div>
   </div>
 
-  <!-- Modal de Autenticação para o Backoffice -->
+  <!-- Modal de Autenticação e Registo para o Backoffice -->
   <div class="auth-overlay" id="backoffice-auth-modal" style="display: none;">
     <div class="auth-card">
-      <div style="text-align: center; margin-bottom: 24px;">
-        <img src="/static/img/screen.png" alt="Fecho" style="height: 32px; margin-bottom: 12px;">
-        <h2 style="font-size: 18px; font-weight: 600;">Acesso à Direção</h2>
-        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Autenticação restrita ao painel corporativo da agência</p>
+      <div style="text-align: center; margin-bottom: 16px;">
+        <img src="/static/img/screen.png" alt="Fecho" style="height: 32px; margin-bottom: 8px;">
+        <h2 style="font-size: 18px; font-weight: 600;">Direção Comercial</h2>
+        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Aceda ao painel da sua agência ou registe uma nova</p>
       </div>
 
-      <form id="backoffice-login-form">
-        <div class="fecho-form-group">
-          <label class="fecho-label" for="bo-login-email">E-mail de Diretor</label>
-          <input type="email" id="bo-login-email" class="fecho-input" placeholder="diretor@fecho.pt" required autocomplete="username">
+      <!-- Abas de Navegação -->
+      <div class="auth-nav-tabs">
+        <button type="button" class="auth-nav-tab active" id="bo-tab-btn-login">Entrar</button>
+        <button type="button" class="auth-nav-tab" id="bo-tab-btn-register">Registar Agência</button>
+      </div>
+
+      <!-- Painel 1: Login de Diretor -->
+      <div id="bo-panel-login">
+        <form id="backoffice-login-form">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="bo-login-email">E-mail de Diretor</label>
+            <input type="email" id="bo-login-email" class="fecho-input" placeholder="diretor@fecho.pt" required autocomplete="username">
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="bo-login-password">Palavra-passe</label>
+            <input type="password" id="bo-login-password" class="fecho-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+
+          <div id="bo-login-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 16px; text-align: center;"></div>
+
+          <button type="submit" class="btn-primary-action" id="bo-btn-submit-login">Entrar na Direção</button>
+        </form>
+
+        <div class="demo-credentials-box">
+          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 4px;">Acesso de Teste (1 Toque):</span>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
+            <button type="button" class="btn-demo-pill" id="bo-btn-demo-diretor">Diretora Demo (Acesso Completo)</button>
+            <button type="button" class="btn-demo-pill" id="bo-btn-demo-consultor">Consultor Demo (Testar Bloqueio RBAC)</button>
+          </div>
         </div>
+      </div>
 
+      <!-- Painel 2: Registo de Nova Agência -->
+      <div id="bo-panel-register" style="display: none;">
+        <form id="bo-register-agency-form">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="bo-reg-agency-name">Nome da Agência Imobiliária *</label>
+            <input type="text" id="bo-reg-agency-name" class="fecho-input" placeholder="ex: D'Ouro Real Estate" required minlength="2">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="bo-reg-agency-concelho">Concelho / Região</label>
+              <input type="text" id="bo-reg-agency-concelho" class="fecho-input" placeholder="ex: Porto / Lisboa">
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="bo-reg-agency-nif">NIF (Opcional)</label>
+              <input type="text" id="bo-reg-agency-nif" class="fecho-input" placeholder="500000000">
+            </div>
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="bo-reg-director-name">Nome do Diretor / Broker *</label>
+            <input type="text" id="bo-reg-director-name" class="fecho-input" placeholder="ex: Marta Silva" required minlength="2">
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="bo-reg-director-email">E-mail Corporativo *</label>
+            <input type="email" id="bo-reg-director-email" class="fecho-input" placeholder="diretor@douro.pt" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="bo-reg-director-phone">Telemóvel</label>
+              <input type="tel" id="bo-reg-director-phone" class="fecho-input" placeholder="+351 912 345 678">
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="bo-reg-password">Palavra-passe *</label>
+              <input type="password" id="bo-reg-password" class="fecho-input" placeholder="Mínimo 6 carateres" required minlength="6">
+            </div>
+          </div>
+
+          <div id="bo-reg-agency-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; text-align: center;"></div>
+
+          <button type="submit" class="btn-primary-action" id="bo-btn-submit-reg">Criar Agência e Entrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 1: Captura Rápida via Link (URL) -->
+  <div class="auth-overlay" id="modal-extract-url" style="display: none;">
+    <div class="auth-card" style="max-width: 480px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600;">Capturar Imóvel via Link</h3>
+        <button type="button" id="btn-close-modal-extract" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+      <p style="font-size: 13px; color: var(--color-on-surface-variant); margin-bottom: 16px; line-height: 1.5;">
+        Insira o link direto de um lote do <strong>e-leiloes.pt</strong> ou de um anúncio particular do <strong>OLX Portugal</strong>. O sistema extrairá os dados e criará a oportunidade.
+      </p>
+      <form id="form-extract-lead-url">
         <div class="fecho-form-group">
-          <label class="fecho-label" for="bo-login-password">Palavra-passe</label>
-          <input type="password" id="bo-login-password" class="fecho-input" placeholder="••••••••" required autocomplete="current-password">
+          <label class="fecho-label" for="input-extract-url">URL / Endereço Web do Anúncio *</label>
+          <input type="url" id="input-extract-url" class="fecho-input" placeholder="https://e-leiloes.pt/... ou https://www.olx.pt/..." required>
         </div>
-
-        <div id="bo-login-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 16px; text-align: center;"></div>
-
-        <button type="submit" class="btn-primary-action" id="bo-btn-submit-login">Entrar na Direção</button>
+        <div id="modal-extract-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 14px;"></div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-extract">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-extract">Extrair Oportunidade</button>
+        </div>
       </form>
+    </div>
+  </div>
 
-      <div class="demo-credentials-box">
-        <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 4px;">Acesso de Teste (1 Toque):</span>
-        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
-          <button type="button" class="btn-demo-pill" id="bo-btn-demo-diretor">Diretora Demo (Acesso Completo)</button>
-          <button type="button" class="btn-demo-pill" id="bo-btn-demo-consultor">Consultor Demo (Testar Bloqueio RBAC)</button>
-        </div>
+  <!-- Modal 2: Inserir Oportunidade Manual -->
+  <div class="auth-overlay" id="modal-manual-lead" style="display: none;">
+    <div class="auth-card" style="max-width: 540px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600;">Nova Oportunidade de Prospecção</h3>
+        <button type="button" id="btn-close-modal-manual" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-outline);">&times;</button>
       </div>
+      <form id="form-manual-lead">
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="manual-lead-titulo">Título / Designação do Imóvel *</label>
+          <input type="text" id="manual-lead-titulo" class="fecho-input" placeholder="ex: T2 Renovado na Baixa de Lisboa" required minlength="3">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="manual-lead-preco">Preço Solicitado (€) *</label>
+            <input type="number" id="manual-lead-preco" class="fecho-input" placeholder="250000" required min="1000" step="100">
+          </div>
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="manual-lead-tipologia">Tipologia *</label>
+            <select id="manual-lead-tipologia" class="fecho-input" style="height: 48px;">
+              <option value="T0">T0</option>
+              <option value="T1">T1</option>
+              <option value="T2" selected>T2</option>
+              <option value="T3">T3</option>
+              <option value="T4">T4</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="manual-lead-concelho">Concelho *</label>
+            <input type="text" id="manual-lead-concelho" class="fecho-input" placeholder="ex: Cascais" required>
+          </div>
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="manual-lead-fonte">Fonte *</label>
+            <select id="manual-lead-fonte" class="fecho-input" style="height: 48px;">
+              <option value="olx">OLX (Particular)</option>
+              <option value="e-leiloes">e-Leilões</option>
+              <option value="manual" selected>Contacto Direto / Placa</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="manual-lead-prop">Nome do Proprietário</label>
+            <input type="text" id="manual-lead-prop" class="fecho-input" placeholder="Nome do anunciante">
+          </div>
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="manual-lead-tel">Telemóvel de Contacto</label>
+            <input type="tel" id="manual-lead-tel" class="fecho-input" placeholder="+351 9...">
+          </div>
+        </div>
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="manual-lead-url">Link de Origem / Referência</label>
+          <input type="text" id="manual-lead-url" class="fecho-input" placeholder="Link do anúncio ou código interno">
+        </div>
+        <div id="modal-manual-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 14px;"></div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-manual">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-manual">Registar Oportunidade</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Converter em Imóvel da Carteira (1 Clique) -->
+  <div class="auth-overlay" id="modal-convert-lead" style="display: none;">
+    <div class="auth-card" style="max-width: 480px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600;">Converter em Imóvel da Carteira</h3>
+        <button type="button" id="btn-close-modal-convert" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+      <p style="font-size: 13px; color: var(--color-on-surface-variant); margin-bottom: 16px; line-height: 1.5;">
+        Esta oportunidade ingressará formalmente na carteira da agência no estado <strong>Ativo</strong>.
+      </p>
+      <div class="card-tier1" style="background: var(--color-surface-container-low); margin-bottom: 16px;" id="convert-lead-preview">
+        <!-- Preenchido dinamicamente via JS -->
+      </div>
+      <form id="form-convert-lead">
+        <input type="hidden" id="convert-lead-id">
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="convert-select-consultor">Consultor Responsável</label>
+          <select id="convert-select-consultor" class="fecho-input" style="height: 48px;">
+            <option value="">Atribuir a mim (Utilizador Atual)</option>
+          </select>
+        </div>
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="convert-select-regiao">Região Fiscal (IMT)</label>
+          <select id="convert-select-regiao" class="fecho-input" style="height: 48px;">
+            <option value="continente" selected>Continente</option>
+            <option value="madeira">Região Autónoma da Madeira</option>
+            <option value="acores">Região Autónoma dos Açores</option>
+          </select>
+        </div>
+        <div id="modal-convert-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 14px;"></div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-convert">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-convert">Confirmar & Criar Imóvel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Oposição de Tratamento RGPD -->
+  <div class="auth-overlay" id="modal-rgpd-lead" style="display: none;">
+    <div class="auth-card" style="max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: var(--color-error);">Oposição RGPD (Art. 21)</h3>
+        <button type="button" id="btn-close-modal-rgpd" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+      <p style="font-size: 13px; color: var(--color-on-surface-variant); margin-bottom: 16px; line-height: 1.5;">
+        O titular manifestou oposição a ser contactado. O telemóvel será incluído na lista de exclusão da agência e os dados de contacto da oportunidade serão permanentemente mascarados.
+      </p>
+      <form id="form-rgpd-lead">
+        <input type="hidden" id="rgpd-lead-id">
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="rgpd-motivo">Motivo / Declaração</label>
+          <input type="text" id="rgpd-motivo" class="fecho-input" value="Proprietário recusa contactos de mediação imobiliária">
+        </div>
+        <div id="modal-rgpd-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 14px;"></div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-rgpd">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px; background-color: var(--color-error);" id="btn-submit-rgpd">Bloquear Telemóvel</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -557,6 +888,7 @@
         if (tabId === 'tab-objections') loadObjectionsAnalytics();
         if (tabId === 'tab-tags') loadTags();
         if (tabId === 'tab-settings') loadSettings();
+        if (tabId === 'tab-leads') loadLeads();
       }
 
       tabButtons.forEach(btn => {
@@ -638,6 +970,67 @@
         passInput.value = 'senha_segura_consultor';
         doLogin('consultor@fecho.pt', 'senha_segura_consultor');
       });
+
+      // Alternância de abas de autenticação (Entrar vs Registar Agência)
+      const boTabBtnLogin = document.getElementById('bo-tab-btn-login');
+      const boTabBtnRegister = document.getElementById('bo-tab-btn-register');
+      const boPanelLogin = document.getElementById('bo-panel-login');
+      const boPanelRegister = document.getElementById('bo-panel-register');
+      const boRegAgencyForm = document.getElementById('bo-register-agency-form');
+      const boRegAgencyError = document.getElementById('bo-reg-agency-error');
+      const boBtnSubmitReg = document.getElementById('bo-btn-submit-reg');
+
+      if (boTabBtnLogin && boTabBtnRegister) {
+        boTabBtnLogin.addEventListener('click', () => {
+          boTabBtnLogin.classList.add('active');
+          boTabBtnRegister.classList.remove('active');
+          if (boPanelLogin) boPanelLogin.style.display = 'block';
+          if (boPanelRegister) boPanelRegister.style.display = 'none';
+        });
+
+        boTabBtnRegister.addEventListener('click', () => {
+          boTabBtnRegister.classList.add('active');
+          boTabBtnLogin.classList.remove('active');
+          if (boPanelRegister) boPanelRegister.style.display = 'block';
+          if (boPanelLogin) boPanelLogin.style.display = 'none';
+        });
+      }
+
+      if (boRegAgencyForm) {
+        boRegAgencyForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (boRegAgencyError) boRegAgencyError.style.display = 'none';
+          if (boBtnSubmitReg) {
+            boBtnSubmitReg.disabled = true;
+            boBtnSubmitReg.textContent = 'A criar agência...';
+          }
+
+          try {
+            const payload = {
+              nome_agencia: document.getElementById('bo-reg-agency-name').value.trim(),
+              concelho: document.getElementById('bo-reg-agency-concelho')?.value.trim() || null,
+              nif: document.getElementById('bo-reg-agency-nif')?.value.trim() || null,
+              nome_diretor: document.getElementById('bo-reg-director-name').value.trim(),
+              email_diretor: document.getElementById('bo-reg-director-email').value.trim(),
+              telemovel_diretor: document.getElementById('bo-reg-director-phone')?.value.trim() || null,
+              password: document.getElementById('bo-reg-password').value,
+            };
+
+            const result = await Api.registerAgency(payload);
+            renderBackofficeUI(result.user);
+          } catch (err) {
+            if (boRegAgencyError) {
+              boRegAgencyError.textContent = err.message || 'Erro ao registar a agência.';
+              boRegAgencyError.style.display = 'block';
+            }
+          } finally {
+            if (boBtnSubmitReg) {
+              boBtnSubmitReg.disabled = false;
+              boBtnSubmitReg.textContent = 'Criar Agência e Entrar';
+            }
+          }
+        });
+      }
 
       btnLogout.addEventListener('click', () => {
         Api.logout();
@@ -948,6 +1341,331 @@
           }, 2000);
         }
       };
+
+      // =====================================================================
+      // 6. CAPTAÇÃO E ANGARIAÇÃO (LEADS & FONTES ABERTAS)
+      // =====================================================================
+      let currentLeads = [];
+
+      async function loadLeads() {
+        const tableBody = document.getElementById('leads-table-body');
+        const countLabel = document.getElementById('leads-count-label');
+        const kpiTotal = document.getElementById('lead-kpi-total');
+        const kpiEleiloes = document.getElementById('lead-kpi-eleiloes');
+        const kpiOlx = document.getElementById('lead-kpi-olx');
+        const kpiConversao = document.getElementById('lead-kpi-conversao');
+        const kpiConvLabel = document.getElementById('lead-kpi-convertidas-label');
+
+        try {
+          // 1. Carrega Estatísticas
+          const stats = await Api.getLeadStats();
+          if (stats) {
+            kpiTotal.textContent = stats.total_oportunidades || 0;
+            kpiEleiloes.textContent = stats.total_eleiloes || 0;
+            kpiOlx.textContent = stats.total_particulares_olx || 0;
+            kpiConversao.textContent = `${stats.taxa_conversao_pct || 0}%`;
+            kpiConvLabel.textContent = `${stats.total_convertidas || 0} convertidas na carteira`;
+          }
+
+          // 2. Carrega Listagem com Filtros
+          const params = {
+            fonte: document.getElementById('filter-lead-fonte').value || undefined,
+            status: document.getElementById('filter-lead-status').value || undefined,
+            concelho: document.getElementById('filter-lead-concelho').value.trim() || undefined,
+            busca: document.getElementById('filter-lead-busca').value.trim() || undefined,
+            limit: 100,
+          };
+
+          const res = await Api.getLeads(params);
+          currentLeads = res.items || [];
+          countLabel.textContent = `${res.total || 0} Oportunidades`;
+
+          renderLeadsTable(currentLeads);
+        } catch (err) {
+          tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--color-error); padding: 24px;">Falha ao carregar oportunidades: ${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      function renderLeadsTable(leads) {
+        const tableBody = document.getElementById('leads-table-body');
+        if (!leads || leads.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--color-outline); padding: 32px;">Nenhuma oportunidade encontrada para os filtros selecionados. Clique em "Executar Varredura" para monitorizar novos imóveis.</td></tr>`;
+          return;
+        }
+
+        tableBody.innerHTML = leads.map(lead => {
+          // Badge da Fonte
+          let fonteBadge = '';
+          if (lead.fonte === 'e-leiloes') {
+            fonteBadge = `<span class="status-pill status-pill-notarized" style="font-size: 11px;">e-Leilões (Judicial)</span>`;
+          } else if (lead.fonte === 'olx') {
+            fonteBadge = `<span class="status-pill status-pill-secondary" style="font-size: 11px;">OLX (Particular)</span>`;
+          } else {
+            fonteBadge = `<span class="status-pill" style="font-size: 11px; border: 1px solid var(--color-outline-variant);">Manual</span>`;
+          }
+
+          // Badge do Status
+          let statusBadge = '';
+          if (lead.status === 'Novo') {
+            statusBadge = `<span class="status-pill status-pill-active">Novo</span>`;
+          } else if (lead.status === 'Em Prospeccao') {
+            statusBadge = `<span class="status-pill status-pill-reserved">Em Prospecção</span>`;
+          } else if (lead.status === 'Convertido') {
+            statusBadge = `<span class="status-pill status-pill-sold">Convertido</span>`;
+          } else if (lead.status === 'Oposicao_RGPD') {
+            statusBadge = `<span class="status-pill" style="background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca;">Oposição RGPD</span>`;
+          } else {
+            statusBadge = `<span class="status-pill">${escapeHtml(lead.status)}</span>`;
+          }
+
+          // Preço formatado
+          const precoStr = formatPrice(lead.preco_solicitado);
+          let extraPreco = '';
+          if (lead.valor_minimo_abertura) {
+            extraPreco = `<br><span style="font-size: 11px; color: var(--color-secondary);">Mín. Abertura: ${escapeHtml(formatPrice(lead.valor_minimo_abertura))}</span>`;
+          }
+
+          // Contato com link para WhatsApp se houver telefone
+          let contactoHtml = escapeHtml(lead.nome_contacto || 'Proprietário');
+          if (lead.telefone_contacto && lead.telefone_contacto !== '000000000') {
+            const rawPhone = lead.telefone_contacto.replace(/[^0-9]/g, '');
+            contactoHtml += `<br><a href="https://wa.me/${encodeURIComponent(rawPhone)}" target="_blank" rel="noopener" style="font-size: 12px; color: var(--color-secondary); font-weight: 500; text-decoration: none;">💬 ${escapeHtml(lead.telefone_contacto)}</a>`;
+          }
+
+          // Botões de Ação
+          let acoesHtml = '<div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">';
+          if (lead.status !== 'Convertido' && lead.status !== 'Oposicao_RGPD') {
+            acoesHtml += `<button class="btn-primary-action" style="width: auto; height: 32px; padding: 0 10px; font-size: 11px;" onclick="openConvertModal(${lead.id})">🎯 Converter</button>`;
+            acoesHtml += `<button class="btn-secondary-ghost" style="width: auto; height: 32px; padding: 0 8px; font-size: 11px;" onclick="openRgpdModal(${lead.id})" title="Registrar Oposição RGPD">⛔ RGPD</button>`;
+          } else if (lead.status === 'Convertido') {
+            acoesHtml += `<span style="font-size: 11px; color: var(--color-secondary); font-weight: 600;">✓ Imóvel #${lead.imovel_convertido_id}</span>`;
+          }
+          if (lead.url_origem) {
+            acoesHtml += `<a href="${escapeHtml(lead.url_origem)}" target="_blank" rel="noopener" class="btn-secondary-ghost" style="width: auto; height: 32px; padding: 0 8px; font-size: 11px; text-decoration: none; display: flex; align-items: center;" title="Ver anúncio original">↗ Ver</a>`;
+          }
+          acoesHtml += '</div>';
+
+          return `
+            <tr>
+              <td>${fonteBadge}</td>
+              <td>
+                <div style="font-weight: 600; font-size: 13px;">${escapeHtml(lead.titulo)}</div>
+                <div style="font-size: 11px; color: var(--color-outline); margin-top: 2px;">Ref: ${escapeHtml(lead.referencia_externa)}</div>
+              </td>
+              <td>
+                <div style="font-size: 13px;">${escapeHtml(lead.tipologia || 'T2')}</div>
+                <div style="font-size: 11px; color: var(--color-outline);">${escapeHtml(lead.concelho || 'Portugal')}</div>
+              </td>
+              <td style="text-align: right; font-weight: 600; font-size: 13px;">
+                ${precoStr}
+                ${extraPreco}
+              </td>
+              <td>${contactoHtml}</td>
+              <td>${statusBadge}</td>
+              <td style="text-align: right;">${acoesHtml}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Filtros
+      document.getElementById('btn-apply-lead-filters').addEventListener('click', loadLeads);
+
+      // Disparo de Varredura
+      const btnScan = document.getElementById('btn-trigger-scan');
+      btnScan.addEventListener('click', async () => {
+        const origText = btnScan.textContent;
+        btnScan.disabled = true;
+        btnScan.textContent = 'A pesquisar...';
+        try {
+          const res = await Api.triggerLeadScan({
+            concelho: document.getElementById('filter-lead-concelho').value.trim() || undefined,
+            fonte: document.getElementById('filter-lead-fonte').value || undefined,
+          });
+          alert(res.mensagem || 'Varredura concluída com sucesso!');
+          loadLeads();
+        } catch (err) {
+          alert('Erro ao executar varredura: ' + err.message);
+        } finally {
+          btnScan.disabled = false;
+          btnScan.textContent = origText;
+        }
+      });
+
+      // Modal de Extração por URL
+      const modalExtract = document.getElementById('modal-extract-url');
+      const btnOpenExtract = document.getElementById('btn-open-extract-url');
+      const btnCloseExtract = document.getElementById('btn-close-modal-extract');
+      const btnCancelExtract = document.getElementById('btn-cancel-modal-extract');
+      const formExtract = document.getElementById('form-extract-lead-url');
+      const extractErr = document.getElementById('modal-extract-error');
+
+      btnOpenExtract.addEventListener('click', () => {
+        formExtract.reset();
+        extractErr.style.display = 'none';
+        modalExtract.style.display = 'flex';
+      });
+      btnCloseExtract.addEventListener('click', () => { modalExtract.style.display = 'none'; });
+      btnCancelExtract.addEventListener('click', () => { modalExtract.style.display = 'none'; });
+
+      formExtract.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const url = document.getElementById('input-extract-url').value.trim();
+        const btnSub = document.getElementById('btn-submit-extract');
+        btnSub.disabled = true;
+        btnSub.textContent = 'A extrair...';
+        extractErr.style.display = 'none';
+
+        try {
+          await Api.extractLeadUrl(url);
+          modalExtract.style.display = 'none';
+          loadLeads();
+        } catch (err) {
+          extractErr.textContent = err.message;
+          extractErr.style.display = 'block';
+        } finally {
+          btnSub.disabled = false;
+          btnSub.textContent = 'Extrair Oportunidade';
+        }
+      });
+
+      // Modal de Criação Manual
+      const modalManual = document.getElementById('modal-manual-lead');
+      const btnOpenManual = document.getElementById('btn-open-manual-lead');
+      const btnCloseManual = document.getElementById('btn-close-modal-manual');
+      const btnCancelManual = document.getElementById('btn-cancel-modal-manual');
+      const formManual = document.getElementById('form-manual-lead');
+      const manualErr = document.getElementById('modal-manual-error');
+
+      btnOpenManual.addEventListener('click', () => {
+        formManual.reset();
+        manualErr.style.display = 'none';
+        modalManual.style.display = 'flex';
+      });
+      btnCloseManual.addEventListener('click', () => { modalManual.style.display = 'none'; });
+      btnCancelManual.addEventListener('click', () => { modalManual.style.display = 'none'; });
+
+      formManual.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btnSub = document.getElementById('btn-submit-manual');
+        btnSub.disabled = true;
+        btnSub.textContent = 'A registar...';
+        manualErr.style.display = 'none';
+
+        const leadData = {
+          titulo: document.getElementById('manual-lead-titulo').value.trim(),
+          preco_solicitado: parseFloat(document.getElementById('manual-lead-preco').value),
+          tipologia: document.getElementById('manual-lead-tipologia').value,
+          concelho: document.getElementById('manual-lead-concelho').value.trim(),
+          fonte: document.getElementById('manual-lead-fonte').value,
+          nome_contacto: document.getElementById('manual-lead-prop').value.trim() || undefined,
+          telefone_contacto: document.getElementById('manual-lead-tel').value.trim() || undefined,
+          url_origem: document.getElementById('manual-lead-url').value.trim() || window.location.origin,
+          referencia_externa: 'MANUAL-' + Date.now().toString().slice(-6),
+        };
+
+        try {
+          await Api.createManualLead(leadData);
+          modalManual.style.display = 'none';
+          loadLeads();
+        } catch (err) {
+          manualErr.textContent = err.message;
+          manualErr.style.display = 'block';
+        } finally {
+          btnSub.disabled = false;
+          btnSub.textContent = 'Registar Oportunidade';
+        }
+      });
+
+      // Modal de Conversão em 1 Clique
+      const modalConvert = document.getElementById('modal-convert-lead');
+      const btnCloseConvert = document.getElementById('btn-close-modal-convert');
+      const btnCancelConvert = document.getElementById('btn-cancel-modal-convert');
+      const formConvert = document.getElementById('form-convert-lead');
+      const convertErr = document.getElementById('modal-convert-error');
+      const convertPreview = document.getElementById('convert-lead-preview');
+
+      window.openConvertModal = function(leadId) {
+        const lead = currentLeads.find(l => l.id === leadId);
+        if (!lead) return;
+
+        document.getElementById('convert-lead-id').value = lead.id;
+        convertErr.style.display = 'none';
+
+        convertPreview.innerHTML = `
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${escapeHtml(lead.titulo)}</div>
+          <div style="font-size: 12px; color: var(--color-outline); margin-bottom: 8px;">Tipologia: ${escapeHtml(lead.tipologia)} • Concelho: ${escapeHtml(lead.concelho || 'Portugal')}</div>
+          <div style="font-size: 16px; font-weight: 700; color: var(--color-secondary); margin-bottom: 8px;">${escapeHtml(formatPrice(lead.preco_solicitado))}</div>
+          <div style="font-size: 12px;">Proprietário: <strong>${escapeHtml(lead.nome_contacto || 'Particular')}</strong> (${escapeHtml(lead.telefone_contacto || 'Sem telemóvel')})</div>
+        `;
+
+        modalConvert.style.display = 'flex';
+      };
+
+      btnCloseConvert.addEventListener('click', () => { modalConvert.style.display = 'none'; });
+      btnCancelConvert.addEventListener('click', () => { modalConvert.style.display = 'none'; });
+
+      formConvert.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const leadId = document.getElementById('convert-lead-id').value;
+        const regiao = document.getElementById('convert-select-regiao').value;
+        const btnSub = document.getElementById('btn-submit-convert');
+        btnSub.disabled = true;
+        btnSub.textContent = 'A criar imóvel...';
+        convertErr.style.display = 'none';
+
+        try {
+          const propCriado = await Api.convertLead(leadId, { regiao_fiscal: regiao });
+          modalConvert.style.display = 'none';
+          alert(`✓ Sucesso! Oportunidade convertida no Imóvel #${propCriado.id} ('${propCriado.titulo}') com status 'Ativo' na carteira!`);
+          loadLeads();
+        } catch (err) {
+          convertErr.textContent = err.message;
+          convertErr.style.display = 'block';
+        } finally {
+          btnSub.disabled = false;
+          btnSub.textContent = 'Confirmar & Criar Imóvel';
+        }
+      });
+
+      // Modal de Oposição RGPD
+      const modalRgpd = document.getElementById('modal-rgpd-lead');
+      const btnCloseRgpd = document.getElementById('btn-close-modal-rgpd');
+      const btnCancelRgpd = document.getElementById('btn-cancel-modal-rgpd');
+      const formRgpd = document.getElementById('form-rgpd-lead');
+      const rgpdErr = document.getElementById('modal-rgpd-error');
+
+      window.openRgpdModal = function(leadId) {
+        document.getElementById('rgpd-lead-id').value = leadId;
+        rgpdErr.style.display = 'none';
+        modalRgpd.style.display = 'flex';
+      };
+
+      btnCloseRgpd.addEventListener('click', () => { modalRgpd.style.display = 'none'; });
+      btnCancelRgpd.addEventListener('click', () => { modalRgpd.style.display = 'none'; });
+
+      formRgpd.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const leadId = document.getElementById('rgpd-lead-id').value;
+        const motivo = document.getElementById('rgpd-motivo').value.trim();
+        const btnSub = document.getElementById('btn-submit-rgpd');
+        btnSub.disabled = true;
+        btnSub.textContent = 'A bloquear...';
+        rgpdErr.style.display = 'none';
+
+        try {
+          await Api.registerLeadRgpd(leadId, { motivo });
+          modalRgpd.style.display = 'none';
+          alert('✓ Oposição RGPD registada com sucesso! Contacto telefónico incluído na lista de exclusão.');
+          loadLeads();
+        } catch (err) {
+          rgpdErr.textContent = err.message;
+          rgpdErr.style.display = 'block';
+        } finally {
+          btnSub.disabled = false;
+          btnSub.textContent = 'Bloquear Telemóvel';
+        }
+      });
 
       function formatPrice(val) {
         if (!val) return '0,00 €';

@@ -171,3 +171,27 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
   4. Adicionaram-se testes automatizados específicos cobrindo esses guardrails em `tests/test_security_multitenant_stress.py`.
 - **Como evitar no futuro:** Sempre implementar verificações de guarda explícitas no ciclo de vida (startup) da aplicação que impeçam a inicialização em ambientes produtivos caso segredos ou infraestruturas críticas estejam em modo permissivo de desenvolvimento.
 
+### 2026-09-29 - Omissão da classe active na abertura do Drawer de Scripts impedindo exibição da interface
+
+- **Sintoma:** Ao clicar na opção "Scripts" na barra inferior de navegação ou no botão "Scripts de Vídeo & Teleprompter" no painel principal do PWA, a interface não respondia e o módulo de roteiros de vídeo não era exibido.
+- **Causa:**
+  1. A função `openScriptsDrawer()` em `static/js/app.js` alterava apenas a propriedade `drawerScripts.style.display = 'flex'`. No entanto, as regras de animação e visibilidade em `static/css/style.css` para a classe `.fecho-modal-overlay` utilizam `opacity: 0`, `visibility: hidden` e `.fecho-drawer-sheet` com `transform: translateY(100%)`, exigindo a presença da classe modificadora `.active` (`.fecho-modal-overlay.active`) para tornar o componente visível e posicionado no viewport. Ao contrário dos demais drawers do sistema que utilizavam o utilitário centralizado `openDrawer(element)`, a gaveta de scripts não adicionava essa classe.
+  2. Em caso de ausência de imóvel ativo selecionado no `localStorage`, a função tentava acessar `resp.items[0]` em vez de `resp.properties[0]` e invocava `openPortfolioDrawer()`, uma função não declarada no escopo (o identificador correto é `handleOpenPortfolio()`), disparando um `ReferenceError` não tratado que bloqueava a execução do script.
+  3. No fechamento da gaveta, utilizava-se `display = 'none'` em vez de `closeDrawer(drawerScripts)`, quebrando a sincronização tátil do menu inferior (`setActiveNavTab`).
+- **Solução aplicada:**
+  1. Padronizou-se o controle de abertura e fechamento da gaveta em `static/js/app.js` utilizando `openDrawer(drawerScripts)` e `closeDrawer(drawerScripts)`;
+  2. Corrigiu-se a leitura de resposta da API de listagem de propriedades para `resp.properties`;
+  3. Substituiu-se a chamada inexistente por `handleOpenPortfolio()`;
+  4. Elevou-se a versão do Service Worker para `fecho-static-v6` em `static/sw.js` para garantir atualização imediata nos navegadores dos clientes.
+- **Como evitar no futuro:** Sempre reutilizar as funções utilitárias do ciclo de vida de componentes (`openDrawer` e `closeDrawer`) em vez de manipular estilos inline pontuais, e verificar contratos de esquemas JSON retornados pelas rotas da API em todas as integrações client-side.
+
+### 2026-09-30 - Violação de restrição NOT NULL na coluna 'entidade' ao gravar audit_logs na conversão e oposição RGPD
+
+- **Sintoma:** Ao executar a suíte de testes de captação de leads (`tests/test_leads.py`), os testes de conversão em 1 clique e de oposição RGPD falharam com `sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: audit_logs.entidade`.
+- **Causa:** Na entidade `Log` (`app/models/log.py`), a coluna `entidade` é definida como obrigatória (`nullable=False`). No serviço `lead_service.py`, a instanciação de `Log` incluía apenas `agencia_id`, `user_id`, `acao` e `detalhes`, omitindo os campos `entidade` e `entidade_id`.
+- **Solução aplicada:**
+  1. No método `converter_em_imovel`, especificou-se `entidade="lead"` e `entidade_id=lead.id`;
+  2. No método `aplicar_oposicao_rgpd`, especificou-se `entidade="lead"` e `entidade_id=lead.id`;
+  3. Reexecutou-se a suíte e os 108 testes foram aprovados com 100% de sucesso.
+- **Como evitar no futuro:** Sempre verificar os metadados e restrições de nulidade (`nullable=False`) de entidades auxiliares (como `audit_logs`) antes de instanciá-las nos serviços de negócio.
+

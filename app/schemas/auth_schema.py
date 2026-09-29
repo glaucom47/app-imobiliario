@@ -50,8 +50,58 @@ class TokenResponse(BaseModel):
 
 class TokenPayload(BaseModel):
     """Estrutura dos claims internos do token JWT."""
-    sub: str = Field(..., description="ID do usuário")
+    sub: str = Field(..., description="ID do utilizador")
     agencia_id: int = Field(..., description="ID da agência para isolamento multi-tenant")
     role: str = Field(..., description="Perfil de acesso ('diretor' | 'consultor')")
     email: Optional[str] = None
     exp: Optional[int] = None
+
+
+class RegisterAgencyRequest(BaseModel):
+    """Payload para registo de nova agência e respetivo utilizador diretor."""
+    nome_agencia: str = Field(..., min_length=2, max_length=255, description="Nome comercial da agência imobiliária")
+    nif: Optional[str] = Field(None, max_length=50, description="NIF da agência (opcional)")
+    telemovel_agencia: Optional[str] = Field(None, max_length=50, description="Contacto telefónico da agência")
+    morada: Optional[str] = Field(None, description="Morada da agência")
+    concelho: Optional[str] = Field(None, max_length=100, description="Concelho da agência (ex: Lisboa, Porto, Cascais)")
+    nome_diretor: str = Field(..., min_length=2, max_length=255, description="Nome completo do diretor / broker")
+    email_diretor: str = Field(..., description="E-mail corporativo do diretor")
+    password: str = Field(..., min_length=6, max_length=128, description="Palavra-passe de acesso (mínimo 6 carateres)")
+    telemovel_diretor: Optional[str] = Field(None, max_length=50, description="Telemóvel direto do diretor")
+
+    @field_validator("email_diretor")
+    @classmethod
+    def validate_email_format(cls, v: str) -> str:
+        email = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+            raise ValueError("Formato de e-mail inválido.")
+        return email
+
+
+class RegisterConsultorRequest(BaseModel):
+    """Payload para registo de consultor imobiliário associado a uma agência existente."""
+    agencia_id: int = Field(..., description="Identificador da agência à qual o consultor pertence")
+    nome: str = Field(..., min_length=2, max_length=255, description="Nome completo do consultor imobiliário")
+    email: str = Field(..., description="E-mail profissional do consultor")
+    password: str = Field(..., min_length=6, max_length=128, description="Palavra-passe de acesso (mínimo 6 carateres)")
+    telemovel: Optional[str] = Field(None, max_length=50, description="Telemóvel do consultor")
+
+    @field_validator("email")
+    @classmethod
+    def validate_email_format(cls, v: str) -> str:
+        email = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+            raise ValueError("Formato de e-mail inválido.")
+        return email
+
+
+class AgencyPublicResponse(BaseModel):
+    """Dados públicos de agências ativas para seleção no registo de consultores."""
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    nome: str
+    slug: str
+    concelho: Optional[str] = None
+    morada: Optional[str] = None
+

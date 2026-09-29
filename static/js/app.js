@@ -1623,8 +1623,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         try {
           const resp = await Api.getProperties({ status: 'Ativo', limit: 1 });
-          if (resp && resp.items && resp.items.length > 0) {
-            prop = resp.items[0];
+          if (resp && resp.properties && resp.properties.length > 0) {
+            prop = resp.properties[0];
             Api.setSelectedProperty(prop);
           }
         } catch {
@@ -1635,7 +1635,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!prop) {
       alert('Por favor, selecione ou cadastre um imóvel ativo na carteira para gerar roteiros de vídeo.');
-      openPortfolioDrawer();
+      handleOpenPortfolio();
       return;
     }
 
@@ -1650,19 +1650,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       scriptsPropSubtitle.textContent = `Imóvel ativo #${prop.id}`;
     }
 
-    if (drawerScripts) {
-      drawerScripts.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
+    openDrawer(drawerScripts);
 
     await loadScriptForCurrentSelection();
   }
 
   function closeScriptsDrawer() {
-    if (drawerScripts) {
-      drawerScripts.style.display = 'none';
-      document.body.style.overflow = '';
-    }
+    closeDrawer(drawerScripts);
   }
 
   /**
@@ -2318,6 +2312,159 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnLogout.addEventListener('click', () => {
       Api.logout();
       updateAuthUI(null);
+    });
+  }
+
+  // 12.1. Gestão das Abas de Registo e Iniciar Sessão
+  const tabBtnLogin = document.getElementById('auth-tab-btn-login');
+  const tabBtnRegister = document.getElementById('auth-tab-btn-register');
+  const panelLogin = document.getElementById('auth-panel-login');
+  const panelRegister = document.getElementById('auth-panel-register');
+  const btnRoleAgency = document.getElementById('btn-role-agency');
+  const btnRoleConsultor = document.getElementById('btn-role-consultor');
+  const regAgencyForm = document.getElementById('register-agency-form');
+  const regAgencyError = document.getElementById('register-agency-error');
+  const btnSubmitRegAgency = document.getElementById('btn-submit-reg-agency');
+  const regConsultorForm = document.getElementById('register-consultor-form');
+  const regConsultorError = document.getElementById('register-consultor-error');
+  const btnSubmitRegConsultor = document.getElementById('btn-submit-reg-consultor');
+  const regConsultorAgencySelect = document.getElementById('reg-consultor-agency');
+
+  async function loadAgenciesForConsultorRegister() {
+    if (!regConsultorAgencySelect) return;
+    try {
+      const agencies = await Api.getActiveAgencies();
+      regConsultorAgencySelect.innerHTML = '<option value="" disabled selected>Selecione a sua agência imobiliária...</option>';
+      if (agencies && agencies.length > 0) {
+        agencies.forEach((ag) => {
+          const opt = document.createElement('option');
+          opt.value = ag.id;
+          opt.textContent = `${ag.nome}${ag.concelho ? ' (' + ag.concelho + ')' : ''}`;
+          regConsultorAgencySelect.appendChild(opt);
+        });
+      } else {
+        regConsultorAgencySelect.innerHTML = '<option value="" disabled selected>Nenhuma agência ativa encontrada. Crie uma agência primeiro!</option>';
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar agências ativas:', e);
+      regConsultorAgencySelect.innerHTML = '<option value="" disabled selected>Erro ao carregar lista de agências.</option>';
+    }
+  }
+
+  if (tabBtnLogin && tabBtnRegister) {
+    tabBtnLogin.addEventListener('click', () => {
+      tabBtnLogin.classList.add('active');
+      tabBtnRegister.classList.remove('active');
+      if (panelLogin) panelLogin.style.display = 'block';
+      if (panelRegister) panelRegister.style.display = 'none';
+    });
+
+    tabBtnRegister.addEventListener('click', () => {
+      tabBtnRegister.classList.add('active');
+      tabBtnLogin.classList.remove('active');
+      if (panelRegister) panelRegister.style.display = 'block';
+      if (panelLogin) panelLogin.style.display = 'none';
+      loadAgenciesForConsultorRegister();
+    });
+  }
+
+  if (btnRoleAgency && btnRoleConsultor) {
+    btnRoleAgency.addEventListener('click', () => {
+      btnRoleAgency.classList.add('active');
+      btnRoleConsultor.classList.remove('active');
+      if (regAgencyForm) regAgencyForm.style.display = 'block';
+      if (regConsultorForm) regConsultorForm.style.display = 'none';
+    });
+
+    btnRoleConsultor.addEventListener('click', () => {
+      btnRoleConsultor.classList.add('active');
+      btnRoleAgency.classList.remove('active');
+      if (regConsultorForm) regConsultorForm.style.display = 'block';
+      if (regAgencyForm) regAgencyForm.style.display = 'none';
+      loadAgenciesForConsultorRegister();
+    });
+  }
+
+  // 12.2. Submissão de Registo de Nova Agência (Diretor)
+  if (regAgencyForm) {
+    regAgencyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (regAgencyError) regAgencyError.style.display = 'none';
+      if (btnSubmitRegAgency) {
+        btnSubmitRegAgency.disabled = true;
+        btnSubmitRegAgency.textContent = 'A criar agência...';
+      }
+
+      try {
+        const payload = {
+          nome_agencia: document.getElementById('reg-agency-name').value.trim(),
+          concelho: document.getElementById('reg-agency-concelho')?.value.trim() || null,
+          nif: document.getElementById('reg-agency-nif')?.value.trim() || null,
+          nome_diretor: document.getElementById('reg-agency-director-name').value.trim(),
+          email_diretor: document.getElementById('reg-agency-director-email').value.trim(),
+          telemovel_diretor: document.getElementById('reg-agency-director-phone')?.value.trim() || null,
+          password: document.getElementById('reg-agency-password').value,
+        };
+
+        const result = await Api.registerAgency(payload);
+        updateAuthUI(result.user);
+      } catch (err) {
+        if (regAgencyError) {
+          regAgencyError.textContent = err.message || 'Erro ao registar a agência.';
+          regAgencyError.style.display = 'block';
+        }
+      } finally {
+        if (btnSubmitRegAgency) {
+          btnSubmitRegAgency.disabled = false;
+          btnSubmitRegAgency.textContent = 'Criar Agência e Entrar';
+        }
+      }
+    });
+  }
+
+  // 12.3. Submissão de Registo de Consultor Imobiliário
+  if (regConsultorForm) {
+    regConsultorForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (regConsultorError) regConsultorError.style.display = 'none';
+
+      const agenciaVal = regConsultorAgencySelect?.value;
+      const agenciaId = parseInt(agenciaVal, 10);
+      if (!agenciaId) {
+        if (regConsultorError) {
+          regConsultorError.textContent = 'Por favor, selecione a agência à qual pertence.';
+          regConsultorError.style.display = 'block';
+        }
+        return;
+      }
+
+      if (btnSubmitRegConsultor) {
+        btnSubmitRegConsultor.disabled = true;
+        btnSubmitRegConsultor.textContent = 'A registar consultor...';
+      }
+
+      try {
+        const payload = {
+          agencia_id: agenciaId,
+          nome: document.getElementById('reg-consultor-name').value.trim(),
+          email: document.getElementById('reg-consultor-email').value.trim(),
+          telemovel: document.getElementById('reg-consultor-phone')?.value.trim() || null,
+          password: document.getElementById('reg-consultor-password').value,
+        };
+
+        const result = await Api.registerConsultor(payload);
+        updateAuthUI(result.user);
+      } catch (err) {
+        if (regConsultorError) {
+          regConsultorError.textContent = err.message || 'Erro ao registar o consultor.';
+          regConsultorError.style.display = 'block';
+        }
+      } finally {
+        if (btnSubmitRegConsultor) {
+          btnSubmitRegConsultor.disabled = false;
+          btnSubmitRegConsultor.textContent = 'Registar Consultor e Entrar';
+        }
+      }
     });
   }
 

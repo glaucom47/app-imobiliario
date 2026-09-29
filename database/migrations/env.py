@@ -11,7 +11,7 @@ from alembic import context
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from config.config import settings
-from database.connection import Base
+from database.connection import Base, engine as db_engine
 import app.models  # Garante registro de todas as entidades ORM para autogenerate
 
 # Configuração de logging do Alembic
@@ -20,15 +20,12 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Define a URL a partir da configuração centralizada
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-
 target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
     """Executa migrações no modo offline."""
-    url = config.get_main_option("sqlalchemy.url")
+    url = str(db_engine.url)
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -42,11 +39,7 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Executa migrações no modo online."""
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    connectable = db_engine
 
     with connectable.connect() as connection:
         context.configure(

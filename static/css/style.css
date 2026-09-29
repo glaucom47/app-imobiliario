@@ -227,10 +227,71 @@ body {
   border-radius: var(--radius-lg);
   border: var(--border-hairline);
   box-shadow: 0 12px 36px -4px rgba(17, 17, 17, 0.15);
-  max-width: 400px;
+  max-width: 440px;
   width: 100%;
-  padding: 32px 24px;
+  padding: 28px 24px;
+  max-height: 92vh;
+  overflow-y: auto;
 }
+
+.auth-nav-tabs {
+  display: flex;
+  background: var(--color-surface-container);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.auth-nav-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+.auth-nav-tab.active {
+  background: #ffffff;
+  color: var(--color-on-surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.auth-role-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.auth-role-btn {
+  flex: 1;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface);
+  padding: 10px 8px;
+  border-radius: var(--radius-default);
+  cursor: pointer;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.auth-role-btn.active {
+  border-color: var(--color-primary);
+  background: #ffffff;
+  color: var(--color-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
 
 .demo-credentials-box {
   margin-top: var(--spacing-space-md);

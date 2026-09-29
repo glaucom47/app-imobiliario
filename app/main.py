@@ -14,6 +14,7 @@ from app.controllers import (
     auth_controller,
     backoffice_controller,
     contacts_controller,
+    leads_controller,
     properties_controller,
     scripts_controller,
     visits_controller,
@@ -69,6 +70,7 @@ app.include_router(visits_controller.router, prefix=settings.API_V1_STR)
 app.include_router(scripts_controller.router, prefix=settings.API_V1_STR)
 app.include_router(contacts_controller.router, prefix=settings.API_V1_STR)
 app.include_router(backoffice_controller.router, prefix=settings.API_V1_STR)
+app.include_router(leads_controller.router, prefix=settings.API_V1_STR)
 
 # Montagem dos arquivos estáticos do frontend/PWA
 if os.path.exists(settings.STATIC_DIR):

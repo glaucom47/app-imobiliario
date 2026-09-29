@@ -41,12 +41,20 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "480"))  # 8 horas
 
     # CORS
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "https://fecho.pt",
-        "https://www.fecho.pt"
-    ]
+    # Permite sobrescrever origens por lista separada por vírgula em produção no PaaS
+    CORS_ORIGINS: List[str] = (
+        [origin.strip() for origin in os.environ.get("CORS_ORIGINS", "").split(",") if origin.strip()]
+        if os.environ.get("CORS_ORIGINS")
+        else [
+            "http://localhost:8000",
+            "http://127.0.0.1:8000",
+            "https://fecho.pt",
+            "https://www.fecho.pt",
+        ]
+    )
+
+    # Controle de Rate Limiting (pode ser ativado/desativado via env)
+    RATE_LIMIT_ENABLED: bool = os.environ.get("RATE_LIMIT_ENABLED", "true").lower() == "true"
 
     # Diretórios do sistema
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

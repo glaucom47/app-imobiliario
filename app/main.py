@@ -10,7 +10,28 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from config.config import settings
-from app.controllers import auth_controller, properties_controller, visits_controller, scripts_controller
+from app.controllers import (
+    auth_controller,
+    backoffice_controller,
+    contacts_controller,
+    properties_controller,
+    scripts_controller,
+    visits_controller,
+)
+
+from contextlib import asynccontextmanager
+from database.connection import ensure_initialized
+from app.middleware.security import (
+    SecurityHeadersMiddleware,
+    RateLimitMiddleware,
+    PayloadLimitMiddleware,
+)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Gerenciamento de ciclo de vida moderno da aplicação ASGI."""
+    ensure_initialized()
+    yield
 
 # Inicialização da aplicação FastAPI
 app = FastAPI(
@@ -18,10 +39,11 @@ app = FastAPI(
     description="Assistente imobiliário focado em visitas, cálculo fiscal (IMT/Selo), scripts e inteligência de mercado.",
     version=settings.VERSION,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
-# Configuração de CORS
+# 1. Configuração de CORS (camada externa de controle de origens)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -30,11 +52,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 2. Injeção de cabeçalhos HTTP defensivos (CSP, HSTS, X-Frame-Options, Cache-Control)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# 3. Proteção contra força bruta e requisições abusivas (Rate Limiting)
+app.add_middleware(RateLimitMiddleware)
+
+# 4. Limitação de tamanho de payload (proteção de memória / anti-DoS)
+app.add_middleware(PayloadLimitMiddleware)
+
 # Inclusão dos roteadores da API REST (v1)
 app.include_router(auth_controller.router, prefix=settings.API_V1_STR)
 app.include_router(properties_controller.router, prefix=settings.API_V1_STR)
 app.include_router(visits_controller.router, prefix=settings.API_V1_STR)
 app.include_router(scripts_controller.router, prefix=settings.API_V1_STR)
+app.include_router(contacts_controller.router, prefix=settings.API_V1_STR)
+app.include_router(backoffice_controller.router, prefix=settings.API_V1_STR)
 
 # Montagem dos arquivos estáticos do frontend/PWA
 if os.path.exists(settings.STATIC_DIR):

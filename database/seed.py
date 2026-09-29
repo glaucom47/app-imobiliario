@@ -35,9 +35,12 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 
-def seed_database():
+def seed_database(db=None):
     """Popula o banco de dados com dados iniciais para desenvolvimento."""
-    db = SessionLocal()
+    close_db = False
+    if db is None:
+        db = SessionLocal()
+        close_db = True
     try:
         print("🌱 Iniciando seed do banco de dados Fecho...")
 
@@ -193,7 +196,8 @@ def seed_database():
         print(f"❌ Erro durante a execução do seed: {e}")
         raise
     finally:
-        db.close()
+        if close_db:
+            db.close()
 
 
 if __name__ == "__main__":

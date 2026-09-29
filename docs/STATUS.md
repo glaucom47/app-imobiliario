@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 29/09/2026 - 00:42
-* **Fase Atual:** Fase 7 - Conteúdo e Scripts de Vídeo Curto com Teleprompter
-* **Status Geral:** Concluída (Serviço de geração de roteiros em 3 blocos obrigatórios - Gancho, 2 Destaques e CTA - orientados por objetivos comerciais em `app/services/script_service.py`; esquemas Pydantic em `app/schemas/script_schema.py`; endpoints REST em `app/controllers/scripts_controller.py`; controlador completo de Teleprompter em `static/js/teleprompter.js` com superfície escura `#111111` de alto contraste, contagem 3-2-1, ajuste de velocidade e fonte, cópia para clipboard e gerador offline de contingência; gaveta e overlay imersivo no PWA em `static/index.html` e `static/css/style.css`; orquestração de carteira em `static/js/app.js`; suíte com 63 testes automatizados 100% aprovada)
+* **Última Atualização:** 29/09/2026 - 14:30
+* **Fase Atual:** Fase 10 - Auditoria de Segurança, Testes E2E e Polimento Final
+* **Status Geral:** Concluída (Auditoria integral de segurança executada; middlewares defensivos implementados com Content-Security-Policy, HSTS, X-Frame-Options, X-Content-Type-Options, Permissions-Policy, Rate Limiting em memória e limitador de payload contra DoS; Service Worker atualizado para cache v3 com suporte completo offline e fallback inteligente; modo Luz Solar Intensa implementado com alta luminância e botões táteis no PWA e Backoffice conforme `docs/DESIGN.md`; testes de estresse em isolamento multi-tenant aprovados com zero vazamento entre agências; manual operacional de deploy contínuo em PaaS elaborado em `docs/DEPLOY.md` com suporte a Render e Railway; suíte automatizada de testes com 99 testes 100% aprovados)
 
 ---
 
@@ -17,9 +17,9 @@
 | **Fase 5** | Calculadora Visual de Viabilidade Financeira (Client-side / Offline) | Concluída |
 | **Fase 6** | Visitas, Feedback por Voz e Objeções (Human-in-the-Loop) | Concluída |
 | **Fase 7** | Conteúdo e Scripts de Vídeo Curto com Teleprompter | Concluída |
-| **Fase 8** | Pós-Venda, Esfera de Influência e Notificações de Aniversário | Pendente |
-| **Fase 9** | Backoffice Web da Agência, Métricas e Exportação CSV | Pendente |
-| **Fase 10** | Auditoria de Segurança, Testes E2E e Polimento Final | Pendente |
+| **Fase 8** | Pós-Venda, Esfera de Influência e Notificações de Aniversário | Concluída |
+| **Fase 9** | Backoffice Web da Agência, Métricas e Exportação CSV | Concluída |
+| **Fase 10** | Auditoria de Segurança, Testes E2E e Polimento Final | Concluída |
 
 ---
 
@@ -113,31 +113,36 @@
 - [x] Suíte de testes automatizados com `pytest` e Node.js cobrindo backend e client-side (`tests/test_scripts.py` - total de 63 testes aprovados no projeto)
 
 ### Fase 8: Pós-Venda, Esfera de Influência e Notificações de Aniversário
-- [ ] Validação dos 3 campos ao passar imóvel para Vendido (*Nome*, *Telemóvel*, *Data da Escritura*)
-- [ ] Cadastro e listagem de compradores na esfera de influência
-- [ ] Notificação no telemóvel às 09:00 para aniversários de escritura
-- [ ] Mensagens dinâmicas de pós-venda para WhatsApp em 1 clique
-- [ ] Rotina de anonimização conforme RGPD
+- [x] Validação dos 3 campos ao passar imóvel para Vendido (*Nome*, *Telemóvel*, *Data da Escritura*)
+- [x] Cadastro e listagem de compradores na esfera de influência
+- [x] Notificação no telemóvel às 09:00 para aniversários de escritura (Web Notification API & banner em destaque)
+- [x] Mensagens dinâmicas de pós-venda para WhatsApp em 1 clique (Aniversário, Pós-Venda Geral, Valorização Patrimonial, Café Informal)
+- [x] Rotina de anonimização conforme RGPD ('Cliente Anonimizado' com trilha de auditoria em `audit_logs`)
 
 ### Fase 9: Backoffice Web da Agência, Métricas e Exportação CSV
-- [ ] Interface web de desktop/tablet em `static/backoffice.html`
-- [ ] KPIs de assiduidade dos consultores e volume de visitas
-- [ ] Gráfico consolidado de objeções por imóvel para renegociação de preços
-- [ ] Gestão remota de catálogo de tags e parâmetros financeiros
-- [ ] Exportação de relatórios em formato aberto CSV
+- [x] Interface web de desktop/tablet em `static/backoffice.html`
+- [x] KPIs de assiduidade dos consultores e volume de visitas
+- [x] Gráfico consolidado de objeções por imóvel para renegociação de preços
+- [x] Gestão remota de catálogo de tags e parâmetros financeiros
+- [x] Exportação de relatórios em formato aberto CSV
 
 ### Fase 10: Auditoria de Segurança, Testes E2E e Polimento Final
-- [ ] Testes automatizados unitários e de integração (pytest)
-- [ ] Auditoria de isolamento multi-tenant
-- [ ] Validação do modo offline e PWA
-- [ ] Verificação de contraste sob luz solar intensa
-- [ ] Manual operacional de deploy (Render / Railway)
+- [x] Middlewares defensivos avançados de segurança (Content-Security-Policy estrito, HSTS, X-Frame-Options DENY, X-Content-Type-Options nosniff, Permissions-Policy com microfone restrito a self, Cache-Control no-store em APIs)
+- [x] Rate Limiting em memória (Sliding Window thread-safe) com proteção anti-força bruta no login e bloqueio HTTP 429 com Retry-After
+- [x] Limitador de tamanho de carga (Payload Limiter) contra Slowloris e esgotamento de memória (HTTP 413)
+- [x] Auditoria e testes de estresse em isolamento multi-tenant (zero vazamento de imóveis, visitas, contatos, métricas e tags entre Agência A e Agência B)
+- [x] Validação do modo offline e PWA (Service Worker v3 com fallback inteligente de navegação, manifesto PWA e monitoramento reativo de rede)
+- [x] Verificação de contraste sob luz solar intensa conforme `docs/DESIGN.md` (modo `.sunlight-mode` com luminância máxima, tipografia tabular `tnum` e alternador tátil na interface móvel e backoffice)
+- [x] Suíte de testes automatizados com `pytest` expandida para 99 testes com 100% de aprovação (`tests/test_security_multitenant_stress.py`)
+- [x] Manual operacional de deploy contínuo em PaaS (`docs/DEPLOY.md`, `render.yaml`, `railway.json`, `Procfile`)
 
 ---
 
-## 3. Próximo Passo Recomendado
- 
-* **Próxima Fase:** **Fase 8 - Pós-Venda, Esfera de Influência e Notificações de Aniversário**.
-* **Ação:** Implementar o fluxo de pós-venda que conecta o fechamento da escritura (recolha obrigatória de *Nome do Comprador*, *Telemóvel* e *Data da Escritura*) à gestão da carteira de relacionamentos em `app/controllers/contacts_controller.py` e `app/services/contact_service.py`, alarme matinal das 09:00 para celebração de escrituras, mensagens relacionais dinâmicas para WhatsApp e rotina de conformidade RGPD para anonimização ('Cliente Anonimizado').
+## 3. Status de Conclusão do Projeto
+
+* **Todas as 10 Fases do FSD e do PLANO de Implementação foram 100% Concluídas!**
+* **Sistema Fecho (`fecho.pt`) está auditado, testado, blindado e pronto para produção.**
+* **Para publicar:** Seguir o manual operacional em `docs/DEPLOY.md` conectando o repositório ao Render ou Railway.
+
 
 

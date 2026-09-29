@@ -4,9 +4,10 @@
  * para motores client-side (Calculadora IMT/Selo e Teleprompter).
  */
 
-const CACHE_NAME = 'fecho-static-v2';
+const CACHE_NAME = 'fecho-static-v3';
 const ASSETS_TO_CACHE = [
   '/',
+  '/backoffice',
   '/static/manifest.json',
   '/static/css/design-tokens.css',
   '/static/css/style.css',
@@ -62,8 +63,11 @@ self.addEventListener('fetch', (event) => {
         });
         return networkResponse;
       }).catch(() => {
-        // Fallback para rota raiz caso offline
+        // Fallback inteligente para navegações offline
         if (event.request.mode === 'navigate') {
+          if (event.request.url.includes('/backoffice')) {
+            return caches.match('/backoffice');
+          }
           return caches.match('/');
         }
       });

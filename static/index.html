@@ -22,13 +22,39 @@
     <header class="app-header">
       <img src="/static/img/screen.png" alt="Fecho" class="brand-logo" id="brand-logo">
       <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="btn-sunlight-toggle" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px;" title="Alternar Modo Luz Solar Intensa">
+          <span style="font-size: 13px;">☀️</span>
+          <span style="font-size: 11px; font-weight: 600;" id="sunlight-label">Luz Solar</span>
+        </button>
         <span class="status-pill status-pill-secondary" id="user-badge">Não autenticado</span>
         <button id="btn-logout" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: transparent; cursor: pointer; display: none;" title="Terminar Sessão">Sair</button>
       </div>
     </header>
 
+    <!-- Banner de Status Offline (PWA) -->
+    <div id="offline-status-banner" style="display: none; background-color: var(--color-primary); color: #ffffff; padding: 6px 12px; font-size: 11px; font-weight: 600; text-align: center; letter-spacing: 0.04em;">
+      ⚡ Modo Offline Ativo • Calculadora e Teleprompter 100% Operacionais
+    </div>
+
     <!-- Conteúdo Principal Dinâmico -->
     <main class="app-main" id="main-content" style="padding: var(--spacing-margin); flex: 1;">
+      <!-- Card / Banner Matinal de Aniversário de Escritura (Alerta 09:00) -->
+      <section class="anniversary-morning-card" id="anniversary-morning-banner" style="display: none;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 24px;">🎉</span>
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary); font-size: 10px; letter-spacing: 0.08em;">Alerta Matinal das 09:00</span>
+              <p style="font-weight: 700; font-size: 14px; margin-top: 2px;" id="anniversary-banner-title">Aniversário de Escritura Hoje!</p>
+              <p style="font-size: 12px; color: var(--color-on-surface-variant);" id="anniversary-banner-subtitle">Clientes celebram aniversário de aquisição.</p>
+            </div>
+          </div>
+          <button type="button" class="btn-card-action btn-card-primary" id="btn-banner-felicitar" style="white-space: nowrap; padding: 6px 12px; font-size: 12px;">
+            Felicitar
+          </button>
+        </div>
+      </section>
+
       <!-- Seletor do Imóvel Ativo (Obrigatório em Visitas) -->
       <section class="card-tier1" id="property-selector-card" style="cursor: pointer;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -54,6 +80,9 @@
         </button>
         <button class="btn-secondary-ghost" id="btn-open-portfolio" type="button" style="border-style: solid;">
           Gestão da Carteira de Imóveis
+        </button>
+        <button class="btn-secondary-ghost" id="btn-open-contacts" type="button" style="border-style: solid; border-color: rgba(197, 168, 128, 0.4);">
+          Esfera de Influência & Pós-Venda
         </button>
       </section>
     </main>
@@ -716,6 +745,156 @@
           <button type="button" class="btn-secondary-ghost" id="btn-close-scripts-drawer">
             Fechar
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawer / Gaveta de Esfera de Influência e Pós-Venda (Fase 8) -->
+  <div class="fecho-modal-overlay" id="drawer-contacts">
+    <div class="fecho-drawer-sheet">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Esfera de Influência & Pós-Venda</h3>
+          <span style="font-size: 12px; color: var(--color-outline);" id="contacts-count-label">0 compradores e contactos</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn-card-action btn-card-primary" id="btn-open-new-contact" type="button">+ Novo</button>
+          <button class="drawer-close-btn" id="btn-close-contacts" type="button" aria-label="Fechar">✕</button>
+        </div>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Campo de Pesquisa Rápida -->
+        <div class="fecho-form-group" style="margin-bottom: 12px;">
+          <input type="text" id="contacts-search-input" class="fecho-input" placeholder="Pesquisar por nome, telemóvel ou notas..." style="height: 42px; font-size: 13px;">
+        </div>
+
+        <!-- Chips de Filtro -->
+        <div class="status-filter-bar" id="contacts-filter-bar">
+          <button type="button" class="filter-chip-btn active" data-filter="">Todos</button>
+          <button type="button" class="filter-chip-btn" data-filter="aniversario">🎉 Aniversários</button>
+          <button type="button" class="filter-chip-btn" data-filter="comprador">Compradores</button>
+          <button type="button" class="filter-chip-btn" data-filter="esfera">Esfera Geral</button>
+        </div>
+
+        <!-- Lista de Contatos -->
+        <div id="contacts-list-container">
+          <p style="text-align: center; color: var(--color-outline); font-size: 13px; padding: 24px 0;">A carregar contactos...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Cadastro de Novo Contato / Comprador -->
+  <div class="fecho-modal-overlay" id="modal-new-contact">
+    <div class="fecho-drawer-sheet" style="max-height: 90vh;">
+      <div class="drawer-header">
+        <h3 style="font-size: 16px; font-weight: 600;">Novo Contacto na Esfera</h3>
+        <button class="drawer-close-btn" id="btn-close-new-contact" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="drawer-body">
+        <form id="form-new-contact">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="contact-name-input">Nome Completo *</label>
+            <input type="text" id="contact-name-input" class="fecho-input" placeholder="Ex: Diogo Costa" required minlength="2">
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="contact-phone-input">Telemóvel / WhatsApp *</label>
+            <input type="tel" id="contact-phone-input" class="fecho-input" placeholder="+351912345678" required minlength="6">
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="contact-email-input">E-mail</label>
+            <input type="email" id="contact-email-input" class="fecho-input" placeholder="cliente@email.pt">
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <div class="fecho-form-group" style="flex: 1;">
+              <label class="fecho-label" for="contact-type-select">Tipo de Contacto</label>
+              <select id="contact-type-select" class="fecho-input">
+                <option value="comprador" selected>Comprador</option>
+                <option value="esfera">Esfera Geral / Amigo</option>
+                <option value="proprietario">Proprietário / Investidor</option>
+              </select>
+            </div>
+
+            <div class="fecho-form-group" style="flex: 1.2;">
+              <label class="fecho-label" for="contact-escritura-date">Data da Escritura</label>
+              <input type="date" id="contact-escritura-date" class="fecho-input">
+            </div>
+          </div>
+
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="contact-notes-input">Notas de Relacionamento</label>
+            <textarea id="contact-notes-input" class="fecho-input" rows="2" placeholder="Preferências, contexto familiar, perfil..."></textarea>
+          </div>
+
+          <div id="new-contact-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; text-align: center;"></div>
+
+          <button type="submit" class="btn-primary-action" id="btn-submit-new-contact">Gravar Contacto</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Mensagem Dinâmica para WhatsApp (1 Toque) -->
+  <div class="fecho-modal-overlay" id="modal-contact-whatsapp">
+    <div class="fecho-drawer-sheet" style="max-height: 92vh;">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Disparo de Mensagem WhatsApp</h3>
+          <span style="font-size: 12px; color: var(--color-outline);" id="whatsapp-contact-target-label">Contacto</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-contact-whatsapp" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="drawer-body">
+        <input type="hidden" id="whatsapp-active-contact-id">
+
+        <label class="fecho-label" style="margin-bottom: 6px;">Objetivo do Relacionamento</label>
+        <div class="whatsapp-template-chips" id="whatsapp-template-chips">
+          <button type="button" class="whatsapp-chip-btn active" data-template="aniversario_escritura">🎉 Aniversário</button>
+          <button type="button" class="whatsapp-chip-btn" data-template="pos_venda_geral">🏡 Pós-Venda</button>
+          <button type="button" class="whatsapp-chip-btn" data-template="valorizacao_patrimonial">📈 Valorização</button>
+          <button type="button" class="whatsapp-chip-btn" data-template="convite_cafe">☕ Café Informal</button>
+        </div>
+
+        <label class="fecho-label" for="whatsapp-preview-textarea">Pré-visualização Editorial da Mensagem</label>
+        <textarea id="whatsapp-preview-textarea" class="whatsapp-preview-box" rows="7" style="width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px;">
+          <button type="button" class="btn-cobalt-trigger" id="btn-send-whatsapp-now">
+            💬 Abrir no WhatsApp (1 Toque)
+          </button>
+          <button type="button" class="btn-secondary-ghost" id="btn-copy-whatsapp-text">
+            📋 Copiar Texto
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmação de Anonimização RGPD -->
+  <div class="fecho-modal-overlay" id="modal-confirm-anonymize">
+    <div class="fecho-drawer-sheet" style="max-width: 440px;">
+      <div class="drawer-header">
+        <h3 style="font-size: 16px; font-weight: 600; color: var(--color-error);">Conformidade com o RGPD</h3>
+        <button class="drawer-close-btn" id="btn-close-anonymize" type="button" aria-label="Fechar">✕</button>
+      </div>
+      <div class="drawer-body">
+        <input type="hidden" id="anonymize-target-contact-id">
+        <p style="font-size: 13px; line-height: 1.5; color: var(--color-primary); margin-bottom: 12px;">
+          Tem a certeza de que pretende anonimizar os dados de <strong id="anonymize-target-contact-name">este contacto</strong>?
+        </p>
+        <div style="background: var(--color-surface-container); border-radius: var(--radius-md); padding: 12px; font-size: 12px; color: var(--color-on-surface-variant); margin-bottom: 16px;">
+          ⚖️ <strong>RGPD Artigo 17 (Direito ao Apagamento):</strong>
+          O nome será substituído por <em>"Cliente Anonimizado"</em>, o telemóvel será zerado e os dados confidenciais removidos. A integridade estatística da venda permanecerá preservada na agência. Esta operação é irreversível.
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" class="btn-secondary-ghost" id="btn-cancel-anonymize" style="flex: 1;">Cancelar</button>
+          <button type="button" class="btn-primary-action" id="btn-execute-anonymize" style="flex: 1.4; background: #b91c1c;">Confirmar Anonimização</button>
         </div>
       </div>
     </div>

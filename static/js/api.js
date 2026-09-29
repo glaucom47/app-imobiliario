@@ -300,6 +300,157 @@ const Api = {
   },
 
   /**
+   * Lista contatos da esfera de influência e pós-venda.
+   */
+  async getContacts(params = {}) {
+    const query = new URLSearchParams();
+    if (params.q) query.append('q', params.q);
+    if (params.tipo) query.append('tipo', params.tipo);
+    if (params.apenas_aniversario_hoje) query.append('apenas_aniversario_hoje', 'true');
+    if (params.consultor_id) query.append('consultor_id', params.consultor_id);
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    return await this.request(`/contacts${queryString}`);
+  },
+
+  /**
+   * Obtém a lista de contatos que celebram aniversário da escritura hoje (alerta das 09:00).
+   */
+  async getAnniversaryContacts() {
+    return await this.request('/contacts/anniversaries');
+  },
+
+  /**
+   * Obtém detalhes de um contato.
+   */
+  async getContact(id) {
+    return await this.request(`/contacts/${id}`);
+  },
+
+  /**
+   * Cadastra manualmente um novo contato na esfera de influência.
+   */
+  async createContact(contactData) {
+    return await this.request('/contacts', {
+      method: 'POST',
+      body: JSON.stringify(contactData),
+    });
+  },
+
+  /**
+   * Atualiza dados de um contato.
+   */
+  async updateContact(id, contactData) {
+    return await this.request(`/contacts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(contactData),
+    });
+  },
+
+  /**
+   * Gera mensagem dinâmica estruturada de pós-venda e URL Deep Link para o WhatsApp.
+   */
+  async generateContactWhatsApp(id, payload) {
+    return await this.request(`/contacts/${id}/whatsapp`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * Executa a rotina de anonimização conforme RGPD ('Cliente Anonimizado').
+   */
+  async anonymizeContact(id) {
+    return await this.request(`/contacts/${id}/anonymize`, {
+      method: 'POST',
+    });
+  },
+
+  /**
+   * Remove um contato avulso desvinculado.
+   */
+  async deleteContact(id) {
+    return await this.request(`/contacts/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  /**
+   * Métodos do Backoffice (Exclusivos para Perfil Diretor)
+   */
+  async getBackofficeKPIs(dias = null) {
+    const query = dias ? `?dias=${dias}` : '';
+    return await this.request(`/backoffice/kpis${query}`);
+  },
+
+  async getBackofficeObjectionsAnalytics(propertyId = null) {
+    const query = propertyId ? `?property_id=${propertyId}` : '';
+    return await this.request(`/backoffice/objections-analytics${query}`);
+  },
+
+  async getBackofficeTags() {
+    return await this.request('/backoffice/tags');
+  },
+
+  async createBackofficeTag(tagData) {
+    return await this.request('/backoffice/tags', {
+      method: 'POST',
+      body: JSON.stringify(tagData),
+    });
+  },
+
+  async updateBackofficeTag(tagId, tagData) {
+    return await this.request(`/backoffice/tags/${tagId}`, {
+      method: 'PUT',
+      body: JSON.stringify(tagData),
+    });
+  },
+
+  async getBackofficeSettings() {
+    return await this.request('/backoffice/settings');
+  },
+
+  async updateBackofficeSettings(settingsData) {
+    return await this.request('/backoffice/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settingsData),
+    });
+  },
+
+  async downloadExportCsv(tipo, propertyId = null) {
+    let url = `${this.baseUrl}/backoffice/export/csv?tipo=${encodeURIComponent(tipo)}`;
+    if (propertyId) {
+      url += `&property_id=${encodeURIComponent(propertyId)}`;
+    }
+    const token = this.getToken();
+    const headers = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: 'Falha ao exportar relatório CSV.' }));
+      throw new Error(err.detail || 'Falha ao exportar relatório CSV.');
+    }
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition');
+    let filename = `fecho_${tipo}.csv`;
+    if (disposition && disposition.includes('filename=')) {
+      const match = disposition.match(/filename=(.+?)(;|$)/);
+      if (match && match[1]) {
+        filename = match[1].replace(/["']/g, '');
+      }
+    }
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+  },
+
+  /**
    * Encerra a sessão do usuário.
    */
   logout() {

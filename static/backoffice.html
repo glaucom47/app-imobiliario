@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fecho - Painel de Gestão da Agência</title>
+  <title>Fecho - Painel de Gestão da Agência (Backoffice)</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos e Design Tokens (Editorial PropTech Luxury) -->
   <link rel="stylesheet" href="/static/css/design-tokens.css">
@@ -12,66 +17,402 @@
 <body>
   <div class="backoffice-shell" id="backoffice-app">
     <!-- Cabeçalho do Backoffice -->
-    <header style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-margin); border-bottom: var(--border-hairline); margin-bottom: var(--spacing-lg);">
+    <header style="display: flex; justify-content: space-between; align-items: center; padding-bottom: var(--spacing-margin); border-bottom: var(--border-hairline); margin-bottom: var(--spacing-md); flex-wrap: wrap; gap: 12px;">
       <div style="display: flex; align-items: center; gap: 16px;">
-        <img src="/static/img/screen.png" alt="Fecho" class="brand-logo">
+        <img src="/static/img/screen.png" alt="Fecho" class="brand-logo" style="height: 32px;">
         <span class="label-caps" style="color: var(--color-outline); padding-left: 12px; border-left: var(--border-hairline);">Direção Comercial</span>
       </div>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span class="status-pill status-pill-notarized" id="agency-name-badge">Fecho Prime Real Estate</span>
-        <span class="status-pill status-pill-secondary" id="director-name-badge">Marta Silva (Diretora)</span>
-        <button class="btn-secondary-ghost" style="width: auto; padding: 0 16px; height: 38px; font-size: 13px;" id="btn-export-csv">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <button id="btn-sunlight-toggle-bo" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 36px; padding: 0 12px; font-size: 12px; display: flex; align-items: center; gap: 4px;" title="Alternar Modo Luz Solar Intensa">
+          <span>☀️</span>
+          <span id="sunlight-label-bo" style="font-weight: 600;">Luz Solar</span>
+        </button>
+        <span class="status-pill status-pill-notarized" id="agency-name-badge">A carregar agência...</span>
+        <span class="status-pill status-pill-secondary" id="director-name-badge">A validar sessão...</span>
+        <button class="btn-secondary-ghost" style="width: auto; padding: 0 16px; height: 36px; font-size: 13px;" id="btn-shortcut-export">
           Exportar CSV
         </button>
-        <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: transparent; cursor: pointer; height: 38px; padding: 0 14px;" id="btn-backoffice-logout" title="Terminar Sessão">
+        <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 36px; padding: 0 14px; font-size: 12px;" id="btn-backoffice-logout" title="Terminar Sessão">
           Sair
         </button>
       </div>
     </header>
 
+    <!-- Banner de Status Offline (PWA) -->
+    <div id="offline-status-banner-bo" style="display: none; background-color: var(--color-primary); color: #ffffff; padding: 8px 16px; font-size: 12px; font-weight: 600; text-align: center; border-radius: var(--radius-md); margin-bottom: var(--spacing-md); letter-spacing: 0.04em;">
+      ⚡ Modo Offline Ativo • Exibindo dados locais em cache. Ações de rede serão sincronizadas ao restabelecer a ligação.
+    </div>
+
     <!-- Aviso de Acesso Restrito (Exibido para perfil Consultor) -->
     <section id="rbac-warning-banner" class="card-tier1" style="display: none; border-color: var(--color-error); background-color: #fff9f9;">
       <span class="label-caps" style="color: var(--color-error); display: block; margin-bottom: 6px;">Acesso Restrito (RBAC)</span>
-      <h3 style="font-size: 16px; font-weight: 600; color: var(--color-error); margin-bottom: 8px;">Área Exclusiva da Direção Comercial</h3>
-      <p style="font-size: 14px; color: var(--color-on-surface-variant); margin-bottom: 16px;">
-        O seu perfil atual está configurado como <strong>Consultor</strong>. A visualização de métricas corporativas, auditorias e gráficos consolidados é restrita aos diretores da agência.
+      <h3 style="font-size: 18px; font-weight: 600; color: var(--color-error); margin-bottom: 8px;">Área Exclusiva da Direção Comercial</h3>
+      <p style="font-size: 14px; color: var(--color-on-surface-variant); margin-bottom: 16px; line-height: 1.6;">
+        O seu perfil atual está configurado como <strong>Consultor</strong>. A visualização de métricas corporativas, auditorias, catálogo de objeções e parametrizações é estritamente restrita aos diretores da agência.
       </p>
-      <a href="/" class="btn-primary-action" style="max-width: 240px; height: 42px; font-size: 13px;">Voltar ao Assistente Móvel</a>
+      <a href="/" class="btn-primary-action" style="max-width: 260px; height: 44px; font-size: 13px;">Voltar ao Assistente Móvel</a>
     </section>
 
     <!-- Conteúdo Principal do Backoffice (Exibido para Diretor) -->
-    <div id="backoffice-content">
-      <!-- Grid de Indicadores e KPIs da Agência -->
-      <main style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--spacing-margin);">
-        <div class="card-tier1">
-          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Visitas Realizadas (Mês)</span>
-          <div class="financial-display" id="kpi-total-visitas">18</div>
-          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Assiduidade dos consultores</p>
+    <div id="backoffice-content" style="display: none;">
+      <!-- Navegação em Abas -->
+      <nav class="backoffice-nav-tabs">
+        <button class="bo-tab-btn active" data-tab="tab-kpis">Painel & Assiduidade</button>
+        <button class="bo-tab-btn" data-tab="tab-objections">Objeções por Imóvel</button>
+        <button class="bo-tab-btn" data-tab="tab-tags">Catálogo de Objeções</button>
+        <button class="bo-tab-btn" data-tab="tab-settings">Parâmetros Financeiros</button>
+        <button class="bo-tab-btn" data-tab="tab-export">Centro de Exportação CSV</button>
+      </nav>
+
+      <!-- ===================================================================
+           ABA 1: PAINEL DE KPIS E ASSIDUIDADE
+           =================================================================== -->
+      <div id="tab-kpis" class="bo-tab-content">
+        <!-- Barra de Filtro de Período -->
+        <div class="bo-filter-bar">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Métricas Globais da Agência</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">Assiduidade de visitas e adesão ao feedback por voz</p>
+          </div>
+          <div class="bo-period-selector" id="kpi-period-selector">
+            <button class="bo-period-btn" data-days="7">7 Dias</button>
+            <button class="bo-period-btn active" data-days="30">30 Dias</button>
+            <button class="bo-period-btn" data-days="90">90 Dias</button>
+            <button class="bo-period-btn" data-days="">Todo o Histórico</button>
+          </div>
         </div>
 
-        <div class="card-tier1">
-          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Taxa de Adesão ao Feedback</span>
-          <div class="financial-display" id="kpi-taxa-adesao">89%</div>
-          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Auditorias de voz concluídas</p>
+        <!-- Grid de 4 Indicadores Principais -->
+        <main style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--spacing-margin); margin-bottom: var(--spacing-lg);">
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Visitas Realizadas</span>
+            <div class="financial-display" id="kpi-total-visitas">0</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Volume de visitas no período</p>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Taxa de Adesão ao Feedback</span>
+            <div class="financial-display" id="kpi-taxa-adesao">0%</div>
+            <div style="margin-top: 6px;">
+              <span class="bo-progress-track">
+                <span class="bo-progress-fill" id="kpi-adesao-bar" style="width: 0%;"></span>
+              </span>
+              <span style="font-size: 12px; color: var(--color-outline);" id="kpi-visitas-feedback-label">0 de 0 com notas</span>
+            </div>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Prestação de Contas</span>
+            <div class="financial-display" id="kpi-taxa-prestacao">0%</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="kpi-prestacao-label">Enviadas ao proprietário</p>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Interesse Médio / Objeção</span>
+            <div class="financial-display" style="font-size: 24px;" id="kpi-interesse-medio">0.0 / 5</div>
+            <p style="font-size: 13px; color: var(--color-secondary); font-weight: 500; margin-top: 4px;" id="kpi-top-objecao">Top: Nenhuma</p>
+          </div>
+        </main>
+
+        <!-- Tabela de Performance & Assiduidade dos Consultores -->
+        <section class="card-tier1">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin);">
+            <h3 style="font-size: 16px; font-weight: 600;">Ranking de Assiduidade e Disciplina dos Consultores</h3>
+            <span class="label-caps" style="color: var(--color-secondary);">Equipa Comercial</span>
+          </div>
+
+          <div class="bo-table-container">
+            <table class="bo-table">
+              <thead>
+                <tr>
+                  <th>Consultor</th>
+                  <th>Email</th>
+                  <th style="text-align: center;">Visitas Totais</th>
+                  <th style="text-align: center;">Com Feedback</th>
+                  <th>Taxa de Adesão</th>
+                  <th style="text-align: center;">Nível Interesse</th>
+                  <th>Última Visita</th>
+                </tr>
+              </thead>
+              <tbody id="consultores-table-body">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar dados dos consultores...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===================================================================
+           ABA 2: INTELIGÊNCIA DE OBJEÇÕES E RENEGOCIAÇÃO DE PREÇOS
+           =================================================================== -->
+      <div id="tab-objections" class="bo-tab-content" style="display: none;">
+        <div class="bo-filter-bar">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Inteligência de Mercado & Objeções</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">Consolidação estatística para fundamentação de renegociação de preços com proprietários</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <label for="bo-select-property" class="label-caps" style="color: var(--color-outline);">Filtrar Imóvel:</label>
+            <select id="bo-select-property" class="fecho-input" style="height: 38px; width: 320px; font-size: 13px;">
+              <option value="">Toda a Carteira da Agência</option>
+            </select>
+          </div>
         </div>
 
-        <div class="card-tier1">
-          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Objeções Frequentes</span>
-          <div class="financial-display" style="font-size: 20px;" id="kpi-top-objecao">Preço Elevado</div>
-          <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Base para renegociação de preço</p>
+        <!-- Resumo do Imóvel Selecionado -->
+        <div class="card-tier1" id="property-summary-banner" style="background: var(--color-surface); margin-bottom: var(--spacing-margin);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span class="status-pill status-pill-secondary" id="obj-prop-status">Ativo</span>
+              <h3 style="font-size: 18px; font-weight: 600; margin: 4px 0;" id="obj-prop-title">Toda a Agência</h3>
+              <p style="font-size: 13px; color: var(--color-outline);" id="obj-prop-owner">Proprietário: Todos</p>
+            </div>
+            <div style="text-align: right;">
+              <span class="label-caps" style="color: var(--color-outline); display: block;">Preço Atual</span>
+              <div class="financial-display" style="font-size: 26px;" id="obj-prop-price">-- €</div>
+            </div>
+          </div>
         </div>
-      </main>
 
-      <!-- Área de Visualização Gráfica e Tabela -->
-      <section class="card-tier1" style="margin-top: var(--spacing-lg);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin);">
-          <h2 style="font-size: 18px; font-weight: 600;">Estatística Consolidada de Objeções por Imóvel</h2>
-          <span class="label-caps" style="color: var(--color-secondary);">Inteligência de Mercado</span>
+        <!-- Gráfico Consolidado de Distribuição de Objeções -->
+        <section class="card-tier1">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin);">
+            <div>
+              <h3 style="font-size: 16px; font-weight: 600;">Distribuição de Objeções Levantadas</h3>
+              <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;" id="obj-chart-subtitle">Calculado sobre visitas realizadas</p>
+            </div>
+            <span class="label-caps" style="color: var(--color-secondary);">Estatística de Visitas</span>
+          </div>
+
+          <div id="objections-chart-container" style="padding: 10px 0;">
+            <div style="text-align: center; color: var(--color-outline); padding: 30px;">A carregar estatísticas de objeções...</div>
+          </div>
+        </section>
+
+        <!-- Bloco de Parecer Técnico e Argumentação de Preço -->
+        <div class="negotiation-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="label-caps" style="color: var(--color-secondary);">Parecer Técnico para Proprietário</span>
+            </div>
+            <span class="status-pill status-pill-secondary">Pronto a Enviar</span>
+          </div>
+          <p style="font-size: 13px; color: #584323; margin-bottom: 8px;">
+            Argumento baseado nos dados reais das visitas para justificar a recomendação de reposicionamento de preço:
+          </p>
+          <textarea id="negotiation-text-preview" class="negotiation-textarea" readonly></textarea>
+          <div style="display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-secondary-ghost" style="width: auto; height: 40px; padding: 0 18px; font-size: 13px;" id="btn-copy-negotiation">
+              Copiar Argumento
+            </button>
+            <button class="btn-primary-action" style="width: auto; height: 40px; padding: 0 18px; font-size: 13px; background: #15803d;" id="btn-send-negotiation-whatsapp">
+              Enviar via WhatsApp ao Proprietário
+            </button>
+          </div>
         </div>
-        <div id="objections-chart-placeholder" style="padding: 40px; text-align: center; color: var(--color-outline); background: var(--color-surface); border-radius: var(--radius-default); border: var(--border-hairline);">
-          Gráfico consolidado de objeções carregará nesta área após a inicialização dos dados.
+      </div>
+
+      <!-- ===================================================================
+           ABA 3: GESTÃO DO CATÁLOGO DE TAGS DE OBJEÇÃO
+           =================================================================== -->
+      <div id="tab-tags" class="bo-tab-content" style="display: none;">
+        <div class="bo-filter-bar">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Catálogo Corporativo de Objeções</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">Padronização das tags utilizadas pelos consultores no assistente de visitas</p>
+          </div>
+          <button class="btn-primary-action" style="width: auto; height: 40px; padding: 0 18px; font-size: 13px;" id="btn-open-create-tag-modal">
+            + Nova Tag de Objeção
+          </button>
         </div>
-      </section>
+
+        <section class="card-tier1">
+          <div class="bo-table-container">
+            <table class="bo-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tag de Objeção</th>
+                  <th>Categoria</th>
+                  <th style="text-align: center;">Estado</th>
+                  <th style="text-align: right;">Ação</th>
+                </tr>
+              </thead>
+              <tbody id="tags-table-body">
+                <tr>
+                  <td colspan="5" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar catálogo de tags...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===================================================================
+           ABA 4: PARÂMETROS FINANCEIROS E OPERACIONAIS
+           =================================================================== -->
+      <div id="tab-settings" class="bo-tab-content" style="display: none;">
+        <div class="bo-filter-bar">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Parâmetros Financeiros e Operacionais</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">Taxas de referência corporativas e parametrizações remotas da agência</p>
+          </div>
+        </div>
+
+        <section class="card-tier1" style="max-width: 720px;">
+          <form id="agency-settings-form">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="fecho-form-group">
+                <label class="fecho-label" for="setting-spread">Spread de Referência (%)</label>
+                <input type="number" step="0.01" min="0" max="10" id="setting-spread" class="fecho-input" required>
+                <span style="font-size: 11px; color: var(--color-outline); margin-top: 4px;">Usado no simulador de crédito (ex: 0.85%)</span>
+              </div>
+
+              <div class="fecho-form-group">
+                <label class="fecho-label" for="setting-stress">Taxa de Stress (%)</label>
+                <input type="number" step="0.01" min="0" max="10" id="setting-stress" class="fecho-input" required>
+                <span style="font-size: 11px; color: var(--color-outline); margin-top: 4px;">Margem prudencial de taxa de juro (ex: 1.50%)</span>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="fecho-form-group">
+                <label class="fecho-label" for="setting-prazo">Prazo Máximo de Financiamento (Anos)</label>
+                <input type="number" step="1" min="1" max="50" id="setting-prazo" class="fecho-input" required>
+                <span style="font-size: 11px; color: var(--color-outline); margin-top: 4px;">Prazo sugerido de amortização (ex: 30)</span>
+              </div>
+
+              <div class="fecho-form-group">
+                <label class="fecho-label" for="setting-ltv">LTV Máximo Financiável (%)</label>
+                <input type="number" step="0.5" min="10" max="100" id="setting-ltv" class="fecho-input" required>
+                <span style="font-size: 11px; color: var(--color-outline); margin-top: 4px;">Percentual máximo sobre a avaliação (ex: 85%)</span>
+              </div>
+            </div>
+
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="setting-hora-aniversario">Horário da Notificação Matinal de Aniversário</label>
+              <input type="text" pattern="^\d{2}:\d{2}$" id="setting-hora-aniversario" class="fecho-input" style="max-width: 180px;" placeholder="09:00" required>
+              <span style="font-size: 11px; color: var(--color-outline); margin-top: 4px;">Horário no qual os consultores recebem lembretes de escritura</span>
+            </div>
+
+            <div id="settings-status-alert" style="display: none; padding: 12px; border-radius: var(--radius-default); margin-bottom: 16px; font-size: 13px;"></div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+              <button type="submit" class="btn-primary-action" style="width: auto; padding: 0 28px; height: 46px;" id="btn-save-settings">
+                Guardar Parametrizações
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <!-- ===================================================================
+           ABA 5: CENTRO DE EXPORTAÇÃO ABERTA CSV
+           =================================================================== -->
+      <div id="tab-export" class="bo-tab-content" style="display: none;">
+        <div class="bo-filter-bar">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Centro de Exportação Aberta CSV</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">Formatos abertos em UTF-8 com BOM (\ufeff) e separador ';' para compatibilidade nativa com Microsoft Excel e Apple Numbers</p>
+          </div>
+        </div>
+
+        <div class="export-grid">
+          <!-- Card 1: Visitas -->
+          <div class="export-card">
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary);">Operacional</span>
+              <h3 style="font-size: 16px; font-weight: 600; margin: 6px 0 8px;">Relatório de Visitas</h3>
+              <p style="font-size: 13px; color: var(--color-on-surface-variant); line-height: 1.5; margin-bottom: 20px;">
+                Exporta todas as visitas efetuadas pelos consultores com dados do cliente, transcrições, duração de áudio e notas estruturadas.
+              </p>
+            </div>
+            <button class="btn-secondary-ghost" style="height: 42px; font-size: 13px;" onclick="handleCsvExport('visitas', this)">
+              Descarregar Visitas.csv
+            </button>
+          </div>
+
+          <!-- Card 2: Imóveis -->
+          <div class="export-card">
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary);">Património</span>
+              <h3 style="font-size: 16px; font-weight: 600; margin: 6px 0 8px;">Carteira de Imóveis</h3>
+              <p style="font-size: 13px; color: var(--color-on-surface-variant); line-height: 1.5; margin-bottom: 20px;">
+                Exporta a carteira ativa, reservada e vendida da agência, com dados fiscais, preços, áreas brutas e dados de escrituras.
+              </p>
+            </div>
+            <button class="btn-secondary-ghost" style="height: 42px; font-size: 13px;" onclick="handleCsvExport('imoveis', this)">
+              Descarregar Imóveis.csv
+            </button>
+          </div>
+
+          <!-- Card 3: Objeções -->
+          <div class="export-card">
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary);">Estatística</span>
+              <h3 style="font-size: 16px; font-weight: 600; margin: 6px 0 8px;">Objeções Consolidadas</h3>
+              <p style="font-size: 13px; color: var(--color-on-surface-variant); line-height: 1.5; margin-bottom: 20px;">
+                Exporta o levantamento das barreiras de fecho por imóvel, com volume de ocorrências e percentual sobre o total de visitas.
+              </p>
+            </div>
+            <button class="btn-secondary-ghost" style="height: 42px; font-size: 13px;" onclick="handleCsvExport('objecoes', this)">
+              Descarregar Objeções.csv
+            </button>
+          </div>
+
+          <!-- Card 4: Contactos / Pós-Venda -->
+          <div class="export-card">
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary);">Relacionamento</span>
+              <h3 style="font-size: 16px; font-weight: 600; margin: 6px 0 8px;">Esfera de Influência</h3>
+              <p style="font-size: 13px; color: var(--color-on-surface-variant); line-height: 1.5; margin-bottom: 20px;">
+                Exporta compradores e contactos pós-venda com datas de celebração de escritura, refletindo o status de proteção RGPD.
+              </p>
+            </div>
+            <button class="btn-secondary-ghost" style="height: 42px; font-size: 13px;" onclick="handleCsvExport('contactos', this)">
+              Descarregar Contactos.csv
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Criar Nova Tag de Objeção -->
+  <div class="auth-overlay" id="modal-create-tag" style="display: none;">
+    <div class="auth-card" style="max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <h3 style="font-size: 16px; font-weight: 600;">Nova Tag de Objeção</h3>
+        <button type="button" id="btn-close-modal-tag" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+
+      <form id="form-create-tag">
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-new-tag-name">Nome da Tag de Objeção</label>
+          <input type="text" id="input-new-tag-name" class="fecho-input" placeholder="ex: Vista Desimpedida Insuficiente" required minlength="2" maxlength="100">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="select-new-tag-cat">Categoria</label>
+          <select id="select-new-tag-cat" class="fecho-input" style="height: 48px;">
+            <option value="preco">Preço & Condições Financeiras</option>
+            <option value="localizacao">Localização & Vizinhança</option>
+            <option value="estado">Estado de Conservação & Obras</option>
+            <option value="dimensao">Áreas & Dimensões</option>
+            <option value="caracteristicas">Características do Edifício</option>
+            <option value="geral" selected>Geral / Outros</option>
+          </select>
+        </div>
+
+        <div id="modal-tag-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 14px;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-tag">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-tag">Criar Tag</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -81,7 +422,7 @@
       <div style="text-align: center; margin-bottom: 24px;">
         <img src="/static/img/screen.png" alt="Fecho" style="height: 32px; margin-bottom: 12px;">
         <h2 style="font-size: 18px; font-weight: 600;">Acesso à Direção</h2>
-        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Autenticação restrita ao painel corporativo</p>
+        <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;">Autenticação restrita ao painel corporativo da agência</p>
       </div>
 
       <form id="backoffice-login-form">
@@ -102,15 +443,69 @@
 
       <div class="demo-credentials-box">
         <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 4px;">Acesso de Teste (1 Toque):</span>
-        <button type="button" class="btn-demo-pill" id="bo-btn-demo-diretor">Diretora Demo</button>
-        <button type="button" class="btn-demo-pill" id="bo-btn-demo-consultor">Consultor Demo (Testar Bloqueio RBAC)</button>
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
+          <button type="button" class="btn-demo-pill" id="bo-btn-demo-diretor">Diretora Demo (Acesso Completo)</button>
+          <button type="button" class="btn-demo-pill" id="bo-btn-demo-consultor">Consultor Demo (Testar Bloqueio RBAC)</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="/static/js/api.js"></script>
   <script>
+    let currentAnalyticsData = null;
+    let selectedKpiDays = 30;
+
     document.addEventListener('DOMContentLoaded', async () => {
+      // 0. Modo Luz Solar Intensa e Monitoramento de Rede
+      const btnSunlightBo = document.getElementById('btn-sunlight-toggle-bo');
+      const sunlightLabelBo = document.getElementById('sunlight-label-bo');
+      const offlineBannerBo = document.getElementById('offline-status-banner-bo');
+
+      function setSunlightModeBo(enabled) {
+        if (enabled) {
+          document.body.classList.add('sunlight-mode');
+          if (sunlightLabelBo) sunlightLabelBo.textContent = 'Luz Solar: ON';
+          if (btnSunlightBo) {
+            btnSunlightBo.style.background = '#000000';
+            btnSunlightBo.style.color = '#ffffff';
+          }
+          localStorage.setItem('fecho_sunlight_mode', 'true');
+        } else {
+          document.body.classList.remove('sunlight-mode');
+          if (sunlightLabelBo) sunlightLabelBo.textContent = 'Luz Solar';
+          if (btnSunlightBo) {
+            btnSunlightBo.style.background = '#ffffff';
+            btnSunlightBo.style.color = 'inherit';
+          }
+          localStorage.removeItem('fecho_sunlight_mode');
+        }
+      }
+
+      if (localStorage.getItem('fecho_sunlight_mode') === 'true') {
+        setSunlightModeBo(true);
+      }
+
+      if (btnSunlightBo) {
+        btnSunlightBo.addEventListener('click', () => {
+          const isCurrently = document.body.classList.contains('sunlight-mode');
+          setSunlightModeBo(!isCurrently);
+        });
+      }
+
+      function updateNetworkStatusBo(isOnline) {
+        if (offlineBannerBo) {
+          offlineBannerBo.style.display = isOnline ? 'none' : 'block';
+        }
+      }
+
+      window.addEventListener('online', () => updateNetworkStatusBo(true));
+      window.addEventListener('offline', () => updateNetworkStatusBo(false));
+      if (typeof navigator.onLine === 'boolean') {
+        updateNetworkStatusBo(navigator.onLine);
+      }
+
+      // Elementos principais
       const modal = document.getElementById('backoffice-auth-modal');
       const form = document.getElementById('backoffice-login-form');
       const emailInput = document.getElementById('bo-login-email');
@@ -120,11 +515,46 @@
       const btnDemoDir = document.getElementById('bo-btn-demo-diretor');
       const btnDemoCons = document.getElementById('bo-btn-demo-consultor');
       const btnLogout = document.getElementById('btn-backoffice-logout');
+      const btnShortcutExport = document.getElementById('btn-shortcut-export');
       const rbacWarning = document.getElementById('rbac-warning-banner');
       const boContent = document.getElementById('backoffice-content');
       const dirBadge = document.getElementById('director-name-badge');
       const agencyBadge = document.getElementById('agency-name-badge');
 
+      // Gestão de abas
+      const tabButtons = document.querySelectorAll('.bo-tab-btn');
+      const tabContents = document.querySelectorAll('.bo-tab-content');
+
+      function switchTab(tabId) {
+        tabButtons.forEach(btn => {
+          if (btn.dataset.tab === tabId) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+
+        tabContents.forEach(content => {
+          if (content.id === tabId) {
+            content.style.display = 'block';
+          } else {
+            content.style.display = 'none';
+          }
+        });
+
+        if (tabId === 'tab-kpis') loadKPIs(selectedKpiDays);
+        if (tabId === 'tab-objections') loadObjectionsAnalytics();
+        if (tabId === 'tab-tags') loadTags();
+        if (tabId === 'tab-settings') loadSettings();
+      }
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      btnShortcutExport.addEventListener('click', () => switchTab('tab-export'));
+
+      // Renderização condicional por perfil (RBAC)
       function renderBackofficeUI(user) {
         if (!user) {
           modal.style.display = 'flex';
@@ -140,15 +570,16 @@
           boContent.style.display = 'block';
           dirBadge.textContent = `${user.nome} (Diretora)`;
           if (user.agencia_nome) agencyBadge.textContent = user.agencia_nome;
+          loadKPIs(selectedKpiDays);
         } else {
-          // Bloqueio RBAC para consultores
           rbacWarning.style.display = 'block';
           boContent.style.display = 'none';
           dirBadge.textContent = `${user.nome} (${user.role.toUpperCase()})`;
+          if (user.agencia_nome) agencyBadge.textContent = user.agencia_nome;
         }
       }
 
-      // Validação inicial da sessão
+      // Validação inicial de sessão
       if (Api.isAuthenticated()) {
         try {
           const user = await Api.getMe();
@@ -161,16 +592,12 @@
         renderBackofficeUI(null);
       }
 
-      // Submissão do login
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      async function doLogin(email, pass) {
         errorDiv.style.display = 'none';
         btnSubmit.disabled = true;
         btnSubmit.textContent = 'A validar...';
 
         try {
-          const email = emailInput.value.trim();
-          const pass = passInput.value;
           const result = await Api.login(email, pass);
           renderBackofficeUI(result.user);
         } catch (err) {
@@ -180,26 +607,341 @@
           btnSubmit.disabled = false;
           btnSubmit.textContent = 'Entrar na Direção';
         }
+      }
+
+      // Login form
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        doLogin(emailInput.value.trim(), passInput.value);
       });
 
       // Botões demo
       btnDemoDir.addEventListener('click', () => {
         emailInput.value = 'diretor@fecho.pt';
         passInput.value = 'senha_segura_diretor';
-        form.dispatchEvent(new Event('submit'));
+        doLogin('diretor@fecho.pt', 'senha_segura_diretor');
       });
 
       btnDemoCons.addEventListener('click', () => {
         emailInput.value = 'consultor@fecho.pt';
         passInput.value = 'senha_segura_consultor';
-        form.dispatchEvent(new Event('submit'));
+        doLogin('consultor@fecho.pt', 'senha_segura_consultor');
       });
 
-      // Logout
       btnLogout.addEventListener('click', () => {
         Api.logout();
         renderBackofficeUI(null);
       });
+
+      // =====================================================================
+      // 1. CARREGAMENTO DE KPIS E ASSIDUIDADE
+      // =====================================================================
+      const periodButtons = document.querySelectorAll('#kpi-period-selector .bo-period-btn');
+      periodButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          periodButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedKpiDays = btn.dataset.days ? parseInt(btn.dataset.days) : null;
+          loadKPIs(selectedKpiDays);
+        });
+      });
+
+      async function loadKPIs(days) {
+        try {
+          const data = await Api.getBackofficeKPIs(days);
+          document.getElementById('kpi-total-visitas').textContent = data.total_visitas;
+          document.getElementById('kpi-taxa-adesao').textContent = `${data.taxa_adesao_percent}%`;
+          document.getElementById('kpi-adesao-bar').style.width = `${Math.min(100, data.taxa_adesao_percent)}%`;
+          document.getElementById('kpi-visitas-feedback-label').textContent = `${data.visitas_com_feedback} de ${data.total_visitas} com notas`;
+
+          document.getElementById('kpi-taxa-prestacao').textContent = `${data.taxa_prestacao_contas_percent}%`;
+          document.getElementById('kpi-prestacao-label').textContent = `${data.visitas_enviadas_proprietario} de ${data.total_visitas} enviadas via WhatsApp`;
+
+          document.getElementById('kpi-interesse-medio').textContent = `${data.nivel_interesse_medio} / 5.0`;
+          document.getElementById('kpi-top-objecao').textContent = data.top_objecao ? `Top: ${data.top_objecao}` : 'Top: Nenhuma no período';
+
+          // Tabela de consultores
+          const tbody = document.getElementById('consultores-table-body');
+          if (!data.consultores_assiduidade || data.consultores_assiduidade.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-outline); padding: 20px;">Nenhum consultor registado na agência.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = data.consultores_assiduidade.map(c => {
+            const dataUltima = c.ultima_visita ? new Date(c.ultima_visita).toLocaleDateString('pt-PT') : 'Sem registo';
+            return `
+              <tr>
+                <td style="font-weight: 600; color: var(--color-primary);">${c.nome}</td>
+                <td style="color: var(--color-outline);">${c.email}</td>
+                <td style="text-align: center; font-weight: 600; font-variant-numeric: tabular-nums;">${c.total_visitas}</td>
+                <td style="text-align: center; font-variant-numeric: tabular-nums;">${c.visitas_com_feedback}</td>
+                <td>
+                  <span class="bo-progress-track">
+                    <span class="bo-progress-fill" style="width: ${Math.min(100, c.taxa_adesao_percent)}%;"></span>
+                  </span>
+                  <span style="font-weight: 600; font-variant-numeric: tabular-nums;">${c.taxa_adesao_percent}%</span>
+                </td>
+                <td style="text-align: center; font-variant-numeric: tabular-nums;">
+                  <span style="color: var(--color-secondary); font-weight: 600;">★ ${c.nivel_interesse_medio}</span>
+                </td>
+                <td style="color: var(--color-outline); font-size: 12px;">${dataUltima}</td>
+              </tr>
+            `;
+          }).join('');
+        } catch (err) {
+          console.error('Erro ao carregar KPIs:', err);
+        }
+      }
+
+      // =====================================================================
+      // 2. INTELIGÊNCIA DE OBJEÇÕES E RENEGOCIAÇÃO DE PREÇOS
+      // =====================================================================
+      const propSelect = document.getElementById('bo-select-property');
+      propSelect.addEventListener('change', () => {
+        const propId = propSelect.value ? parseInt(propSelect.value) : null;
+        loadObjectionsAnalytics(propId);
+      });
+
+      async function loadObjectionsAnalytics(propertyId = null) {
+        try {
+          const data = await Api.getBackofficeObjectionsAnalytics(propertyId);
+          currentAnalyticsData = data;
+
+          // Popula o select caso esteja vazio (apenas na 1ª vez)
+          if (propSelect.options.length <= 1 && data.imoveis_disponiveis) {
+            data.imoveis_disponiveis.forEach(p => {
+              const opt = document.createElement('option');
+              opt.value = p.id;
+              opt.textContent = `${p.referencia || 'IMO-' + p.id} - ${p.titulo} (${formatPrice(p.preco)})`;
+              propSelect.appendChild(opt);
+            });
+            if (propertyId) propSelect.value = propertyId;
+          }
+
+          // Banner do Imóvel
+          if (data.property_id) {
+            document.getElementById('obj-prop-title').textContent = data.property_titulo;
+            document.getElementById('obj-prop-price').textContent = formatPrice(data.property_preco);
+            document.getElementById('obj-prop-owner').textContent = `Proprietário: ${data.nome_proprietario || 'Não informado'} ${data.telefone_proprietario ? '(' + data.telefone_proprietario + ')' : ''}`;
+            document.getElementById('obj-chart-subtitle').textContent = `Baseado em ${data.total_visitas_imovel} visita(s) a este imóvel (${data.total_visitas_com_objecoes} com objeções levantadas)`;
+          } else {
+            document.getElementById('obj-prop-title').textContent = 'Toda a Carteira da Agência';
+            document.getElementById('obj-prop-price').textContent = '-- €';
+            document.getElementById('obj-prop-owner').textContent = 'Visão Consolidada de todos os imóveis da agência';
+            document.getElementById('obj-chart-subtitle').textContent = `Consolidado de ${data.total_visitas_imovel} visita(s) globais`;
+          }
+
+          // Gráfico em Barras
+          const chartContainer = document.getElementById('objections-chart-container');
+          if (!data.distribuicao || data.distribuicao.length === 0) {
+            chartContainer.innerHTML = '<div style="text-align: center; color: var(--color-outline); padding: 30px;">Nenhuma objeção registada para este contexto.</div>';
+          } else {
+            chartContainer.innerHTML = data.distribuicao.map(item => `
+              <div class="obj-bar-row">
+                <div class="obj-bar-label">
+                  <span>${item.tag}</span>
+                  <span class="label-caps" style="color: var(--color-outline); font-size: 10px;">${item.categoria}</span>
+                </div>
+                <div class="obj-bar-track">
+                  <div class="obj-bar-fill" style="width: ${Math.min(100, item.percentual_visitas)}%;"></div>
+                </div>
+                <div class="obj-bar-value">
+                  ${item.total_ocorrencias} (${item.percentual_visitas}%)
+                </div>
+              </div>
+            `).join('');
+          }
+
+          // Parecer de Renegociação
+          const textarea = document.getElementById('negotiation-text-preview');
+          textarea.value = data.resumo_renegociacao || '';
+
+        } catch (err) {
+          console.error('Erro ao carregar análise de objeções:', err);
+        }
+      }
+
+      // Botão Copiar Argumento
+      const btnCopyNeg = document.getElementById('btn-copy-negotiation');
+      btnCopyNeg.addEventListener('click', () => {
+        const text = document.getElementById('negotiation-text-preview').value;
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btnCopyNeg.textContent;
+          btnCopyNeg.textContent = '✓ Copiado!';
+          setTimeout(() => { btnCopyNeg.textContent = original; }, 2000);
+        });
+      });
+
+      // Botão Enviar via WhatsApp ao Proprietário
+      const btnSendWa = document.getElementById('btn-send-negotiation-whatsapp');
+      btnSendWa.addEventListener('click', () => {
+        if (!currentAnalyticsData) return;
+        const text = document.getElementById('negotiation-text-preview').value;
+        const phone = currentAnalyticsData.telefone_proprietario ? currentAnalyticsData.telefone_proprietario.replace(/\D/g, '') : '';
+        const url = phone
+          ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
+          : `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+      });
+
+      // =====================================================================
+      // 3. GESTÃO DO CATÁLOGO DE TAGS DE OBJEÇÃO
+      // =====================================================================
+      const modalTag = document.getElementById('modal-create-tag');
+      const btnOpenModalTag = document.getElementById('btn-open-create-tag-modal');
+      const btnCloseModalTag = document.getElementById('btn-close-modal-tag');
+      const btnCancelModalTag = document.getElementById('btn-cancel-modal-tag');
+      const formTag = document.getElementById('form-create-tag');
+      const inputTagName = document.getElementById('input-new-tag-name');
+      const selectTagCat = document.getElementById('select-new-tag-cat');
+      const tagError = document.getElementById('modal-tag-error');
+
+      btnOpenModalTag.addEventListener('click', () => {
+        inputTagName.value = '';
+        tagError.style.display = 'none';
+        modalTag.style.display = 'flex';
+      });
+
+      function closeModalTag() {
+        modalTag.style.display = 'none';
+      }
+      btnCloseModalTag.addEventListener('click', closeModalTag);
+      btnCancelModalTag.addEventListener('click', closeModalTag);
+
+      formTag.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        tagError.style.display = 'none';
+        try {
+          await Api.createBackofficeTag({
+            tag: inputTagName.value.trim(),
+            categoria: selectTagCat.value,
+            ativo: true
+          });
+          closeModalTag();
+          loadTags();
+        } catch (err) {
+          tagError.textContent = err.message || 'Erro ao criar tag.';
+          tagError.style.display = 'block';
+        }
+      });
+
+      async function loadTags() {
+        try {
+          const tags = await Api.getBackofficeTags();
+          const tbody = document.getElementById('tags-table-body');
+          if (!tags || tags.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-outline); padding: 20px;">Nenhuma tag registada na agência.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = tags.map(t => `
+            <tr>
+              <td style="color: var(--color-outline); font-size: 12px;">#${t.id}</td>
+              <td style="font-weight: 600; color: var(--color-primary);">${t.tag}</td>
+              <td><span class="status-pill status-pill-secondary">${t.categoria}</span></td>
+              <td style="text-align: center;">
+                <span class="status-pill ${t.ativo ? 'status-pill-notarized' : 'status-pill-error'}">
+                  ${t.ativo ? 'Ativa' : 'Inativa'}
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn-demo-pill" style="font-size: 11px; padding: 4px 10px;" onclick="toggleTagStatus(${t.id}, ${!t.ativo})">
+                  ${t.ativo ? 'Desativar' : 'Ativar'}
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        } catch (err) {
+          console.error('Erro ao carregar tags:', err);
+        }
+      }
+
+      window.toggleTagStatus = async function(tagId, newStatus) {
+        try {
+          await Api.updateBackofficeTag(tagId, { ativo: newStatus });
+          loadTags();
+        } catch (err) {
+          alert('Erro ao atualizar status da tag: ' + err.message);
+        }
+      };
+
+      // =====================================================================
+      // 4. PARÂMETROS FINANCEIROS E OPERACIONAIS (SETTINGS)
+      // =====================================================================
+      const settingsForm = document.getElementById('agency-settings-form');
+      const spreadInput = document.getElementById('setting-spread');
+      const stressInput = document.getElementById('setting-stress');
+      const prazoInput = document.getElementById('setting-prazo');
+      const ltvInput = document.getElementById('setting-ltv');
+      const horaInput = document.getElementById('setting-hora-aniversario');
+      const settingsAlert = document.getElementById('settings-status-alert');
+
+      async function loadSettings() {
+        try {
+          const s = await Api.getBackofficeSettings();
+          spreadInput.value = s.spread_referencia;
+          stressInput.value = s.taxa_stress;
+          prazoInput.value = s.prazo_max_financiamento_anos;
+          ltvInput.value = s.percentual_financiamento_max;
+          horaInput.value = s.hora_notificacao_aniversario;
+        } catch (err) {
+          console.error('Erro ao carregar configurações:', err);
+        }
+      }
+
+      settingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        settingsAlert.style.display = 'none';
+        try {
+          await Api.updateBackofficeSettings({
+            spread_referencia: parseFloat(spreadInput.value),
+            taxa_stress: parseFloat(stressInput.value),
+            prazo_max_financiamento_anos: parseInt(prazoInput.value),
+            percentual_financiamento_max: parseFloat(ltvInput.value),
+            hora_notificacao_aniversario: horaInput.value.trim(),
+          });
+          settingsAlert.style.display = 'block';
+          settingsAlert.style.background = '#f0fdf4';
+          settingsAlert.style.color = '#15803d';
+          settingsAlert.style.border = '1px solid #bbf7d0';
+          settingsAlert.textContent = '✓ Parametrizações corporativas atualizadas com sucesso!';
+          setTimeout(() => { settingsAlert.style.display = 'none'; }, 4000);
+        } catch (err) {
+          settingsAlert.style.display = 'block';
+          settingsAlert.style.background = '#fef2f2';
+          settingsAlert.style.color = '#b91c1c';
+          settingsAlert.style.border = '1px solid #fecaca';
+          settingsAlert.textContent = 'Erro ao guardar parametrizações: ' + err.message;
+        }
+      });
+
+      // =====================================================================
+      // 5. CENTRO DE EXPORTAÇÃO CSV
+      // =====================================================================
+      window.handleCsvExport = async function(tipo, buttonElement) {
+        const originalText = buttonElement.textContent;
+        buttonElement.disabled = true;
+        buttonElement.textContent = 'A gerar CSV...';
+
+        try {
+          await Api.downloadExportCsv(tipo);
+          buttonElement.textContent = '✓ Concluído!';
+        } catch (err) {
+          alert('Erro ao exportar CSV: ' + err.message);
+          buttonElement.textContent = originalText;
+        } finally {
+          setTimeout(() => {
+            buttonElement.disabled = false;
+            buttonElement.textContent = originalText;
+          }, 2000);
+        }
+      };
+
+      function formatPrice(val) {
+        if (!val) return '0,00 €';
+        return Number(val).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+      }
     });
   </script>
 </body>

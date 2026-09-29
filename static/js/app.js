@@ -19,6 +19,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // 1.1 Controle de Modo Luz Solar Intensa e Estado de Rede (PWA / Offline)
+  const btnSunlightToggle = document.getElementById('btn-sunlight-toggle');
+  const sunlightLabel = document.getElementById('sunlight-label');
+  const offlineStatusBanner = document.getElementById('offline-status-banner');
+
+  function setSunlightMode(enabled) {
+    if (enabled) {
+      document.body.classList.add('sunlight-mode');
+      if (sunlightLabel) sunlightLabel.textContent = 'Luz Solar: ON';
+      if (btnSunlightToggle) {
+        btnSunlightToggle.style.background = '#000000';
+        btnSunlightToggle.style.color = '#ffffff';
+      }
+      localStorage.setItem('fecho_sunlight_mode', 'true');
+    } else {
+      document.body.classList.remove('sunlight-mode');
+      if (sunlightLabel) sunlightLabel.textContent = 'Luz Solar';
+      if (btnSunlightToggle) {
+        btnSunlightToggle.style.background = '#ffffff';
+        btnSunlightToggle.style.color = 'inherit';
+      }
+      localStorage.removeItem('fecho_sunlight_mode');
+    }
+  }
+
+  if (localStorage.getItem('fecho_sunlight_mode') === 'true') {
+    setSunlightMode(true);
+  }
+
+  if (btnSunlightToggle) {
+    btnSunlightToggle.addEventListener('click', () => {
+      const isCurrently = document.body.classList.contains('sunlight-mode');
+      setSunlightMode(!isCurrently);
+    });
+  }
+
+  function updateNetworkStatus(isOnline) {
+    if (offlineStatusBanner) {
+      offlineStatusBanner.style.display = isOnline ? 'none' : 'block';
+    }
+    console.log(`[PWA] Conectividade de rede: ${isOnline ? 'Online' : 'Offline'}`);
+  }
+
+  window.addEventListener('online', () => updateNetworkStatus(true));
+  window.addEventListener('offline', () => updateNetworkStatus(false));
+  if (typeof navigator.onLine === 'boolean') {
+    updateNetworkStatus(navigator.onLine);
+  }
+
   // 2. Elementos de Autenticação e Cabeçalho
   const authModal = document.getElementById('auth-modal');
   const loginForm = document.getElementById('login-form');
@@ -108,6 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Carrega o imóvel em foco ou inicializa carteira
       initPortfolioContext();
+      checkMorningAnniversaries();
     } else {
       if (userBadge) {
         userBadge.textContent = 'Não autenticado';
@@ -454,6 +504,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         loadPortfolioList();
+        if (typeof loadContactsList === 'function') {
+          loadContactsList();
+        }
+        if (typeof checkMorningAnniversaries === 'function') {
+          checkMorningAnniversaries();
+        }
       } catch (err) {
         if (transitionError) {
           transitionError.textContent = err.message || 'Erro ao alterar estado do imóvel.';
@@ -1656,7 +1712,447 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 12. Tratamento do Formulário de Login
+  // ==========================================================================
+  // 12. Módulo de Esfera de Influência, Pós-Venda e Aniversários de Escritura (Fase 8)
+  // ==========================================================================
+  const anniversaryMorningBanner = document.getElementById('anniversary-morning-banner');
+  const anniversaryBannerTitle = document.getElementById('anniversary-banner-title');
+  const anniversaryBannerSubtitle = document.getElementById('anniversary-banner-subtitle');
+  const btnBannerFelicitar = document.getElementById('btn-banner-felicitar');
+
+  const btnOpenContacts = document.getElementById('btn-open-contacts');
+  const navEsfera = document.getElementById('nav-esfera');
+  const drawerContacts = document.getElementById('drawer-contacts');
+  const btnCloseContacts = document.getElementById('btn-close-contacts');
+  const contactsCountLabel = document.getElementById('contacts-count-label');
+  const contactsSearchInput = document.getElementById('contacts-search-input');
+  const contactsFilterBar = document.getElementById('contacts-filter-bar');
+  const contactsListContainer = document.getElementById('contacts-list-container');
+
+  const btnOpenNewContact = document.getElementById('btn-open-new-contact');
+  const modalNewContact = document.getElementById('modal-new-contact');
+  const btnCloseNewContact = document.getElementById('btn-close-new-contact');
+  const formNewContact = document.getElementById('form-new-contact');
+  const contactNameInput = document.getElementById('contact-name-input');
+  const contactPhoneInput = document.getElementById('contact-phone-input');
+  const contactEmailInput = document.getElementById('contact-email-input');
+  const contactTypeSelect = document.getElementById('contact-type-select');
+  const contactEscrituraDate = document.getElementById('contact-escritura-date');
+  const contactNotesInput = document.getElementById('contact-notes-input');
+  const newContactError = document.getElementById('new-contact-error');
+  const btnSubmitNewContact = document.getElementById('btn-submit-new-contact');
+
+  const modalContactWhatsapp = document.getElementById('modal-contact-whatsapp');
+  const btnCloseContactWhatsapp = document.getElementById('btn-close-contact-whatsapp');
+  const whatsappContactTargetLabel = document.getElementById('whatsapp-contact-target-label');
+  const whatsappActiveContactId = document.getElementById('whatsapp-active-contact-id');
+  const whatsappTemplateChips = document.getElementById('whatsapp-template-chips');
+  const whatsappPreviewTextarea = document.getElementById('whatsapp-preview-textarea');
+  const btnSendWhatsappNow = document.getElementById('btn-send-whatsapp-now');
+  const btnCopyWhatsappText = document.getElementById('btn-copy-whatsapp-text');
+
+  const modalConfirmAnonymize = document.getElementById('modal-confirm-anonymize');
+  const btnCloseAnonymize = document.getElementById('btn-close-anonymize');
+  const btnCancelAnonymize = document.getElementById('btn-cancel-anonymize');
+  const btnExecuteAnonymize = document.getElementById('btn-execute-anonymize');
+  const anonymizeTargetContactId = document.getElementById('anonymize-target-contact-id');
+  const anonymizeTargetContactName = document.getElementById('anonymize-target-contact-name');
+
+  let currentContactsFilter = '';
+  let contactsSearchDebounce = null;
+  let currentGeneratedWhatsappUrl = '';
+
+  async function checkMorningAnniversaries() {
+    if (!Api.isAuthenticated()) return;
+    try {
+      const res = await Api.getAnniversaryContacts();
+      if (res && res.items && res.items.length > 0) {
+        if (anniversaryMorningBanner) {
+          anniversaryMorningBanner.style.display = 'block';
+          const count = res.items.length;
+          anniversaryBannerTitle.textContent = `${count} ${count === 1 ? 'Aniversário' : 'Aniversários'} de Escritura Hoje!`;
+          const nomes = res.items.map(c => c.nome).slice(0, 2).join(', ');
+          const extra = count > 2 ? ` e mais ${count - 2}` : '';
+          anniversaryBannerSubtitle.textContent = `Celebração de ${nomes}${extra}. Envie os parabéns via WhatsApp.`;
+        }
+
+        // Notificação móvel matinal das 09:00 (Web Notification API)
+        if ('Notification' in window) {
+          if (Notification.permission === 'granted') {
+            new Notification('Fecho - Aniversário de Escritura às 09:00', {
+              body: `${res.items[0].nome} celebra aniversário de escritura hoje! Toque para felicitar.`,
+              icon: '/static/img/screen.png'
+            });
+          } else if (Notification.permission === 'default') {
+            Notification.requestPermission();
+          }
+        }
+      } else {
+        if (anniversaryMorningBanner) anniversaryMorningBanner.style.display = 'none';
+      }
+    } catch (e) {
+      console.warn('[Contacts] Não foi possível verificar aniversários matinais:', e);
+    }
+  }
+
+  async function loadContactsList() {
+    if (!contactsListContainer) return;
+
+    try {
+      contactsListContainer.innerHTML = '<p style="text-align: center; color: var(--color-outline); font-size: 13px; padding: 24px 0;">A carregar contactos...</p>';
+
+      const params = {};
+      if (contactsSearchInput && contactsSearchInput.value.trim()) {
+        params.q = contactsSearchInput.value.trim();
+      }
+
+      if (currentContactsFilter === 'aniversario') {
+        params.apenas_aniversario_hoje = true;
+      } else if (currentContactsFilter) {
+        params.tipo = currentContactsFilter;
+      }
+
+      const res = await Api.getContacts(params);
+      const items = res.items || [];
+
+      if (contactsCountLabel) {
+        contactsCountLabel.textContent = `${items.length} ${items.length === 1 ? 'contacto' : 'contactos'} na esfera`;
+      }
+
+      if (items.length === 0) {
+        contactsListContainer.innerHTML = `
+          <div style="text-align: center; padding: 36px 16px; color: var(--color-outline);">
+            <p style="font-size: 14px; font-weight: 500;">Nenhum contacto encontrado</p>
+            <p style="font-size: 12px; margin-top: 4px;">Registe um novo contacto ou concretize a venda de um imóvel para alimentar a esfera.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      for (const c of items) {
+        const isAni = c.is_aniversario_hoje;
+        const cardClass = isAni ? 'contact-card is-anniversary' : 'contact-card';
+        const aniBadge = isAni
+          ? `<span class="badge-anniversary">🎉 ${c.anos_escritura || 1} ${c.anos_escritura === 1 ? 'Ano' : 'Anos'} de Escritura Hoje!</span>`
+          : '';
+        const rgpdBadge = c.anonimizado ? '<span class="badge-anonymized">RGPD Anonimizado</span>' : '';
+        const typeBadge = `<span class="badge-contact-type">${escapeHtml(c.tipo)}</span>`;
+
+        let escrituraInfo = '';
+        if (c.data_escritura) {
+          const parts = c.data_escritura.split('-');
+          const dataFmt = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : c.data_escritura;
+          escrituraInfo = `<span>📅 Escritura: <strong>${dataFmt}</strong></span>`;
+        }
+
+        const propInfo = c.property_titulo
+          ? `<span>🏠 Imóvel: ${escapeHtml(c.property_titulo)}</span>`
+          : '';
+
+        let actionsHtml = '';
+        if (!c.anonimizado) {
+          actionsHtml = `
+            <div class="contact-actions-row">
+              <button type="button" class="btn-card-action btn-card-primary" data-action="whatsapp" data-id="${c.id}" data-name="${escapeHtml(c.nome)}">
+                💬 WhatsApp (1 Toque)
+              </button>
+              <button type="button" class="btn-card-action" data-action="anonymize" data-id="${c.id}" data-name="${escapeHtml(c.nome)}" style="color: #b91c1c; border-color: rgba(185, 28, 28, 0.3);">
+                ⚖️ Anonimizar RGPD
+              </button>
+            </div>
+          `;
+        } else {
+          actionsHtml = `
+            <div class="contact-actions-row">
+              <span style="font-size: 11px; color: var(--color-outline);">Dados pessoais anonimizados pelo RGPD</span>
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="${cardClass}" data-contact-id="${c.id}">
+            <div class="contact-card-header">
+              <div>
+                <h4 class="contact-name">${escapeHtml(c.nome)}</h4>
+                <div class="contact-meta">
+                  <span>📞 ${escapeHtml(c.telemovel)}</span>
+                  ${rgpdBadge}
+                </div>
+              </div>
+              <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                ${typeBadge}
+                ${aniBadge}
+              </div>
+            </div>
+
+            ${(escrituraInfo || propInfo) ? `
+              <div class="contact-details" style="display: flex; flex-direction: column; gap: 2px;">
+                ${propInfo}
+                ${escrituraInfo}
+              </div>
+            ` : ''}
+
+            ${c.notas ? `<p class="contact-details" style="font-style: italic; margin-top: 4px;">"${escapeHtml(c.notas)}"</p>` : ''}
+
+            ${actionsHtml}
+          </div>
+        `;
+      }
+
+      contactsListContainer.innerHTML = html;
+    } catch (e) {
+      contactsListContainer.innerHTML = `<p style="text-align: center; color: var(--color-error); font-size: 13px; padding: 24px 0;">Erro ao carregar contactos: ${escapeHtml(e.message)}</p>`;
+    }
+  }
+
+  async function openWhatsAppModal(contactId) {
+    if (!modalContactWhatsapp) return;
+    try {
+      whatsappActiveContactId.value = contactId;
+      whatsappPreviewTextarea.value = 'A gerar mensagem dinâmica...';
+      btnSendWhatsappNow.disabled = true;
+
+      const contact = await Api.getContact(contactId);
+      if (whatsappContactTargetLabel) {
+        whatsappContactTargetLabel.textContent = `${contact.nome} • ${contact.telemovel}`;
+      }
+
+      const defaultTemplate = contact.is_aniversario_hoje ? 'aniversario_escritura' : 'pos_venda_geral';
+      setActiveWhatsAppTemplateChip(defaultTemplate);
+
+      await generateAndDisplayWhatsAppMessage(contactId, defaultTemplate);
+      openDrawer(modalContactWhatsapp);
+    } catch (e) {
+      alert(`Erro ao abrir modal de WhatsApp: ${e.message}`);
+    }
+  }
+
+  function setActiveWhatsAppTemplateChip(template) {
+    if (!whatsappTemplateChips) return;
+    const chips = whatsappTemplateChips.querySelectorAll('.whatsapp-chip-btn');
+    chips.forEach(btn => {
+      if (btn.dataset.template === template) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  async function generateAndDisplayWhatsAppMessage(contactId, template) {
+    try {
+      whatsappPreviewTextarea.value = 'A preparar mensagem...';
+      btnSendWhatsappNow.disabled = true;
+
+      const res = await Api.generateContactWhatsApp(contactId, {
+        tipo_mensagem: template
+      });
+
+      whatsappPreviewTextarea.value = res.texto;
+      currentGeneratedWhatsappUrl = res.whatsapp_url;
+      btnSendWhatsappNow.disabled = false;
+    } catch (e) {
+      whatsappPreviewTextarea.value = `Erro ao gerar mensagem: ${e.message}`;
+      btnSendWhatsappNow.disabled = true;
+    }
+  }
+
+  function openAnonymizeModal(contactId, contactName) {
+    if (!modalConfirmAnonymize) return;
+    anonymizeTargetContactId.value = contactId;
+    anonymizeTargetContactName.textContent = contactName || 'este cliente';
+    openDrawer(modalConfirmAnonymize);
+  }
+
+  // Event Listeners da Esfera de Influência
+  if (btnOpenContacts) {
+    btnOpenContacts.addEventListener('click', () => {
+      openDrawer(drawerContacts);
+      loadContactsList();
+    });
+  }
+
+  if (navEsfera) {
+    navEsfera.addEventListener('click', () => {
+      openDrawer(drawerContacts);
+      loadContactsList();
+    });
+  }
+
+  if (btnCloseContacts) {
+    btnCloseContacts.addEventListener('click', () => closeDrawer(drawerContacts));
+  }
+
+  if (btnBannerFelicitar) {
+    btnBannerFelicitar.addEventListener('click', () => {
+      currentContactsFilter = 'aniversario';
+      if (contactsFilterBar) {
+        const chips = contactsFilterBar.querySelectorAll('.filter-chip-btn');
+        chips.forEach(c => c.classList.toggle('active', c.dataset.filter === 'aniversario'));
+      }
+      openDrawer(drawerContacts);
+      loadContactsList();
+    });
+  }
+
+  if (contactsSearchInput) {
+    contactsSearchInput.addEventListener('input', () => {
+      clearTimeout(contactsSearchDebounce);
+      contactsSearchDebounce = setTimeout(() => {
+        loadContactsList();
+      }, 300);
+    });
+  }
+
+  if (contactsFilterBar) {
+    contactsFilterBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-chip-btn');
+      if (!btn) return;
+      contactsFilterBar.querySelectorAll('.filter-chip-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentContactsFilter = btn.dataset.filter || '';
+      loadContactsList();
+    });
+  }
+
+  // Ações nos Cards de Contatos (WhatsApp e RGPD)
+  if (contactsListContainer) {
+    contactsListContainer.addEventListener('click', (e) => {
+      const waBtn = e.target.closest('[data-action="whatsapp"]');
+      if (waBtn) {
+        const id = parseInt(waBtn.dataset.id, 10);
+        openWhatsAppModal(id);
+        return;
+      }
+
+      const anonBtn = e.target.closest('[data-action="anonymize"]');
+      if (anonBtn) {
+        const id = parseInt(anonBtn.dataset.id, 10);
+        const name = anonBtn.dataset.name;
+        openAnonymizeModal(id, name);
+        return;
+      }
+    });
+  }
+
+  // Modal Novo Contato
+  if (btnOpenNewContact) {
+    btnOpenNewContact.addEventListener('click', () => {
+      if (formNewContact) formNewContact.reset();
+      if (newContactError) newContactError.style.display = 'none';
+      openDrawer(modalNewContact);
+    });
+  }
+
+  if (btnCloseNewContact) {
+    btnCloseNewContact.addEventListener('click', () => closeDrawer(modalNewContact));
+  }
+
+  if (formNewContact) {
+    formNewContact.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      newContactError.style.display = 'none';
+      btnSubmitNewContact.disabled = true;
+      btnSubmitNewContact.textContent = 'A gravar...';
+
+      try {
+        const payload = {
+          nome: contactNameInput.value.trim(),
+          telemovel: contactPhoneInput.value.trim(),
+          email: contactEmailInput.value.trim() || null,
+          tipo: contactTypeSelect.value,
+          data_escritura: contactEscrituraDate.value || null,
+          notas: contactNotesInput.value.trim() || null,
+        };
+
+        await Api.createContact(payload);
+        closeDrawer(modalNewContact);
+        loadContactsList();
+        checkMorningAnniversaries();
+      } catch (err) {
+        newContactError.textContent = err.message || 'Erro ao cadastrar contacto.';
+        newContactError.style.display = 'block';
+      } finally {
+        btnSubmitNewContact.disabled = false;
+        btnSubmitNewContact.textContent = 'Gravar Contacto';
+      }
+    });
+  }
+
+  // Modal de WhatsApp
+  if (btnCloseContactWhatsapp) {
+    btnCloseContactWhatsapp.addEventListener('click', () => closeDrawer(modalContactWhatsapp));
+  }
+
+  if (whatsappTemplateChips) {
+    whatsappTemplateChips.addEventListener('click', async (e) => {
+      const chip = e.target.closest('.whatsapp-chip-btn');
+      if (!chip) return;
+      const template = chip.dataset.template;
+      setActiveWhatsAppTemplateChip(template);
+
+      const contactId = parseInt(whatsappActiveContactId.value, 10);
+      if (contactId) {
+        await generateAndDisplayWhatsAppMessage(contactId, template);
+      }
+    });
+  }
+
+  if (btnSendWhatsappNow) {
+    btnSendWhatsappNow.addEventListener('click', () => {
+      if (!currentGeneratedWhatsappUrl) return;
+      window.open(currentGeneratedWhatsappUrl, '_blank');
+    });
+  }
+
+  if (btnCopyWhatsappText) {
+    btnCopyWhatsappText.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(whatsappPreviewTextarea.value);
+        const orig = btnCopyWhatsappText.textContent;
+        btnCopyWhatsappText.textContent = '✓ Copiado com Sucesso';
+        setTimeout(() => {
+          btnCopyWhatsappText.textContent = orig;
+        }, 1800);
+      } catch {
+        alert('Texto copiado!');
+      }
+    });
+  }
+
+  // Modal Anonimização RGPD
+  if (btnCloseAnonymize) {
+    btnCloseAnonymize.addEventListener('click', () => closeDrawer(modalConfirmAnonymize));
+  }
+
+  if (btnCancelAnonymize) {
+    btnCancelAnonymize.addEventListener('click', () => closeDrawer(modalConfirmAnonymize));
+  }
+
+  if (btnExecuteAnonymize) {
+    btnExecuteAnonymize.addEventListener('click', async () => {
+      const id = parseInt(anonymizeTargetContactId.value, 10);
+      if (!id) return;
+
+      btnExecuteAnonymize.disabled = true;
+      btnExecuteAnonymize.textContent = 'A anonimizar...';
+
+      try {
+        await Api.anonymizeContact(id);
+        closeDrawer(modalConfirmAnonymize);
+        loadContactsList();
+        checkMorningAnniversaries();
+      } catch (err) {
+        alert(`Erro ao anonimizar: ${err.message}`);
+      } finally {
+        btnExecuteAnonymize.disabled = false;
+        btnExecuteAnonymize.textContent = 'Confirmar Anonimização';
+      }
+    });
+  }
+
+  // 13. Tratamento do Formulário de Login
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();

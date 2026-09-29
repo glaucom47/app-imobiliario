@@ -273,17 +273,30 @@ class PropertyService:
             property_obj.data_escritura = data_escritura
 
             # Cria ou atualiza o contato pós-venda na Esfera de Influência
-            comprador_contato = Contact(
-                agencia_id=property_obj.agencia_id,
-                consultor_id=property_obj.consultor_id,
-                property_id=property_obj.id,
-                nome=nome_comprador,
-                telemovel=tel_comprador,
-                tipo="comprador",
-                data_escritura=data_escritura,
-                notas=f"Comprador do imóvel '{property_obj.titulo}' (#{property_obj.id}) por escritura celebrada em {data_escritura.strftime('%d/%m/%Y')}."
-            )
-            db.add(comprador_contato)
+            comprador_contato = db.query(Contact).filter(
+                Contact.property_id == property_obj.id,
+                Contact.agencia_id == property_obj.agencia_id,
+                Contact.tipo == "comprador"
+            ).first()
+
+            if comprador_contato:
+                comprador_contato.nome = nome_comprador
+                comprador_contato.telemovel = tel_comprador
+                comprador_contato.data_escritura = data_escritura
+                comprador_contato.consultor_id = property_obj.consultor_id
+                comprador_contato.notas = f"Comprador do imóvel '{property_obj.titulo}' (#{property_obj.id}) por escritura celebrada em {data_escritura.strftime('%d/%m/%Y')}."
+            else:
+                comprador_contato = Contact(
+                    agencia_id=property_obj.agencia_id,
+                    consultor_id=property_obj.consultor_id,
+                    property_id=property_obj.id,
+                    nome=nome_comprador,
+                    telemovel=tel_comprador,
+                    tipo="comprador",
+                    data_escritura=data_escritura,
+                    notas=f"Comprador do imóvel '{property_obj.titulo}' (#{property_obj.id}) por escritura celebrada em {data_escritura.strftime('%d/%m/%Y')}."
+                )
+                db.add(comprador_contato)
 
         elif target_status == "Reservado":
             property_obj.status = "Reservado"

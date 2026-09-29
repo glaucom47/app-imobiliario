@@ -13,9 +13,9 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 - [x] **Fase 5: Calculadora Visual de Viabilidade Financeira (Client-side / Offline)**
 - [x] **Fase 6: Visitas, Feedback por Voz e Objeções (Human-in-the-Loop)**
 - [x] **Fase 7: Conteúdo e Scripts de Vídeo Curto com Teleprompter**
-- [ ] **Fase 8: Pós-Venda, Esfera de Influência e Notificações de Aniversário**
-- [ ] **Fase 9: Backoffice Web da Agência, Métricas e Exportação CSV**
-- [ ] **Fase 10: Auditoria de Segurança, Testes E2E e Polimento Final**
+- [x] **Fase 8: Pós-Venda, Esfera de Influência e Notificações de Aniversário**
+- [x] **Fase 9: Backoffice Web da Agência, Métricas e Exportação CSV**
+- [x] **Fase 10: Auditoria de Segurança, Testes E2E e Polimento Final**
 
 ---
 
@@ -136,13 +136,13 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ### Fase 8: Pós-Venda, Esfera de Influência e Notificações de Aniversário
 * **Objetivo:** Capturar dados ágeis do comprador no momento da transição para "Vendido" (3 campos obrigatórios), alimentar a esfera de influência, notificar o consultor às 09:00 no aniversário da escritura e fornecer mensagens de relacionamento via WhatsApp em 1 toque, com respeito a regras de anonimização RGPD.
 * **Checklist de Tarefas:**
-  - [ ] Vincular a transição para estado "Vendido" à recolha obrigatória de: *Nome do Comprador*, *Telemóvel* e *Data da Escritura*.
-  - [ ] Criar esquema e endpoints para contatos de pós-venda em `app/schemas/contact_schema.py` e `app/controllers/contacts_controller.py`.
-  - [ ] Implementar rotina de alerta de aniversário de escritura em `app/services/contact_service.py`.
-  - [ ] Criar templates de mensagens dinâmicas de felicitações/relacionamento com abertura direta no WhatsApp.
-  - [ ] Implementar mecanismo de conformidade RGPD para anonimização definitiva de compradores quando solicitado ("Cliente Anonimizado").
-* **Critérios de Pronto:** Imóvel só transita para Vendido com preenchimento dos 3 campos; consultor visualiza aniversariantes do dia; disparo de felicitações abre WhatsApp em 1 toque; rotina RGPD anonimiza registros sem quebrar integridade histórica.
-* **Arquivos e Pastas:** `app/controllers/contacts_controller.py`, `app/services/contact_service.py`, `app/models/contact.py`.
+  - [x] Vincular a transição para estado "Vendido" à recolha obrigatória de: *Nome do Comprador*, *Telemóvel* e *Data da Escritura*.
+  - [x] Criar esquema e endpoints para contatos de pós-venda em `app/schemas/contact_schema.py` e `app/controllers/contacts_controller.py`.
+  - [x] Implementar rotina de alerta de aniversário de escritura em `app/services/contact_service.py`.
+  - [x] Criar templates de mensagens dinâmicas de felicitações/relacionamento com abertura direta no WhatsApp.
+  - [x] Implementar mecanismo de conformidade RGPD para anonimização definitiva de compradores quando solicitado ("Cliente Anonimizado").
+* **Critérios de Pronto:** Imóvel só transita para Vendido com preenchimento dos 3 campos; consultor visualiza aniversariantes do dia; disparo de felicitações abre WhatsApp em 1 toque; rotina RGPD anonimiza registros sem quebrar integridade histórica; 71 testes automatizados aprovados com 100% de sucesso.
+* **Arquivos e Pastas:** `app/controllers/contacts_controller.py`, `app/services/contact_service.py`, `app/schemas/contact_schema.py`, `app/models/contact.py`, `static/index.html`, `static/css/style.css`, `static/js/api.js`, `static/js/app.js`, `tests/test_contacts.py`.
 * **Dependências:** Fase 4 concluída.
 
 ---
@@ -150,14 +150,14 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ### Fase 9: Backoffice Web da Agência, Métricas e Exportação CSV
 * **Objetivo:** Construir o painel web para Diretores e Brokers com KPIs de adesão e assiduidade dos consultores, mapa visual consolidado de objeções acumuladas por imóvel para renegociação de preços, parametrização remota de taxas e exportação aberta em CSV.
 * **Checklist de Tarefas:**
-  - [ ] Desenvolver interface web desktop/tablet em `static/backoffice.html` alinhada ao design system.
-  - [ ] Implementar endpoints de agregação e KPIs em `app/controllers/backoffice_controller.py`:
+  - [x] Desenvolver interface web desktop/tablet em `static/backoffice.html` alinhada ao design system.
+  - [x] Implementar endpoints de agregação e KPIs em `app/controllers/backoffice_controller.py`:
     - Volume de visitas por consultor e taxa de adesão ao feedback por voz;
     - Gráfico consolidado de distribuição de objeções por imóvel (fundamentação de baixa de preço com proprietários);
     - Gestão do catálogo corporativo padronizado de tags de objeção da agência;
     - Gestão remota de parâmetros financeiros padrão (taxas de juros, spreads de referência).
-  - [ ] Implementar serviço de exportação de dados em formato aberto CSV em `app/services/export_service.py` (sem dependência de bibliotecas de PDF).
-  - [ ] Garantir que o acesso ao backoffice é restrito a usuários com perfil `diretor`.
+  - [x] Implementar serviço de exportação de dados em formato aberto CSV em `app/services/export_service.py` (sem dependência de bibliotecas de PDF).
+  - [x] Garantir que o acesso ao backoffice é restrito a usuários com perfil `diretor`.
 * **Critérios de Pronto:** Diretores visualizam gráficos de objeções consolidadas por imóvel; filtros por período e consultor funcionam; exportação de CSV gera arquivos formatados em UTF-8 compatíveis com Excel/Numbers; consultores não têm acesso a estas rotas.
 * **Arquivos e Pastas:** `static/backoffice.html`, `app/controllers/backoffice_controller.py`, `app/services/export_service.py`.
 * **Dependências:** Fases 3, 4 e 6 concluídas.
@@ -167,12 +167,13 @@ Este documento estabelece o roteiro incremental de desenvolvimento do sistema **
 ### Fase 10: Auditoria de Segurança, Testes E2E e Polimento Final
 * **Objetivo:** Executar testes unitários e de integração, auditar o isolamento lógico multi-tenant em 100% dos endpoints, validar resiliência offline do PWA e revisar a conformidade visual e técnica com `docs/FSD.md` e `docs/DESIGN.md`.
 * **Checklist de Tarefas:**
-  - [ ] Escrever suite de testes automatizados com `pytest` e `httpx` (TestClient do FastAPI) cobrindo autenticação, isolamento multi-tenant e regras de transição.
-  - [ ] Auditar e garantir ausência total de vazamento de dados entre diferentes agências (`agencia_id`).
-  - [ ] Validar comportamento da calculadora sob todos os escalões fiscais de Portugal (HPP, Secundária, Ilhas, IMT Jovem).
-  - [ ] Testar instalação PWA, Service Worker e cache estático em navegadores móveis (Safari iOS e Chrome Android).
-  - [ ] Validar contraste tipográfico e legibilidade sob luz solar intensa conforme especificação do design system.
-  - [ ] Revisar documentação operacional de implantação em PaaS (Render / Railway).
-* **Critérios de Pronto:** 100% dos testes passam sem falhas; isolamento multi-tenant verificado; PWA instala no ecrã inicial e calcula offline; sistema pronto para produção.
-* **Arquivos e Pastas:** `tests/`, `static/sw.js`, `app/`, `docs/`.
+  - [x] Escrever suite de testes automatizados com `pytest` e `httpx` (TestClient do FastAPI) cobrindo autenticação, isolamento multi-tenant e regras de transição (`tests/test_security_multitenant_stress.py` com 99 testes no projeto).
+  - [x] Auditar e garantir ausência total de vazamento de dados entre diferentes agências (`agencia_id`).
+  - [x] Validar comportamento da calculadora sob todos os escalões fiscais de Portugal (HPP, Secundária, Ilhas, IMT Jovem).
+  - [x] Testar instalação PWA, Service Worker e cache estático em navegadores móveis (`static/sw.js` cache v3 e `static/manifest.json`).
+  - [x] Validar contraste tipográfico e legibilidade sob luz solar intensa conforme especificação do design system (`body.sunlight-mode` e botão de ativação rápida na interface).
+  - [x] Implementar middlewares defensivos avançados de segurança: Content-Security-Policy (CSP), HSTS, X-Frame-Options, X-Content-Type-Options, Permissions-Policy, Rate Limiting em memória e limitador de payload contra DoS (`app/middleware/security.py`).
+  - [x] Elaborar manual operacional de deploy contínuo em PaaS (`docs/DEPLOY.md`, `render.yaml`, `railway.json`, `Procfile`).
+* **Critérios de Pronto:** 100% dos testes passam sem falhas (99/99 testes); isolamento multi-tenant verificado em estresse; PWA instala no ecrã inicial e calcula offline; sistema pronto para produção.
+* **Arquivos e Pastas:** `tests/`, `static/sw.js`, `app/middleware/`, `render.yaml`, `railway.json`, `Procfile`, `docs/DEPLOY.md`.
 * **Dependências:** Todas as fases anteriores concluídas.

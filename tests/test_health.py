@@ -33,3 +33,9 @@ def test_static_files_and_calculator_served():
     res_manifest = client.get("/static/manifest.json")
     assert res_manifest.status_code == 200
 
+    # Shell do Backoffice da Agência
+    res_backoffice = client.get("/backoffice")
+    assert res_backoffice.status_code == 200
+    assert "Painel de Gestão da Agência" in res_backoffice.text
+    assert "Direção Comercial" in res_backoffice.text
+

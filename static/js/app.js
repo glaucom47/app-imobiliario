@@ -8,15 +8,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 1. Registro de Service Worker para suporte offline
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    const registerSW = () => {
       navigator.serviceWorker.register('/static/sw.js')
         .then((registration) => {
           console.log('[PWA] Service Worker registrado:', registration.scope);
+          if (registration.update) registration.update();
         })
         .catch((error) => {
           console.warn('[PWA] Falha ao registrar Service Worker:', error);
         });
-    });
+    };
+    if (document.readyState === 'complete') {
+      registerSW();
+    } else {
+      window.addEventListener('load', registerSW);
+    }
   }
 
   // 1.1 Controle de Modo Luz Solar Intensa e Estado de Rede (PWA / Offline)
@@ -185,6 +191,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     currency: 'EUR',
     maximumFractionDigits: 0,
   });
+
+  // Sanitizador de HTML contra XSS
+  function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
   // 3. Atualização da Interface do Imóvel em Foco (Calor Arquitetural)
   function renderFocusProperty(property) {
@@ -441,19 +458,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (propertySelectorCard) propertySelectorCard.addEventListener('click', handleOpenPortfolio);
+  const btnTogglePortfolioCard = document.getElementById('btn-toggle-portfolio-card');
+  if (btnTogglePortfolioCard) btnTogglePortfolioCard.addEventListener('click', handleOpenPortfolio);
   if (btnOpenPortfolio) btnOpenPortfolio.addEventListener('click', handleOpenPortfolio);
   if (navCarteira) navCarteira.addEventListener('click', handleOpenPortfolio);
   if (btnClosePortfolio) btnClosePortfolio.addEventListener('click', () => closeDrawer(drawerPortfolio));
 
-  // Fechar ao clicar no backdrop
-  [drawerPortfolio, modalNewProperty, modalTransitionStatus, drawerCalculator, drawerVoiceVisit].forEach((overlay) => {
-    if (overlay) {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          closeDrawer(overlay);
-        }
-      });
-    }
+  // Fechar ao clicar no backdrop (fecho-modal-overlay)
+  document.querySelectorAll('.fecho-modal-overlay').forEach((overlay) => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeDrawer(overlay);
+      }
+    });
   });
 
   // Filtros de status da carteira

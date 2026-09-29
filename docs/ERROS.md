@@ -134,3 +134,18 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 - **Causa:** A chamada prévia `text = str(value).strip()` descartava a tabulação e o retorno de carro no início do texto antes da verificação `text[0] in (...)`.
 - **Solução aplicada:** Inspecionou-se a string original bruta (`raw = str(value)`) antes da normalização, verificando se o primeiro caractere pertence aos caracteres maliciosos de controle e fórmulas (`=`, `+`, `-`, `@`, `\t`, `\r`, `%`).
 - **Como evitar no futuro:** Em rotinas de sanitização de segurança (anti-injection), sempre validar a cadeia de caracteres original antes de transformações ou filtros de whitespace que possam alterar a assinatura do payload.
+
+### 2026-09-29 - ReferenceError por Temporal Dead Zone (TDZ) e ausência de escapeHtml bloqueando eventos em static/js/app.js
+
+- **Sintoma:** Várias funcionalidades da interface do aplicativo móvel deixaram de responder (botões de gravação de voz, calculadora, teleprompter, contatos e seleção de imóveis não abriam gavetas ou modais).
+- **Causa:**
+  1. Um bloco de fechamento de backdrop em `static/js/app.js` tentava iterar sobre variáveis declaradas com `const` (`[drawerPortfolio, modalNewProperty, modalTransitionStatus, drawerCalculator, drawerVoiceVisit]`) na linha 449, antes de `drawerCalculator` (linha 634) e `drawerVoiceVisit` (linha 958) serem inicializadas. Em ES6, variáveis declaradas com `const` ficam na Temporal Dead Zone (TDZ) até a linha da sua atribuição. A tentativa de acesso prematuro disparou `ReferenceError: Cannot access 'drawerCalculator' before initialization` durante o evento `DOMContentLoaded`, interrompendo a execução do script e impedindo o registro de todos os ouvintes de eventos subsequentes.
+  2. O módulo de contatos e esfera de influência invocava `escapeHtml(...)` para sanitização XSS, porém a função `escapeHtml` não havia sido declarada no escopo de `app.js`.
+  3. O Service Worker PWA mantinha cache com `fecho-static-v3`, retendo versões antigas dos arquivos no navegador dos clientes.
+- **Solução aplicada:**
+  1. Substituiu-se a lista estática de variáveis não inicializadas por `document.querySelectorAll('.fecho-modal-overlay')`, que localiza de forma segura e dinâmica todos os modais e gavetas do DOM sem qualquer risco de TDZ;
+  2. Implementou-se a função utilitária `escapeHtml(text)` em `static/js/app.js` para sanitização defensiva contra XSS;
+  3. Adicionou-se ouvinte explícito para `#btn-toggle-portfolio-card`;
+  4. Elevou-se a versão do cache do Service Worker para `fecho-static-v4` em `static/sw.js` e forçou-se a checagem de atualização imediata no carregamento da aplicação;
+  5. Validou-se a suíte de 99 testes automatizados com 100% de sucesso.
+- **Como evitar no futuro:** Nunca referenciar variáveis declaradas com `const`/`let` antes da sua linha de inicialização. Preferir sempre seleção declarativa pelo DOM (`document.querySelectorAll`) para componentes genéricos (como modais e overlays). Testar o ciclo de vida do script em ambiente DOM simulado antes de entregas.

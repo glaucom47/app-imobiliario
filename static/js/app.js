@@ -227,11 +227,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (focusPropType) focusPropType.textContent = property.tipologia || 'Imóvel';
       if (focusPropStatusBadge) {
         if (property.status === 'Reservado') {
-          focusPropStatusBadge.textContent = '🔒 Reservado';
+          focusPropStatusBadge.textContent = '✦ Reservado';
         } else if (property.status === 'Vendido') {
-          focusPropStatusBadge.textContent = '✅ Vendido';
+          focusPropStatusBadge.textContent = '✦ Vendido';
         } else {
-          focusPropStatusBadge.textContent = '⭐ Imóvel em Foco';
+          focusPropStatusBadge.textContent = '✦ Imóvel em Destaque';
         }
       }
     } else {
@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (focusPropLocation) focusPropLocation.textContent = 'Portugal';
       if (focusPropArea) focusPropArea.textContent = '-- m²';
       if (focusPropType) focusPropType.textContent = 'Imóvel';
-      if (focusPropStatusBadge) focusPropStatusBadge.textContent = '⭐ Sem Imóvel';
+      if (focusPropStatusBadge) focusPropStatusBadge.textContent = '✦ Sem Imóvel';
     }
   }
 

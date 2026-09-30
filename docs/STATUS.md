@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 30/09/2026 - 02:50
-* **Fase Atual:** Modo Manutenção e Evolução Contínua (Carrossel Fotográfico de Alto Luxo & SW v12)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O **Card do Imóvel em Foco** (`#hero-image-area`) recebeu um **Carrossel Fotográfico Editorial de Alto Padrão** com 3 fotografias cinematográficas de arquitetura contemporânea de luxo em Portugal (Fachada externa ao pôr do sol, Interior open space pé-direito duplo com vista mar e Terraço panorâmico com piscina infinita). A navegação inclui transição suave por cross-fade, setas táteis glassmorphism, dots indicadores em pílula translúcida, autoplay a cada 5 segundos com pausa ao toque/hover e suporte completo a gestos touch (swipe horizontal). A estrutura original da aplicação (grade vertical de 6 botões de ação de campo, gavetas e métricas) foi 100% preservada. O Service Worker foi atualizado para `fecho-static-v12` incluindo os novos assets em cache offline. A suíte automatizada conta com **108 testes com 100% de aprovação**.
+* **Última Atualização:** 30/09/2026 - 03:05
+* **Fase Atual:** Modo Manutenção e Evolução Contínua (Galeria 6 Fotos Villa Cascais, Padrão Ouro Acetinado & SW v13)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O **Card do Imóvel em Foco** (`#hero-image-area`) conta com **6 fotografias de altíssimo luxo do mesmo imóvel em Cascais** (Fachada crepuscular e piscina reflexiva, Living open space pé-direito duplo com vista mar, Terraço infinito com sunken fire pit, Master Suite com varanda oceânica, Cozinha Gourmet com ilha de mármore e adega climatizada, e Master Bathroom Spa com banheira oval freestanding). Foi implementado o padrão proprietário **Fecho Gold Icons** (`.luxury-gold-icon` e `.luxury-gold-inline`) com microícones vetoriais em tom ouro acetinado nobre (`#b8935d`), eliminando completamente os emoticons comuns/foleiros da interface no banner matinal, no card em foco, na grade de 6 botões de ação, no rodapé e nos modais/gavetas. O Service Worker foi elevado para `fecho-static-v13` com pré-cache offline completo. A suíte automatizada conta com **108 testes com 100% de aprovação**.
 
 ---
 

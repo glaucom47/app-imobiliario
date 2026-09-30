@@ -35,12 +35,12 @@
       <div style="display: flex; align-items: center; gap: 8px;">
         <!-- Badge Persistente de Fila Offline (Caves / Garagens) -->
         <button id="btn-offline-queue-badge" class="status-pill status-pill-offline-queue" style="display: none;" title="Notas salvas na fila local pendentes de sincronização">
-          <span style="font-size: 12px;">⚡</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           <span id="offline-queue-count">0</span>
           <span>local</span>
         </button>
-        <button id="btn-sunlight-toggle" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px;" title="Alternar Modo Luz Solar Intensa">
-          <span style="font-size: 13px;">☀️</span>
+        <button id="btn-sunlight-toggle" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 4px 8px;" title="Alternar Modo Luz Solar Intensa">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           <span style="font-size: 11px; font-weight: 600;" id="sunlight-label">Luz Solar</span>
         </button>
         <span class="status-pill status-pill-secondary" id="user-badge">Não autenticado</span>
@@ -50,16 +50,20 @@
 
     <!-- Banner de Status Offline (PWA) -->
     <div id="offline-status-banner" style="display: none; background-color: var(--color-primary); color: #ffffff; padding: 6px 12px; font-size: 11px; font-weight: 600; text-align: center; letter-spacing: 0.04em;">
-      ⚡ Modo Offline Ativo • Calculadora e Teleprompter 100% Operacionais
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px; vertical-align: -2px;"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      Modo Offline Ativo • Calculadora e Teleprompter 100% Operacionais
     </div>
 
     <!-- Conteúdo Principal Dinâmico -->
     <main class="app-main" id="main-content" style="padding: var(--spacing-margin); flex: 1;">
       <!-- Card / Banner Matinal de Aniversário de Escritura (Alerta 09:00) -->
+      <!-- Card / Banner Matinal de Aniversário de Escritura (Alerta 09:00) -->
       <section class="anniversary-morning-card" id="anniversary-morning-banner" style="display: none;">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 24px;">🎉</span>
+            <div class="luxury-gold-icon" style="width: 36px; height: 36px; border-radius: 50%;">
+              <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
             <div>
               <span class="label-caps" style="color: var(--color-secondary); font-size: 10px; letter-spacing: 0.08em;">Alerta Matinal das 09:00</span>
               <p style="font-weight: 700; font-size: 14px; margin-top: 2px;" id="anniversary-banner-title">Aniversário de Escritura Hoje!</p>
@@ -75,16 +79,25 @@
       <!-- Seletor do Imóvel Ativo (Obrigatório em Visitas) com Calor Arquitetural -->
       <section class="hero-property-card" id="property-selector-card" style="cursor: pointer; margin-bottom: var(--spacing-margin);">
         <div class="hero-image-box" id="hero-image-area">
-          <!-- Carrossel de Fotos Arquiteturais de Alto Luxo -->
+          <!-- Carrossel de Fotos Arquiteturais de Alto Luxo (6 perspectivas do mesmo imóvel) -->
           <div class="hero-carousel-container" id="hero-carousel" aria-label="Galeria do Imóvel em Destaque">
             <div class="hero-carousel-slide active" data-index="0">
-              <img src="/static/img/hero/villa_exterior.jpg" alt="Villa Contemporânea em Cascais - Fachada e Piscina" class="hero-carousel-img" loading="eager" />
+              <img src="/static/img/hero/villa_exterior.jpg" alt="Villa Cascais - Fachada e Piscina ao Entardecer" class="hero-carousel-img" loading="eager" />
             </div>
             <div class="hero-carousel-slide" data-index="1">
-              <img src="/static/img/hero/villa_interior.jpg" alt="Villa Contemporânea em Cascais - Sala com Vista Mar" class="hero-carousel-img" loading="lazy" />
+              <img src="/static/img/hero/villa_interior.jpg" alt="Villa Cascais - Living Open Space com Vista Mar" class="hero-carousel-img" loading="lazy" />
             </div>
             <div class="hero-carousel-slide" data-index="2">
-              <img src="/static/img/hero/villa_terrace.jpg" alt="Villa Contemporânea em Cascais - Terraço Panorâmico com Piscina Infinita" class="hero-carousel-img" loading="lazy" />
+              <img src="/static/img/hero/villa_terrace.jpg" alt="Villa Cascais - Terraço Panorâmico com Sunken Fire Pit" class="hero-carousel-img" loading="lazy" />
+            </div>
+            <div class="hero-carousel-slide" data-index="3">
+              <img src="/static/img/hero/villa_bedroom.jpg" alt="Villa Cascais - Master Suite com Varanda Oceânica" class="hero-carousel-img" loading="lazy" />
+            </div>
+            <div class="hero-carousel-slide" data-index="4">
+              <img src="/static/img/hero/villa_kitchen.jpg" alt="Villa Cascais - Cozinha Gourmet com Ilha e Adega" class="hero-carousel-img" loading="lazy" />
+            </div>
+            <div class="hero-carousel-slide" data-index="5">
+              <img src="/static/img/hero/villa_bathroom.jpg" alt="Villa Cascais - Master Bathroom Spa com Banheira Oval" class="hero-carousel-img" loading="lazy" />
             </div>
 
             <!-- Controles Sutis de Navegação Glassmorphism -->
@@ -100,13 +113,16 @@
               <button type="button" class="hero-carousel-dot active" data-slide="0" aria-label="Foto 1"></button>
               <button type="button" class="hero-carousel-dot" data-slide="1" aria-label="Foto 2"></button>
               <button type="button" class="hero-carousel-dot" data-slide="2" aria-label="Foto 3"></button>
+              <button type="button" class="hero-carousel-dot" data-slide="3" aria-label="Foto 4"></button>
+              <button type="button" class="hero-carousel-dot" data-slide="4" aria-label="Foto 5"></button>
+              <button type="button" class="hero-carousel-dot" data-slide="5" aria-label="Foto 6"></button>
             </div>
           </div>
 
           <div class="hero-gradient-overlay"></div>
 
           <div class="hero-top-row">
-            <span class="exclusive-badge" id="focus-prop-status-badge">⭐ Imóvel em Foco</span>
+            <span class="exclusive-badge" id="focus-prop-status-badge">✦ Imóvel em Destaque</span>
             <span class="hero-location-pill" id="focus-prop-location">Portugal</span>
           </div>
 
@@ -120,9 +136,19 @@
         </div>
 
         <div class="hero-details-row">
-          <div style="display: flex; gap: 10px;" id="focus-prop-meta">
-            <span>📐 <b id="focus-prop-area">-- m²</b></span>
-            <span>🏢 <b id="focus-prop-type">Imóvel</b></span>
+          <div style="display: flex; gap: 14px; align-items: center;" id="focus-prop-meta">
+            <span style="display: inline-flex; align-items: center; gap: 6px;">
+              <span class="luxury-gold-inline">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+              </span>
+              <b id="focus-prop-area">-- m²</b>
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 6px;">
+              <span class="luxury-gold-inline">
+                <svg viewBox="0 0 24 24"><path d="M3 21h18M3 7v14M21 7v14M6 7V3h12v4M9 11h2M9 15h2M13 11h2M13 15h2"/></svg>
+              </span>
+              <b id="focus-prop-type">Imóvel</b>
+            </span>
           </div>
           <span style="color: var(--color-tertiary); font-weight: 700; font-size: 12px;" id="btn-toggle-portfolio-card">Ver Carteira →</span>
         </div>
@@ -131,43 +157,55 @@
       <!-- Grade de Ações Rápidas de Campo com Calor Arquitetural -->
       <section class="actions-grid" style="display: flex; flex-direction: column; gap: var(--spacing-space-sm);">
         <button class="btn-cobalt-trigger" id="btn-open-voice" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 18px;">🎙️</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="luxury-gold-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            </span>
             <span>Gravar Feedback de Visita (30s)</span>
           </div>
           <span style="font-size: 11px; background: rgba(255,255,255,0.25); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Voz & IA</span>
         </button>
         <button class="btn-primary-action" id="btn-open-calculator" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; border: 1px solid rgba(197, 168, 128, 0.25);">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 18px; color: var(--color-secondary);">🧮</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="luxury-gold-icon">
+              <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"/></svg>
+            </span>
             <span>Calculadora IMT & Selo</span>
           </div>
           <span style="font-size: 11px; color: var(--color-secondary); font-weight: 600;">100% Offline</span>
         </button>
         <button class="btn-secondary-ghost" id="btn-open-teleprompter" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px;">🎬</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="luxury-gold-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+            </span>
             <span>Scripts de Vídeo & Teleprompter</span>
           </div>
           <span style="font-size: 10px; color: var(--color-outline); font-weight: 700; letter-spacing: 0.06em;">3 BLOCOS</span>
         </button>
         <button class="btn-secondary-ghost" id="btn-open-portfolio" type="button" style="border-style: solid; display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px;">🏢</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="luxury-gold-icon">
+              <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
+            </span>
             <span>Gestão da Carteira de Imóveis</span>
           </div>
           <span style="font-size: 11px; color: var(--color-tertiary); font-weight: 600;">Ver Todos</span>
         </button>
         <button class="btn-secondary-ghost" id="btn-open-leads" type="button" style="border-style: solid; border-color: rgba(114, 91, 56, 0.5); display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: rgba(254, 222, 178, 0.1);">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px;">🎯</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="luxury-gold-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </span>
             <span>Captação & Angariação na Zona</span>
           </div>
           <span style="font-size: 11px; color: var(--color-secondary); font-weight: 700; background: var(--color-secondary-container); padding: 2px 8px; border-radius: 4px;">Leilões & FSBO</span>
         </button>
         <button class="btn-secondary-ghost" id="btn-open-contacts" type="button" style="border-style: solid; border-color: rgba(197, 168, 128, 0.4); display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px;">👥</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="luxury-gold-icon">
+              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
             <span>Esfera de Influência & Pós-Venda</span>
           </div>
           <span style="font-size: 11px; color: #78603e; font-weight: 600;">09:00</span>
@@ -175,26 +213,36 @@
       </section>
     </main>
 
-    <!-- Rodapé de Navegação Rápida com Safe Area e Microícones -->
+    <!-- Rodapé de Navegação Rápida com Safe Area e Microícones de Linha Refinada -->
     <nav class="app-bottom-nav" id="app-bottom-nav">
       <button type="button" class="nav-tab-item" id="nav-visitas" title="Visitas">
-        <span class="nav-tab-icon">🎙️</span>
+        <span class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </span>
         <span class="nav-tab-label">Visitas</span>
       </button>
       <button type="button" class="nav-tab-item" id="nav-carteira" title="Carteira">
-        <span class="nav-tab-icon">🏢</span>
+        <span class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
+        </span>
         <span class="nav-tab-label">Carteira</span>
       </button>
       <button type="button" class="nav-tab-item" id="nav-calculadora" title="Calculadora">
-        <span class="nav-tab-icon">🧮</span>
+        <span class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"/></svg>
+        </span>
         <span class="nav-tab-label">Calculadora</span>
       </button>
       <button type="button" class="nav-tab-item" id="nav-scripts" title="Scripts">
-        <span class="nav-tab-icon">🎬</span>
+        <span class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
+        </span>
         <span class="nav-tab-label">Scripts</span>
       </button>
       <button type="button" class="nav-tab-item" id="nav-esfera" title="Esfera">
-        <span class="nav-tab-icon">👥</span>
+        <span class="nav-tab-icon">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
         <span class="nav-tab-label">Esfera</span>
       </button>
     </nav>
@@ -591,8 +639,14 @@
         <div id="voice-stage-recording">
           <!-- Alternador de Modo: Voz vs Digitação -->
           <div class="segmented-control" id="voice-mode-control" style="margin-bottom: 18px;">
-            <button type="button" class="segmented-btn active" id="btn-mode-mic">🎤 Gravar Voz (30s)</button>
-            <button type="button" class="segmented-btn" id="btn-mode-text">✍️ Digitar Notas</button>
+            <button type="button" class="segmented-btn active" id="btn-mode-mic">
+              <span class="luxury-gold-inline" style="margin-right: 5px;"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></span>
+              Gravar Voz (30s)
+            </button>
+            <button type="button" class="segmented-btn" id="btn-mode-text">
+              <span class="luxury-gold-inline" style="margin-right: 5px;"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+              Digitar Notas
+            </button>
           </div>
 
           <!-- Painel do Modo Microfone -->
@@ -611,7 +665,9 @@
               <button type="button" class="btn-audio-record-pulse" id="btn-audio-trigger" aria-label="Iniciar Gravação">
                 <div class="pulse-ring"></div>
                 <div class="pulse-ring-outer"></div>
-                <span class="voice-mic-icon" id="voice-mic-icon">🎙️</span>
+                <span class="voice-mic-icon" id="voice-mic-icon" style="display: flex; align-items: center; justify-content: center;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f2e2ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                </span>
               </button>
             </div>
 
@@ -636,8 +692,9 @@
               <button type="button" class="btn-card-action" id="btn-cancel-voice" style="display: none;">
                 Cancelar
               </button>
-              <button type="button" class="btn-demo-pill" id="btn-demo-voice-sim" style="font-size: 11px;">
-                💡 Simular Nota Demo
+              <button type="button" class="btn-demo-pill" id="btn-demo-voice-sim" style="font-size: 11px; display: inline-flex; align-items: center; gap: 5px;">
+                <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+                Simular Nota Demo
               </button>
             </div>
           </div>
@@ -726,8 +783,9 @@
 
             <!-- 6. Botões Decisivos -->
             <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
-              <button type="submit" class="btn-cobalt-trigger" id="btn-hitl-save-and-whatsapp">
-                📱 Guardar Visita & Enviar no WhatsApp
+              <button type="submit" class="btn-cobalt-trigger" id="btn-hitl-save-and-whatsapp" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+                Guardar Visita & Enviar no WhatsApp
               </button>
               <button type="button" class="btn-primary-action" id="btn-hitl-save-only" style="background: var(--color-primary);">
                 ✓ Apenas Guardar Visita
@@ -771,17 +829,17 @@
           <label class="fecho-label">Objetivo Comercial do Vídeo</label>
           <div class="scripts-objective-grid">
             <button type="button" class="scripts-obj-btn active" data-obj="angariacao" id="btn-obj-angariacao">
-              <span class="obj-icon">🎯</span>
+              <span class="obj-icon luxury-gold-inline"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
               <span class="obj-title">Angariação</span>
               <span class="obj-badge">Novo no Mercado</span>
             </button>
             <button type="button" class="scripts-obj-btn" data-obj="baixa_preco" id="btn-obj-baixa-preco">
-              <span class="obj-icon">📉</span>
+              <span class="obj-icon luxury-gold-inline"><svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></span>
               <span class="obj-title">Baixa de Preço</span>
               <span class="obj-badge">Oportunidade</span>
             </button>
             <button type="button" class="scripts-obj-btn" data-obj="open_house" id="btn-obj-open-house">
-              <span class="obj-icon">🚪</span>
+              <span class="obj-icon luxury-gold-inline"><svg viewBox="0 0 24 24"><path d="M3 21h18M3 7v14M21 7v14M6 7V3h12v4M9 11h2M9 15h2M13 11h2M13 15h2"/></svg></span>
               <span class="obj-title">Open House</span>
               <span class="obj-badge">Portas Abertas</span>
             </button>
@@ -791,16 +849,17 @@
         <!-- 3. Barra de Métricas de Leitura -->
         <div class="script-metrics-ribbon">
           <div class="script-metric-item">
-            <span>⏱️ Ritmo:</span>
+            <span>Ritmo:</span>
             <span class="script-metric-val" id="script-tempo-estimado">~35s</span>
           </div>
           <div class="script-metric-item">
-            <span>📝 Extensão:</span>
+            <span>Extensão:</span>
             <span class="script-metric-val" id="script-total-palavras">82 palavras</span>
           </div>
           <div class="script-metric-item">
-            <button type="button" class="btn-card-action" id="btn-regenerate-script" style="font-size: 11px; padding: 4px 8px;">
-              🔄 Regenerar
+            <button type="button" class="btn-card-action" id="btn-regenerate-script" style="font-size: 11px; padding: 4px 8px; display: inline-flex; align-items: center; gap: 4px;">
+              <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span>
+              Regenerar
             </button>
           </div>
         </div>
@@ -839,11 +898,13 @@
 
         <!-- 5. Ações Decisivas -->
         <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
-          <button type="button" class="btn-cobalt-trigger" id="btn-launch-prompter">
-            🚀 Iniciar no Teleprompter
+          <button type="button" class="btn-cobalt-trigger" id="btn-launch-prompter" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+            Iniciar no Teleprompter
           </button>
-          <button type="button" class="btn-primary-action" id="btn-copy-script-text" style="background: var(--color-primary);">
-            📋 Copiar Roteiro Formatado
+          <button type="button" class="btn-primary-action" id="btn-copy-script-text" style="background: var(--color-primary); display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+            <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+            Copiar Roteiro Formatado
           </button>
           <button type="button" class="btn-secondary-ghost" id="btn-close-scripts-drawer">
             Fechar
@@ -876,7 +937,7 @@
         <!-- Chips de Filtro -->
         <div class="status-filter-bar" id="contacts-filter-bar">
           <button type="button" class="filter-chip-btn active" data-filter="">Todos</button>
-          <button type="button" class="filter-chip-btn" data-filter="aniversario">🎉 Aniversários</button>
+          <button type="button" class="filter-chip-btn" data-filter="aniversario">✦ Aniversários</button>
           <button type="button" class="filter-chip-btn" data-filter="comprador">Compradores</button>
           <button type="button" class="filter-chip-btn" data-filter="esfera">Esfera Geral</button>
         </div>
@@ -957,21 +1018,23 @@
 
         <label class="fecho-label" style="margin-bottom: 6px;">Objetivo do Relacionamento</label>
         <div class="whatsapp-template-chips" id="whatsapp-template-chips">
-          <button type="button" class="whatsapp-chip-btn active" data-template="aniversario_escritura">🎉 Aniversário</button>
-          <button type="button" class="whatsapp-chip-btn" data-template="pos_venda_geral">🏡 Pós-Venda</button>
-          <button type="button" class="whatsapp-chip-btn" data-template="valorizacao_patrimonial">📈 Valorização</button>
-          <button type="button" class="whatsapp-chip-btn" data-template="convite_cafe">☕ Café Informal</button>
+          <button type="button" class="whatsapp-chip-btn active" data-template="aniversario_escritura">✦ Aniversário</button>
+          <button type="button" class="whatsapp-chip-btn" data-template="pos_venda_geral">✦ Pós-Venda</button>
+          <button type="button" class="whatsapp-chip-btn" data-template="valorizacao_patrimonial">✦ Valorização</button>
+          <button type="button" class="whatsapp-chip-btn" data-template="convite_cafe">✦ Café Informal</button>
         </div>
 
         <label class="fecho-label" for="whatsapp-preview-textarea">Pré-visualização Editorial da Mensagem</label>
         <textarea id="whatsapp-preview-textarea" class="whatsapp-preview-box" rows="7" style="width: 100%; box-sizing: border-box; resize: vertical;"></textarea>
 
         <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 14px;">
-          <button type="button" class="btn-cobalt-trigger" id="btn-send-whatsapp-now">
-            💬 Abrir no WhatsApp (1 Toque)
+          <button type="button" class="btn-cobalt-trigger" id="btn-send-whatsapp-now" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+            Abrir no WhatsApp (1 Toque)
           </button>
-          <button type="button" class="btn-secondary-ghost" id="btn-copy-whatsapp-text">
-            📋 Copiar Texto
+          <button type="button" class="btn-secondary-ghost" id="btn-copy-whatsapp-text" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+            <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
+            Copiar Mensagem
           </button>
         </div>
       </div>
@@ -1032,7 +1095,7 @@
 
     <!-- Guia de Olhar Fixo para a Lente da Câmera -->
     <div class="teleprompter-eye-guide">
-      <span class="teleprompter-eye-guide-marker">👁️ Olhe Aqui</span>
+      <span class="teleprompter-eye-guide-marker">✦ Fixar Olhar na Lente</span>
     </div>
 
     <!-- Viewport com Rolagem Suave -->
@@ -1057,7 +1120,7 @@
           ▶ Iniciar
         </button>
         <button type="button" class="teleprompter-btn-sec" id="prompter-btn-copy">
-          📋 Copiar
+          Copiar
         </button>
       </div>
     </footer>
@@ -1208,8 +1271,9 @@
           <span style="font-size: 12px; color: var(--color-outline);" id="app-leads-count-label">A carregar oportunidades...</span>
         </div>
         <div style="display: flex; gap: 6px; align-items: center;">
-          <button class="btn-card-action" id="btn-app-scan-leads" type="button" style="background: var(--color-primary); color: #ffffff; padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 6px;" title="Disparar nova varredura de fontes abertas">
-            🔍 Varredura
+          <button class="btn-card-action" id="btn-app-scan-leads" type="button" style="background: var(--color-primary); color: #ffffff; padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;" title="Disparar nova varredura de fontes abertas">
+            <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            Varredura
           </button>
           <button class="btn-card-action" id="btn-app-open-extract-url" type="button" style="background: var(--color-secondary-container); color: #78603e; padding: 6px 10px; font-size: 11px; font-weight: 600; border-radius: 6px;" title="Colar link de anúncio">
             + Link
@@ -1258,7 +1322,10 @@
   <div class="fecho-modal-overlay" id="modal-app-convert-lead">
     <div class="fecho-drawer-sheet" style="max-height: 80vh;">
       <div class="drawer-header">
-        <h3 style="font-size: 16px; font-weight: 600;">🎯 Converter para Carteira</h3>
+        <h3 style="font-size: 16px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+          <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><path d="M3 21h18M3 7v14M21 7v14M6 7V3h12v4M9 11h2M9 15h2M13 11h2M13 15h2"/></svg></span>
+          Converter para Carteira
+        </h3>
         <button class="drawer-close-btn" id="btn-close-app-convert" type="button">✕</button>
       </div>
       <div class="drawer-body">

@@ -195,3 +195,18 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
   3. Reexecutou-se a suíte e os 108 testes foram aprovados com 100% de sucesso.
 - **Como evitar no futuro:** Sempre verificar os metadados e restrições de nulidade (`nullable=False`) de entidades auxiliares (como `audit_logs`) antes de instanciá-las nos serviços de negócio.
 
+### 2026-09-30 - Alerta genérico de varredura e WinError 10013 por processo Python zumbi retendo a porta 8000
+
+- **Sintoma:** Ao clicar em "Executar Varredura" na aba de Captação e Angariação do Backoffice, o navegador exibia o alerta "Erro ao executar varredura". Ao tentar iniciar o servidor via Uvicorn, o PowerShell retornava o erro: `[WinError 10013] Foi feita uma tentativa de acesso a uma socket de uma maneira que é proibida pelas permissões de acesso`.
+- **Causa Raiz:** Uma instância antiga do Uvicorn (`python.exe`, PIDs 42992 e 46532) iniciada no dia anterior (29/09 às 15:29:36) permaneceu rodando em segundo plano sem a flag `--reload` e retendo a porta TCP 8000. Isso gerou dois problemas combinados:
+  1. A instância em execução na porta 8000 continha o código antigo e não possuía a rota `/api/v1/leads/varredura`, retornando 404/401 quando o navegador tentava fazer a requisição;
+  2. Qualquer tentativa do usuário de iniciar um novo Uvicorn no terminal falhava com `[WinError 10013]` porque o Windows impedia o bind concorrente na mesma porta.
+- **Solução aplicada:**
+  1. Identificaram-se os processos zumbis via `Get-NetTCPConnection -LocalPort 8000` e encerraram-se forçadamente via `Stop-Process -Id 42992, 46532 -Force`, liberando completamente a porta 8000;
+  2. Incrementou-se a versão do Service Worker para `fecho-static-v7` em `static/sw.js` para garantir atualização dos assets em cache no navegador;
+  3. Aprimorou-se o tratamento de erro no front-end em `static/backoffice.html` com mensagens contextuais explicativas;
+  4. Atualizou-se a asserção no teste `test_pwa_manifest_and_service_worker_served` em `tests/test_security_multitenant_stress.py` para validar `fecho-static-v7`;
+  5. Suíte de 108 testes automatizados validada com 100% de aprovação.
+- **Como evitar no futuro:** Sempre verificar processos prévios em execução na porta 8000 (`Get-NetTCPConnection -LocalPort 8000`) antes de inicializar o servidor em ambientes Windows locais; certificar-se de utilizar `--reload` durante o desenvolvimento para que alterações de código sejam refletidas automaticamente sem manter instâncias zumbis.
+
+

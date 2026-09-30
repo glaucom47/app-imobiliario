@@ -1485,7 +1485,13 @@
           alert(res.mensagem || 'Varredura concluída com sucesso!');
           loadLeads();
         } catch (err) {
-          alert('Erro ao executar varredura: ' + err.message);
+          let msg = err.message || 'Erro de comunicação';
+          if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+            msg = 'O servidor backend parece estar desligado ou inacessível. Certifique-se de que o Uvicorn está em execução na porta 8000.';
+          } else if (msg.includes('Token') || msg.includes('autentic') || msg.includes('401') || msg.includes('Unauthorized')) {
+            msg = 'A sua sessão expirou ou não possui permissões de Diretora. Por favor, termine sessão e volte a entrar com diretor@fecho.pt.';
+          }
+          alert('Erro ao executar varredura:\n' + msg);
         } finally {
           btnScan.disabled = false;
           btnScan.textContent = origText;

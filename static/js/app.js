@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Elementos do Imóvel em Foco
   const propertySelectorCard = document.getElementById('property-selector-card');
+  const btnTogglePortfolioCard = document.getElementById('btn-toggle-portfolio-card');
   const focusPropTitle = document.getElementById('focus-prop-title');
   const focusPropSubtitle = document.getElementById('focus-prop-subtitle');
   const btnOpenPortfolio = document.getElementById('btn-open-portfolio');
@@ -260,6 +261,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Carrega o imóvel em foco ou inicializa carteira
       initPortfolioContext();
       checkMorningAnniversaries();
+      if (typeof updateCockpitRadarStats === 'function') {
+        updateCockpitRadarStats();
+      }
     } else {
       if (userBadge) {
         userBadge.textContent = 'Não autenticado';
@@ -435,6 +439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       else if (drawerElement.id === 'drawer-portfolio') setActiveNavTab('nav-carteira');
       else if (drawerElement.id === 'drawer-calculator') setActiveNavTab('nav-calculadora');
       else if (drawerElement.id === 'drawer-scripts') setActiveNavTab('nav-scripts');
+      else if (drawerElement.id === 'drawer-leads') setActiveNavTab('nav-leads');
       else if (drawerElement.id === 'drawer-contacts') setActiveNavTab('nav-esfera');
     }
   }
@@ -458,7 +463,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (propertySelectorCard) propertySelectorCard.addEventListener('click', handleOpenPortfolio);
-  const btnTogglePortfolioCard = document.getElementById('btn-toggle-portfolio-card');
   if (btnTogglePortfolioCard) btnTogglePortfolioCard.addEventListener('click', handleOpenPortfolio);
   if (btnOpenPortfolio) btnOpenPortfolio.addEventListener('click', handleOpenPortfolio);
   if (navCarteira) navCarteira.addEventListener('click', handleOpenPortfolio);
@@ -1835,6 +1839,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const anniversaryBannerSubtitle = document.getElementById('anniversary-banner-subtitle');
   const btnBannerFelicitar = document.getElementById('btn-banner-felicitar');
 
+  // Elementos do Card Matinal no Cockpit Minimalista
+  const cockpitMorningCard = document.getElementById('cockpit-morning-card');
+  const cockpitAnniversaryTitle = document.getElementById('cockpit-anniversary-title');
+  const cockpitAnniversarySub = document.getElementById('cockpit-anniversary-sub');
+
   const btnOpenContacts = document.getElementById('btn-open-contacts');
   const navEsfera = document.getElementById('nav-esfera');
   const drawerContacts = document.getElementById('drawer-contacts');
@@ -1882,13 +1891,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const res = await Api.getAnniversaryContacts();
       if (res && res.items && res.items.length > 0) {
+        const count = res.items.length;
+        const nomes = res.items.map(c => c.nome).slice(0, 2).join(', ');
+        const extra = count > 2 ? ` e mais ${count - 2}` : '';
+
+        // Atualiza Card Matinal no Cockpit
+        if (cockpitMorningCard) {
+          cockpitMorningCard.classList.add('has-anniversaries');
+        }
+        if (cockpitAnniversaryTitle) {
+          cockpitAnniversaryTitle.textContent = `${count} ${count === 1 ? 'Aniversário' : 'Aniversários'}`;
+        }
+        if (cockpitAnniversarySub) {
+          cockpitAnniversarySub.textContent = `${nomes}${extra}`;
+        }
+
+        // Atualiza banner de suporte caso renderizado
         if (anniversaryMorningBanner) {
           anniversaryMorningBanner.style.display = 'block';
-          const count = res.items.length;
-          anniversaryBannerTitle.textContent = `${count} ${count === 1 ? 'Aniversário' : 'Aniversários'} de Escritura Hoje!`;
-          const nomes = res.items.map(c => c.nome).slice(0, 2).join(', ');
-          const extra = count > 2 ? ` e mais ${count - 2}` : '';
-          anniversaryBannerSubtitle.textContent = `Celebração de ${nomes}${extra}. Envie os parabéns via WhatsApp.`;
+          if (anniversaryBannerTitle) anniversaryBannerTitle.textContent = `${count} ${count === 1 ? 'Aniversário' : 'Aniversários'} de Escritura Hoje!`;
+          if (anniversaryBannerSubtitle) anniversaryBannerSubtitle.textContent = `Celebração de ${nomes}${extra}. Envie os parabéns via WhatsApp.`;
         }
 
         // Notificação móvel matinal das 09:00 (Web Notification API)
@@ -1903,6 +1925,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         }
       } else {
+        if (cockpitMorningCard) {
+          cockpitMorningCard.classList.remove('has-anniversaries');
+        }
+        if (cockpitAnniversaryTitle) {
+          cockpitAnniversaryTitle.textContent = 'Aniversários';
+        }
+        if (cockpitAnniversarySub) {
+          cockpitAnniversarySub.textContent = 'Sem celebrações hoje';
+        }
         if (anniversaryMorningBanner) anniversaryMorningBanner.style.display = 'none';
       }
     } catch (e) {
@@ -2503,6 +2534,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const appRgpdError = document.getElementById('app-rgpd-error');
   const btnSubmitAppRgpd = document.getElementById('btn-submit-app-rgpd');
 
+  // Elementos do Radar de Captação no Cockpit Minimalista
+  const cockpitRadarCard = document.getElementById('cockpit-radar-card');
+  const cockpitLeadsCount = document.getElementById('cockpit-leads-count');
+  const navLeads = document.getElementById('nav-leads');
+
   let currentAppLeads = [];
   let selectedAppConcelho = '';
 
@@ -2514,8 +2550,37 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (btnOpenLeads) {
     btnOpenLeads.addEventListener('click', openLeadsDrawer);
   }
+  if (navLeads) {
+    navLeads.addEventListener('click', openLeadsDrawer);
+  }
+  if (cockpitRadarCard) {
+    cockpitRadarCard.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'btn-open-leads') return;
+      openLeadsDrawer();
+    });
+  }
+  if (cockpitMorningCard) {
+    cockpitMorningCard.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'btn-banner-felicitar') return;
+      if (btnBannerFelicitar) btnBannerFelicitar.click();
+    });
+  }
   if (btnCloseLeads) {
     btnCloseLeads.addEventListener('click', () => closeDrawer(drawerLeads));
+  }
+
+  async function updateCockpitRadarStats() {
+    if (!Api.isAuthenticated()) return;
+    try {
+      const stats = await Api.getLeadStats();
+      if (stats && typeof stats.total_oportunidades === 'number') {
+        if (cockpitLeadsCount) {
+          cockpitLeadsCount.textContent = `${stats.total_oportunidades} Oportunidades`;
+        }
+      }
+    } catch (e) {
+      console.warn('[Cockpit] Não foi possível carregar estatísticas do radar:', e);
+    }
   }
 
   // Chips de Concelho na Aplicação
@@ -2579,6 +2644,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (appLeadsCountLabel) {
         appLeadsCountLabel.textContent = `${res.total || 0} oportunidades na zona`;
       }
+      updateCockpitRadarStats();
 
       renderAppLeads(currentAppLeads);
     } catch (err) {

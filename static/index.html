@@ -18,22 +18,29 @@
 </head>
 <body>
   <div class="app-shell" id="app">
-    <!-- Cabeçalho com Logotipo Oficial e Perfil -->
+    <!-- Cabeçalho com Logotipo Oficial e Perfil Minimalista -->
     <header class="app-header">
-      <img src="/static/img/screen.png" alt="Fecho" class="brand-logo" id="brand-logo">
-      <div style="display: flex; align-items: center; gap: 8px;">
+      <div class="header-brand-wrap">
+        <img src="/static/img/screen.png" alt="Fecho" class="brand-logo" id="brand-logo">
+      </div>
+      <div class="header-actions-group">
         <!-- Badge Persistente de Fila Offline (Caves / Garagens) -->
         <button id="btn-offline-queue-badge" class="status-pill status-pill-offline-queue" style="display: none;" title="Notas salvas na fila local pendentes de sincronização">
-          <span style="font-size: 12px;">⚡</span>
+          <span style="font-size: 11px;">⚡</span>
           <span id="offline-queue-count">0</span>
-          <span>local</span>
         </button>
-        <button id="btn-sunlight-toggle" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px;" title="Alternar Modo Luz Solar Intensa">
+
+        <!-- Botão Luz Solar Minimalista -->
+        <button id="btn-sunlight-toggle" class="header-icon-pill" type="button" title="Alternar Modo Luz Solar Intensa">
           <span style="font-size: 13px;">☀️</span>
-          <span style="font-size: 11px; font-weight: 600;" id="sunlight-label">Luz Solar</span>
+          <span style="display: none;" id="sunlight-label">Luz Solar</span>
         </button>
-        <span class="status-pill status-pill-secondary" id="user-badge">Não autenticado</span>
-        <button id="btn-logout" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: transparent; cursor: pointer; display: none;" title="Terminar Sessão">Sair</button>
+
+        <!-- Cápsula Unificada de Perfil e Logout -->
+        <div class="header-profile-capsule">
+          <span class="user-badge-compact" id="user-badge">Não autenticado</span>
+          <button id="btn-logout" class="btn-logout-icon" type="button" style="display: none;" title="Terminar Sessão">✕</button>
+        </div>
       </div>
     </header>
 
@@ -44,114 +51,98 @@
 
     <!-- Conteúdo Principal Dinâmico -->
     <main class="app-main" id="main-content" style="padding: var(--spacing-margin); flex: 1;">
-      <!-- Card / Banner Matinal de Aniversário de Escritura (Alerta 09:00) -->
-      <section class="anniversary-morning-card" id="anniversary-morning-banner" style="display: none;">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 24px;">🎉</span>
-            <div>
-              <span class="label-caps" style="color: var(--color-secondary); font-size: 10px; letter-spacing: 0.08em;">Alerta Matinal das 09:00</span>
-              <p style="font-weight: 700; font-size: 14px; margin-top: 2px;" id="anniversary-banner-title">Aniversário de Escritura Hoje!</p>
-              <p style="font-size: 12px; color: var(--color-on-surface-variant);" id="anniversary-banner-subtitle">Clientes celebram aniversário de aquisição.</p>
+      <!-- Seletor do Imóvel Ativo (Formato Slim Luxury) -->
+      <section class="slim-property-card" id="property-selector-card" style="cursor: pointer;">
+        <div class="slim-prop-inner">
+          <div class="slim-prop-info">
+            <div class="slim-prop-meta-row">
+              <span class="slim-badge-status" id="focus-prop-status-badge">⭐ Imóvel em Foco</span>
+              <span class="slim-meta-separator">•</span>
+              <span id="focus-prop-location">Portugal</span>
+              <span class="slim-meta-separator">•</span>
+              <span id="focus-prop-type">Imóvel</span>
+              <span class="slim-meta-separator">•</span>
+              <span id="focus-prop-area">-- m²</span>
+            </div>
+            <h2 class="slim-prop-title" id="focus-prop-title">Carregando carteira...</h2>
+            <div class="slim-prop-financials">
+              <span class="slim-prop-price tnum" id="focus-prop-price">Aguarde um momento</span>
+              <span class="slim-prop-commission tnum" id="focus-prop-subtitle"></span>
             </div>
           </div>
-          <button type="button" class="btn-card-action btn-card-primary" id="btn-banner-felicitar" style="white-space: nowrap; padding: 6px 12px; font-size: 12px;">
-            Felicitar
+          <button type="button" class="btn-slim-alterar" id="btn-toggle-portfolio-card" title="Alterar Imóvel em Foco">
+            Alterar ▾
           </button>
         </div>
       </section>
 
-      <!-- Seletor do Imóvel Ativo (Obrigatório em Visitas) com Calor Arquitetural -->
-      <section class="hero-property-card" id="property-selector-card" style="cursor: pointer; margin-bottom: var(--spacing-margin);">
-        <div class="hero-image-box" id="hero-image-area">
-          <!-- SVG Arquitetônico de Penthouse Contemporânea ao Pôr do Sol (Golden Hour) -->
-          <svg class="hero-svg-bg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="warmSunsetApp" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#C5A880"/>
-                <stop offset="45%" stop-color="#DFCAAC"/>
-                <stop offset="100%" stop-color="#F2E6D5"/>
-              </linearGradient>
-            </defs>
-            <rect width="400" height="200" fill="url(#warmSunsetApp)"/>
-            <path d="M0 130 L20 125 L40 132 L70 120 L100 128 L140 115 L180 124 L220 118 L260 124 L300 112 L340 122 L380 119 L400 125 L400 200 L0 200 Z" fill="#9C876D" opacity="0.4"/>
-            <polygon points="30,200 30,70 260,35 370,55 370,200" fill="#242220"/>
-            <polygon points="50,85 160,65 160,170 50,170" fill="#EBD9C2" opacity="0.55"/>
-            <polygon points="175,62 340,78 340,170 175,170" fill="#DFCAAC" opacity="0.65"/>
-            <rect x="0" y="165" width="400" height="35" fill="#1A1816"/>
-            <rect x="200" y="172" width="180" height="20" rx="3" fill="#3D5A80" opacity="0.75"/>
-          </svg>
+      <!-- Centro de Ação Principal (Cockpit Minimalista) -->
+      <section class="cockpit-action-center">
+        <!-- O Grande Botão Dourado de Gravação de Feedback -->
+        <button class="btn-voice-hero" id="btn-open-voice" type="button">
+          <div class="voice-hero-left">
+            <div class="voice-hero-icon-ring">🎙️</div>
+            <div class="voice-hero-info">
+              <span class="voice-hero-title">Gravar Feedback de Visita</span>
+              <span class="voice-hero-subtitle">Voz guiada de 30s com transcrição e IA</span>
+            </div>
+          </div>
+          <span class="voice-hero-tag">Gravar</span>
+        </button>
 
-          <div class="hero-gradient-overlay"></div>
-
-          <div class="hero-top-row">
-            <span class="exclusive-badge" id="focus-prop-status-badge">⭐ Imóvel em Foco</span>
-            <span class="hero-location-pill" id="focus-prop-location">Portugal</span>
+        <!-- Grid de 2 Colunas Lado a Lado: Alerta Matinal 09:00 e Radar de Captação -->
+        <div class="cockpit-dual-grid">
+          <!-- Card 1: Alerta Matinal das 09:00 -->
+          <div class="cockpit-card cockpit-morning-card" id="cockpit-morning-card">
+            <div class="cockpit-card-header">
+              <div class="cockpit-icon-bubble">🎉</div>
+              <span class="cockpit-pill-tag">09:00</span>
+            </div>
+            <div class="cockpit-card-body">
+              <h3 class="cockpit-card-title" id="cockpit-anniversary-title">Aniversários</h3>
+              <p class="cockpit-card-sub" id="cockpit-anniversary-sub">Sem celebrações hoje</p>
+            </div>
+            <div class="cockpit-card-footer">
+              <button type="button" class="cockpit-action-link" id="btn-banner-felicitar">
+                Felicitar →
+              </button>
+            </div>
           </div>
 
-          <div class="hero-bottom-info">
-            <div class="hero-prop-title" id="focus-prop-title">Carregando carteira...</div>
-            <div class="hero-price-row">
-              <span class="hero-price-val tnum" id="focus-prop-price">Aguarde um momento</span>
-              <span class="hero-commission tnum" id="focus-prop-subtitle"></span>
+          <!-- Card 2: Radar de Captação na Zona -->
+          <div class="cockpit-card cockpit-radar-card" id="cockpit-radar-card">
+            <div class="cockpit-card-header">
+              <div class="cockpit-icon-bubble">🎯</div>
+              <span class="cockpit-pill-tag radar-live-pill">
+                <span class="pulse-indicator"></span> Radar
+              </span>
+            </div>
+            <div class="cockpit-card-body">
+              <h3 class="cockpit-card-title" id="cockpit-leads-count">Oportunidades</h3>
+              <p class="cockpit-card-sub">Leilões & FSBO na Zona</p>
+            </div>
+            <div class="cockpit-card-footer">
+              <button type="button" class="cockpit-action-link" id="btn-open-leads">
+                Explorar →
+              </button>
             </div>
           </div>
         </div>
-
-        <div class="hero-details-row">
-          <div style="display: flex; gap: 10px;" id="focus-prop-meta">
-            <span>📐 <b id="focus-prop-area">-- m²</b></span>
-            <span>🏢 <b id="focus-prop-type">Imóvel</b></span>
-          </div>
-          <span style="color: var(--color-tertiary); font-weight: 700; font-size: 12px;" id="btn-toggle-portfolio-card">Ver Carteira →</span>
-        </div>
       </section>
 
-      <!-- Grade de Ações Rápidas de Campo com Calor Arquitetural -->
-      <section class="actions-grid" style="display: flex; flex-direction: column; gap: var(--spacing-space-sm);">
-        <button class="btn-cobalt-trigger" id="btn-open-voice" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 18px;">🎙️</span>
-            <span>Gravar Feedback de Visita (30s)</span>
-          </div>
-          <span style="font-size: 11px; background: rgba(255,255,255,0.25); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Voz & IA</span>
-        </button>
-        <button class="btn-primary-action" id="btn-open-calculator" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; border: 1px solid rgba(197, 168, 128, 0.25);">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 18px; color: var(--color-secondary);">🧮</span>
-            <span>Calculadora IMT & Selo</span>
-          </div>
-          <span style="font-size: 11px; color: var(--color-secondary); font-weight: 600;">100% Offline</span>
-        </button>
-        <button class="btn-secondary-ghost" id="btn-open-teleprompter" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px;">🎬</span>
-            <span>Scripts de Vídeo & Teleprompter</span>
-          </div>
-          <span style="font-size: 10px; color: var(--color-outline); font-weight: 700; letter-spacing: 0.06em;">3 BLOCOS</span>
-        </button>
-        <button class="btn-secondary-ghost" id="btn-open-portfolio" type="button" style="border-style: solid; display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px;">🏢</span>
-            <span>Gestão da Carteira de Imóveis</span>
-          </div>
-          <span style="font-size: 11px; color: var(--color-tertiary); font-weight: 600;">Ver Todos</span>
-        </button>
-        <button class="btn-secondary-ghost" id="btn-open-leads" type="button" style="border-style: solid; border-color: rgba(114, 91, 56, 0.5); display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: rgba(254, 222, 178, 0.1);">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px;">🎯</span>
-            <span>Captação & Angariação na Zona</span>
-          </div>
-          <span style="font-size: 11px; color: var(--color-secondary); font-weight: 700; background: var(--color-secondary-container); padding: 2px 8px; border-radius: 4px;">Leilões & FSBO</span>
-        </button>
-        <button class="btn-secondary-ghost" id="btn-open-contacts" type="button" style="border-style: solid; border-color: rgba(197, 168, 128, 0.4); display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px;">👥</span>
-            <span>Esfera de Influência & Pós-Venda</span>
-          </div>
-          <span style="font-size: 11px; color: #78603e; font-weight: 600;">09:00</span>
-        </button>
+      <!-- Banner de suporte legado (mantido oculto para retrocompatibilidade de IDs) -->
+      <section class="anniversary-morning-card" id="anniversary-morning-banner" style="display: none;">
+        <span id="anniversary-banner-title" style="display: none;"></span>
+        <span id="anniversary-banner-subtitle" style="display: none;"></span>
       </section>
+
+      <!-- Elementos utilitários de suporte de eventos para links da barra inferior -->
+      <div style="display: none;" aria-hidden="true">
+        <button id="btn-open-calculator" type="button"></button>
+        <button id="btn-open-teleprompter" type="button"></button>
+        <button id="btn-open-portfolio" type="button"></button>
+        <button id="btn-open-contacts" type="button"></button>
+      </div>
     </main>
 
     <!-- Rodapé de Navegação Rápida com Safe Area e Microícones -->
@@ -168,9 +159,9 @@
         <span class="nav-tab-icon">🧮</span>
         <span class="nav-tab-label">Calculadora</span>
       </button>
-      <button type="button" class="nav-tab-item" id="nav-scripts" title="Scripts">
-        <span class="nav-tab-icon">🎬</span>
-        <span class="nav-tab-label">Scripts</span>
+      <button type="button" class="nav-tab-item" id="nav-leads" title="Radar">
+        <span class="nav-tab-icon">🎯</span>
+        <span class="nav-tab-label">Radar</span>
       </button>
       <button type="button" class="nav-tab-item" id="nav-esfera" title="Esfera">
         <span class="nav-tab-icon">👥</span>

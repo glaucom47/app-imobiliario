@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 30/09/2026 - 02:00
-* **Fase Atual:** Modo Manutenção e Evolução Contínua (Cockpit Minimalista PWA & SW v9)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. Concluída com sucesso a **Refatoração de UI/UX da Tela Inicial do Assistente Móvel (PWA)** com arquitetura **Cockpit Minimalista** baseada nas diretrizes do `docs/DESIGN.md` (*Editorial PropTech Luxury*): eliminação da sobrecarga da coluna vertical de 6 botões empilhados; simplificação do cabeçalho em telas de 390px com cápsula unificada de perfil; card do imóvel em foco no formato **Slim Luxury** (altura reduzida e tipografia nobre); Centro de Ação com o Grande Botão Dourado de Gravação de Feedback (30s com IA) e grid de 2 colunas (*Alerta Matinal 09:00* e *Radar de Captação*); navegação global inferior reorganizada com 🎯 Radar (`#nav-leads`). Service Worker elevado para `fecho-static-v9`. A suíte automatizada conta com **108 testes com 100% de aprovação**.
+* **Última Atualização:** 30/09/2026 - 02:20
+* **Fase Atual:** Modo Manutenção e Evolução Contínua (Acabamentos de Luxo PWA & SW v10)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. Aplicados com sucesso os **Refinamentos Visuais de Alto Padrão** inspirados no mockup de referência internacional: adição de **puxador tátil (*drag handle*)** e cantos de 26px em todas as gavetas móveis (*Bottom Sheets*); **chips de filtro táteis arredondados** com rolagem horizontal contínua; **inputs de busca e selects redesenhados** com cantos suaves e anéis de foco sutil; e **cards de imóveis e leads** com cantos de 18px e elevação difusa. Service Worker elevado para `fecho-static-v10`. A suíte automatizada conta com **108 testes com 100% de aprovação**.
 
 ---
 

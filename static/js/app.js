@@ -2468,6 +2468,400 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // 12.5 Módulo de Captação e Angariação na Aplicação (Leilões & FSBO)
+  const btnOpenLeads = document.getElementById('btn-open-leads');
+  const drawerLeads = document.getElementById('drawer-leads');
+  const btnCloseLeads = document.getElementById('btn-close-leads');
+  const appLeadsCountLabel = document.getElementById('app-leads-count-label');
+  const appLeadsList = document.getElementById('app-leads-list');
+  const btnAppScanLeads = document.getElementById('btn-app-scan-leads');
+  const btnAppOpenExtractUrl = document.getElementById('btn-app-open-extract-url');
+  const appFilterLeadFonte = document.getElementById('app-filter-lead-fonte');
+  const appLeadSearchInput = document.getElementById('app-lead-search-input');
+  const appLeadConcelhoChips = document.querySelectorAll('#app-lead-concelho-chips button');
+
+  // Modais de suporte da aplicação
+  const modalAppConvert = document.getElementById('modal-app-convert-lead');
+  const btnCloseAppConvert = document.getElementById('btn-close-app-convert');
+  const btnCancelAppConvert = document.getElementById('btn-cancel-app-convert');
+  const formAppConvert = document.getElementById('form-app-convert-lead');
+  const appConvertPreview = document.getElementById('app-convert-preview');
+  const appConvertError = document.getElementById('app-convert-error');
+  const btnSubmitAppConvert = document.getElementById('btn-submit-app-convert');
+
+  const modalAppExtract = document.getElementById('modal-app-extract-url');
+  const btnCloseAppExtract = document.getElementById('btn-close-app-extract');
+  const btnCancelAppExtract = document.getElementById('btn-cancel-app-extract');
+  const formAppExtract = document.getElementById('form-app-extract-url');
+  const appExtractError = document.getElementById('app-extract-error');
+  const btnSubmitAppExtract = document.getElementById('btn-submit-app-extract');
+
+  const modalAppRgpd = document.getElementById('modal-app-rgpd-lead');
+  const btnCloseAppRgpd = document.getElementById('btn-close-app-rgpd');
+  const btnCancelAppRgpd = document.getElementById('btn-cancel-app-rgpd');
+  const formAppRgpd = document.getElementById('form-app-rgpd-lead');
+  const appRgpdError = document.getElementById('app-rgpd-error');
+  const btnSubmitAppRgpd = document.getElementById('btn-submit-app-rgpd');
+
+  let currentAppLeads = [];
+  let selectedAppConcelho = '';
+
+  function openLeadsDrawer() {
+    openDrawer(drawerLeads);
+    loadAppLeads();
+  }
+
+  if (btnOpenLeads) {
+    btnOpenLeads.addEventListener('click', openLeadsDrawer);
+  }
+  if (btnCloseLeads) {
+    btnCloseLeads.addEventListener('click', () => closeDrawer(drawerLeads));
+  }
+
+  // Chips de Concelho na Aplicação
+  appLeadConcelhoChips.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      appLeadConcelhoChips.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedAppConcelho = btn.dataset.concelho || '';
+      loadAppLeads();
+    });
+  });
+
+  if (appFilterLeadFonte) {
+    appFilterLeadFonte.addEventListener('change', loadAppLeads);
+  }
+
+  let searchTimeout = null;
+  if (appLeadSearchInput) {
+    appLeadSearchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(loadAppLeads, 300);
+    });
+  }
+
+  // Disparo de Varredura na Aplicação
+  if (btnAppScanLeads) {
+    btnAppScanLeads.addEventListener('click', async () => {
+      const origText = btnAppScanLeads.textContent;
+      btnAppScanLeads.disabled = true;
+      btnAppScanLeads.textContent = 'A pesquisar...';
+      try {
+        const res = await Api.triggerLeadScan({
+          concelho: selectedAppConcelho || undefined,
+          fonte: appFilterLeadFonte ? appFilterLeadFonte.value || undefined : undefined,
+        });
+        alert(res.mensagem || 'Varredura concluída com sucesso!');
+        loadAppLeads();
+      } catch (err) {
+        alert('Erro ao executar varredura:\n' + (err.message || 'Verifique se o servidor está ativo.'));
+      } finally {
+        btnAppScanLeads.disabled = false;
+        btnAppScanLeads.textContent = origText;
+      }
+    });
+  }
+
+  async function loadAppLeads() {
+    if (!appLeadsList) return;
+    appLeadsList.innerHTML = '<p style="text-align: center; color: var(--color-outline); font-size: 13px; padding: 24px 0;">A carregar oportunidades...</p>';
+
+    try {
+      const params = {
+        fonte: appFilterLeadFonte ? appFilterLeadFonte.value || undefined : undefined,
+        concelho: selectedAppConcelho || undefined,
+        busca: appLeadSearchInput ? appLeadSearchInput.value.trim() || undefined : undefined,
+        limit: 50,
+      };
+
+      const res = await Api.getLeads(params);
+      currentAppLeads = res.items || [];
+      if (appLeadsCountLabel) {
+        appLeadsCountLabel.textContent = `${res.total || 0} oportunidades na zona`;
+      }
+
+      renderAppLeads(currentAppLeads);
+    } catch (err) {
+      appLeadsList.innerHTML = `<p style="text-align: center; color: var(--color-error); font-size: 13px; padding: 24px 0;">Falha ao carregar oportunidades: ${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  function renderAppLeads(leads) {
+    if (!appLeadsList) return;
+    if (!leads || leads.length === 0) {
+      appLeadsList.innerHTML = `
+        <div class="card-tier1" style="text-align: center; padding: 32px 16px;">
+          <p style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Nenhuma oportunidade encontrada</p>
+          <p style="font-size: 12px; color: var(--color-outline); margin-bottom: 16px;">Clique em "Varredura" para procurar novos imóveis em leilões e anúncios particulares.</p>
+        </div>
+      `;
+      return;
+    }
+
+    appLeadsList.innerHTML = leads.map((lead) => {
+      // Badge da fonte
+      let fonteHtml = '';
+      if (lead.fonte === 'e-leiloes') {
+        fonteHtml = `<span class="status-pill status-pill-notarized" style="font-size: 10px; font-weight: 700;">🏛️ e-Leilões Judicial</span>`;
+      } else if (lead.fonte === 'olx') {
+        fonteHtml = `<span class="status-pill status-pill-secondary" style="font-size: 10px; font-weight: 700;">👤 Particular (FSBO)</span>`;
+      } else {
+        fonteHtml = `<span class="status-pill" style="font-size: 10px; border: 1px solid var(--color-outline-variant);">📍 Captação Direta</span>`;
+      }
+
+      // Badge de situação
+      let statusHtml = '';
+      if (lead.status === 'Novo') {
+        statusHtml = `<span class="status-pill status-pill-active" style="font-size: 10px;">Novo</span>`;
+      } else if (lead.status === 'Em Prospeccao') {
+        statusHtml = `<span class="status-pill status-pill-reserved" style="font-size: 10px;">Em Prospecção</span>`;
+      } else if (lead.status === 'Convertido') {
+        statusHtml = `<span class="status-pill status-pill-sold" style="font-size: 10px;">Convertido</span>`;
+      } else if (lead.status === 'Oposicao_RGPD') {
+        statusHtml = `<span class="status-pill" style="font-size: 10px; background: #fee2e2; color: #991b1b;">Oposição RGPD</span>`;
+      } else {
+        statusHtml = `<span class="status-pill" style="font-size: 10px;">${escapeHtml(lead.status)}</span>`;
+      }
+
+      // Preço e Mínimo
+      const precoStr = formatCurrencyPt(lead.preco_solicitado);
+      let extraPreco = '';
+      if (lead.valor_minimo_abertura) {
+        extraPreco = `<span style="font-size: 11px; color: var(--color-secondary); font-weight: 600;">(Mín. Abertura: ${escapeHtml(formatCurrencyPt(lead.valor_minimo_abertura))})</span>`;
+      }
+
+      // Contato e WhatsApp
+      let contatoHtml = '';
+      if (lead.telefone_contacto && lead.telefone_contacto !== '000000000') {
+        const rawPhone = lead.telefone_contacto.replace(/[^0-9]/g, '');
+        const nomeProp = lead.nome_contacto || 'Proprietário';
+        const concelhoProp = lead.concelho || 'Portugal';
+        const msgWa = `Olá ${nomeProp}, vi o anúncio do seu imóvel em ${concelhoProp} (${lead.tipologia || 'imóvel'}) e gostaria de partilhar consigo clientes qualificados da nossa agência. Terá disponibilidade para uma breve conversa?`;
+        const waUrl = `https://wa.me/${encodeURIComponent(rawPhone)}?text=${encodeURIComponent(msgWa)}`;
+
+        contatoHtml = `
+          <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+            <a href="${escapeHtml(waUrl)}" target="_blank" rel="noopener" class="btn-card-action" style="background: #16a34a; color: #ffffff; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px;">
+              💬 WhatsApp de Abordagem
+            </a>
+            <a href="tel:${escapeHtml(rawPhone)}" class="btn-secondary-ghost" style="padding: 6px 10px; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; height: auto;">
+              📞 Ligar (${escapeHtml(lead.telefone_contacto)})
+            </a>
+          </div>
+        `;
+      }
+
+      // Botões de Ação
+      let acoesHtml = '<div style="display: flex; gap: 8px; margin-top: 12px; align-items: center; justify-content: flex-end; border-top: var(--border-hairline); padding-top: 10px;">';
+      if (lead.status !== 'Convertido' && lead.status !== 'Oposicao_RGPD') {
+        acoesHtml += `
+          <button class="btn-primary-action btn-app-convert-trigger" data-lead-id="${lead.id}" type="button" style="width: auto; height: 36px; padding: 0 14px; font-size: 12px;">
+            🎯 Converter para Carteira
+          </button>
+          <button class="btn-secondary-ghost btn-app-rgpd-trigger" data-lead-id="${lead.id}" type="button" style="width: auto; height: 36px; padding: 0 10px; font-size: 12px; color: var(--color-error);" title="Registrar Oposição RGPD">
+            ⛔ RGPD
+          </button>
+        `;
+      } else if (lead.status === 'Convertido') {
+        acoesHtml += `<span style="font-size: 12px; color: var(--color-secondary); font-weight: 600;">✓ Imóvel #${lead.imovel_convertido_id} criado na Carteira</span>`;
+      }
+
+      if (lead.url_origem) {
+        acoesHtml += `<a href="${escapeHtml(lead.url_origem)}" target="_blank" rel="noopener" class="btn-secondary-ghost" style="padding: 0 10px; height: 36px; display: inline-flex; align-items: center; font-size: 12px; text-decoration: none;" title="Abrir anúncio original">↗ Ver Anúncio</a>`;
+      }
+      acoesHtml += '</div>';
+
+      return `
+        <div class="card-tier1" style="padding: 14px; border-left: 4px solid ${lead.fonte === 'e-leiloes' ? '#725b38' : '#000000'};">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+              ${fonteHtml}
+              ${statusHtml}
+            </div>
+            <span style="font-size: 11px; color: var(--color-outline);">Ref: ${escapeHtml(lead.referencia_externa)}</span>
+          </div>
+
+          <h4 style="font-size: 14px; font-weight: 600; margin: 4px 0 6px; line-height: 1.4;">${escapeHtml(lead.titulo)}</h4>
+
+          <div style="font-size: 12px; color: var(--color-on-surface-variant); margin-bottom: 8px;">
+            Tipologia: <strong>${escapeHtml(lead.tipologia || 'T2')}</strong> • 📍 Concelho: <strong>${escapeHtml(lead.concelho || 'Portugal')}</strong>
+            ${lead.freguesia ? ` (${escapeHtml(lead.freguesia)})` : ''}
+          </div>
+
+          <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;">
+            <span class="financial-display tnum" style="font-size: 18px; font-weight: 700; color: var(--color-primary);">${precoStr}</span>
+            ${extraPreco}
+          </div>
+
+          <div style="font-size: 12px; color: var(--color-on-surface-variant);">
+            Anunciante: <strong>${escapeHtml(lead.nome_contacto || 'Particular')}</strong>
+          </div>
+
+          ${contatoHtml}
+          ${acoesHtml}
+        </div>
+      `;
+    }).join('');
+
+    // Listeners nos botões de conversão e RGPD
+    appLeadsList.querySelectorAll('.btn-app-convert-trigger').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const leadId = parseInt(btn.dataset.leadId, 10);
+        openAppConvertModal(leadId);
+      });
+    });
+
+    appLeadsList.querySelectorAll('.btn-app-rgpd-trigger').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const leadId = parseInt(btn.dataset.leadId, 10);
+        openAppRgpdModal(leadId);
+      });
+    });
+  }
+
+  function formatCurrencyPt(val) {
+    if (!val) return '0,00 €';
+    return Number(val).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+
+  // Modal de Conversão na Aplicação
+  function openAppConvertModal(leadId) {
+    const lead = currentAppLeads.find((l) => l.id === leadId);
+    if (!lead || !modalAppConvert) return;
+
+    document.getElementById('app-convert-lead-id').value = lead.id;
+    if (appConvertError) appConvertError.style.display = 'none';
+
+    if (appConvertPreview) {
+      appConvertPreview.innerHTML = `
+        <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${escapeHtml(lead.titulo)}</div>
+        <div style="font-size: 12px; color: var(--color-outline); margin-bottom: 6px;">Tipologia: ${escapeHtml(lead.tipologia)} • Concelho: ${escapeHtml(lead.concelho || 'Portugal')}</div>
+        <div style="font-size: 16px; font-weight: 700; color: var(--color-secondary); margin-bottom: 6px;">${escapeHtml(formatCurrencyPt(lead.preco_solicitado))}</div>
+        <div style="font-size: 12px;">Proprietário: <strong>${escapeHtml(lead.nome_contacto || 'Particular')}</strong> (${escapeHtml(lead.telefone_contacto || 'Sem telemóvel')})</div>
+      `;
+    }
+
+    openDrawer(modalAppConvert);
+  }
+
+  if (btnCloseAppConvert) btnCloseAppConvert.addEventListener('click', () => closeDrawer(modalAppConvert));
+  if (btnCancelAppConvert) btnCancelAppConvert.addEventListener('click', () => closeDrawer(modalAppConvert));
+
+  if (formAppConvert) {
+    formAppConvert.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const leadId = document.getElementById('app-convert-lead-id').value;
+      const regiao = document.getElementById('app-convert-regiao').value;
+      if (btnSubmitAppConvert) {
+        btnSubmitAppConvert.disabled = true;
+        btnSubmitAppConvert.textContent = 'A criar imóvel...';
+      }
+      if (appConvertError) appConvertError.style.display = 'none';
+
+      try {
+        const propCriado = await Api.convertLead(leadId, { regiao_fiscal: regiao });
+        closeDrawer(modalAppConvert);
+        alert(`✓ Sucesso! Oportunidade convertida no Imóvel #${propCriado.id} ('${propCriado.titulo}') e adicionada à sua carteira ativa!`);
+        
+        // Atualiza a carteira do consultor na hora
+        Api.setSelectedProperty(propCriado);
+        renderFocusProperty(propCriado);
+        loadPortfolioList();
+        loadAppLeads();
+      } catch (err) {
+        if (appConvertError) {
+          appConvertError.textContent = err.message || 'Erro ao converter oportunidade.';
+          appConvertError.style.display = 'block';
+        }
+      } finally {
+        if (btnSubmitAppConvert) {
+          btnSubmitAppConvert.disabled = false;
+          btnSubmitAppConvert.textContent = 'Adicionar à Carteira';
+        }
+      }
+    });
+  }
+
+  // Modal de Extração de URL na Aplicação
+  if (btnAppOpenExtractUrl) {
+    btnAppOpenExtractUrl.addEventListener('click', () => {
+      if (formAppExtract) formAppExtract.reset();
+      if (appExtractError) appExtractError.style.display = 'none';
+      openDrawer(modalAppExtract);
+    });
+  }
+  if (btnCloseAppExtract) btnCloseAppExtract.addEventListener('click', () => closeDrawer(modalAppExtract));
+  if (btnCancelAppExtract) btnCancelAppExtract.addEventListener('click', () => closeDrawer(modalAppExtract));
+
+  if (formAppExtract) {
+    formAppExtract.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = document.getElementById('app-input-extract-url').value.trim();
+      if (btnSubmitAppExtract) {
+        btnSubmitAppExtract.disabled = true;
+        btnSubmitAppExtract.textContent = 'A extrair...';
+      }
+      if (appExtractError) appExtractError.style.display = 'none';
+
+      try {
+        await Api.extractLeadUrl(url);
+        closeDrawer(modalAppExtract);
+        alert('✓ Imóvel extraído e registado com sucesso nas oportunidades!');
+        loadAppLeads();
+      } catch (err) {
+        if (appExtractError) {
+          appExtractError.textContent = err.message || 'Erro ao extrair link do anúncio.';
+          appExtractError.style.display = 'block';
+        }
+      } finally {
+        if (btnSubmitAppExtract) {
+          btnSubmitAppExtract.disabled = false;
+          btnSubmitAppExtract.textContent = 'Extrair Imóvel';
+        }
+      }
+    });
+  }
+
+  // Modal de Oposição RGPD na Aplicação
+  function openAppRgpdModal(leadId) {
+    if (!modalAppRgpd) return;
+    document.getElementById('app-rgpd-lead-id').value = leadId;
+    if (appRgpdError) appRgpdError.style.display = 'none';
+    openDrawer(modalAppRgpd);
+  }
+  if (btnCloseAppRgpd) btnCloseAppRgpd.addEventListener('click', () => closeDrawer(modalAppRgpd));
+  if (btnCancelAppRgpd) btnCancelAppRgpd.addEventListener('click', () => closeDrawer(modalAppRgpd));
+
+  if (formAppRgpd) {
+    formAppRgpd.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const leadId = document.getElementById('app-rgpd-lead-id').value;
+      const motivo = document.getElementById('app-rgpd-motivo').value.trim();
+      if (btnSubmitAppRgpd) {
+        btnSubmitAppRgpd.disabled = true;
+        btnSubmitAppRgpd.textContent = 'A bloquear...';
+      }
+      if (appRgpdError) appRgpdError.style.display = 'none';
+
+      try {
+        await Api.registerLeadRgpd(leadId, { motivo });
+        closeDrawer(modalAppRgpd);
+        alert('✓ Oposição RGPD registada! Telemóvel incluído na lista de exclusão.');
+        loadAppLeads();
+      } catch (err) {
+        if (appRgpdError) {
+          appRgpdError.textContent = err.message || 'Erro ao registar oposição RGPD.';
+          appRgpdError.style.display = 'block';
+        }
+      } finally {
+        if (btnSubmitAppRgpd) {
+          btnSubmitAppRgpd.disabled = false;
+          btnSubmitAppRgpd.textContent = 'Bloquear Telemóvel';
+        }
+      }
+    });
+  }
+
   // 13. Ouvintes de Eventos Globais de Sessão e Imóveis
   window.addEventListener('fecho:unauthorized', () => {
     updateAuthUI(null);

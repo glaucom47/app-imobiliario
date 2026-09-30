@@ -137,6 +137,13 @@
           </div>
           <span style="font-size: 11px; color: var(--color-tertiary); font-weight: 600;">Ver Todos</span>
         </button>
+        <button class="btn-secondary-ghost" id="btn-open-leads" type="button" style="border-style: solid; border-color: rgba(114, 91, 56, 0.5); display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: rgba(254, 222, 178, 0.1);">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px;">🎯</span>
+            <span>Captação & Angariação na Zona</span>
+          </div>
+          <span style="font-size: 11px; color: var(--color-secondary); font-weight: 700; background: var(--color-secondary-container); padding: 2px 8px; border-radius: 4px;">Leilões & FSBO</span>
+        </button>
         <button class="btn-secondary-ghost" id="btn-open-contacts" type="button" style="border-style: solid; border-color: rgba(197, 168, 128, 0.4); display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 16px;">👥</span>
@@ -1166,6 +1173,148 @@
           <div id="register-consultor-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; text-align: center;"></div>
 
           <button type="submit" class="btn-primary-action" id="btn-submit-reg-consultor">Registar Consultor e Entrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drawer da Captação e Angariação de Imóveis (Leilões & FSBO) -->
+  <div class="fecho-modal-overlay" id="drawer-leads">
+    <div class="fecho-drawer-sheet" style="max-height: 94vh;">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Captação & Angariação na Zona</h3>
+          <span style="font-size: 12px; color: var(--color-outline);" id="app-leads-count-label">A carregar oportunidades...</span>
+        </div>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button class="btn-card-action" id="btn-app-scan-leads" type="button" style="background: var(--color-primary); color: #ffffff; padding: 6px 12px; font-size: 11px; font-weight: 600; border-radius: 6px;" title="Disparar nova varredura de fontes abertas">
+            🔍 Varredura
+          </button>
+          <button class="btn-card-action" id="btn-app-open-extract-url" type="button" style="background: var(--color-secondary-container); color: #78603e; padding: 6px 10px; font-size: 11px; font-weight: 600; border-radius: 6px;" title="Colar link de anúncio">
+            + Link
+          </button>
+          <button class="drawer-close-btn" id="btn-close-leads" type="button" aria-label="Fechar">✕</button>
+        </div>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Chips Rápidos de Concelhos de Portugal -->
+        <div style="margin-bottom: 10px;">
+          <span class="label-caps" style="font-size: 10px; color: var(--color-outline); margin-bottom: 6px; display: block;">Filtrar por Concelho</span>
+          <div class="status-filter-bar" id="app-lead-concelho-chips" style="overflow-x: auto; padding-bottom: 4px; gap: 6px; display: flex; scrollbar-width: none;">
+            <button type="button" class="filter-chip-btn active" data-concelho="">Todos</button>
+            <button type="button" class="filter-chip-btn" data-concelho="Lisboa">Lisboa</button>
+            <button type="button" class="filter-chip-btn" data-concelho="Cascais">Cascais</button>
+            <button type="button" class="filter-chip-btn" data-concelho="Oeiras">Oeiras</button>
+            <button type="button" class="filter-chip-btn" data-concelho="Sintra">Sintra</button>
+            <button type="button" class="filter-chip-btn" data-concelho="Porto">Porto</button>
+            <button type="button" class="filter-chip-btn" data-concelho="Matosinhos">Matosinhos</button>
+            <button type="button" class="filter-chip-btn" data-concelho="Faro">Faro</button>
+            <button type="button" class="filter-chip-btn" data-concelho="Coimbra">Coimbra</button>
+          </div>
+        </div>
+
+        <!-- Filtros Rápidos (Fonte e Pesquisa) -->
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <select id="app-filter-lead-fonte" class="fecho-input" style="height: 40px; font-size: 12px; flex: 1.2;">
+            <option value="">Todas as Fontes</option>
+            <option value="e-leiloes">e-Leilões (Judicial)</option>
+            <option value="olx">OLX (Particulares)</option>
+            <option value="manual">Manual / Registadas</option>
+          </select>
+          <input type="text" id="app-lead-search-input" class="fecho-input" placeholder="Pesquisar imóvel, rua..." style="height: 40px; font-size: 12px; flex: 2;">
+        </div>
+
+        <!-- Lista de Cards das Oportunidades -->
+        <div id="app-leads-list" style="display: flex; flex-direction: column; gap: 12px;">
+          <p style="text-align: center; color: var(--color-outline); font-size: 13px; padding: 24px 0;">A carregar oportunidades...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Converter Oportunidade em Imóvel da Carteira (1 Toque) -->
+  <div class="fecho-modal-overlay" id="modal-app-convert-lead">
+    <div class="fecho-drawer-sheet" style="max-height: 80vh;">
+      <div class="drawer-header">
+        <h3 style="font-size: 16px; font-weight: 600;">🎯 Converter para Carteira</h3>
+        <button class="drawer-close-btn" id="btn-close-app-convert" type="button">✕</button>
+      </div>
+      <div class="drawer-body">
+        <p style="font-size: 13px; color: var(--color-on-surface-variant); margin-bottom: 12px;">
+          Este imóvel ingressará na sua carteira comercial com situação <strong>Ativo</strong>.
+        </p>
+        <div class="card-tier1" style="background: var(--color-surface-container-low); padding: 12px; margin-bottom: 16px;" id="app-convert-preview">
+          <!-- Preenchido via JS -->
+        </div>
+        <form id="form-app-convert-lead">
+          <input type="hidden" id="app-convert-lead-id">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="app-convert-regiao">Região Fiscal (IMT)</label>
+            <select id="app-convert-regiao" class="fecho-input" style="height: 44px;">
+              <option value="continente" selected>Continente</option>
+              <option value="madeira">Região Autónoma da Madeira</option>
+              <option value="acores">Região Autónoma dos Açores</option>
+            </select>
+          </div>
+          <div id="app-convert-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px;"></div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn-secondary-ghost" id="btn-cancel-app-convert" style="flex: 1; height: 44px;">Cancelar</button>
+            <button type="submit" class="btn-primary-action" id="btn-submit-app-convert" style="flex: 1.5; height: 44px;">Adicionar à Carteira</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Extrair Oportunidade por Link Colado -->
+  <div class="fecho-modal-overlay" id="modal-app-extract-url">
+    <div class="fecho-drawer-sheet" style="max-height: 60vh;">
+      <div class="drawer-header">
+        <h3 style="font-size: 16px; font-weight: 600;">+ Colar Link do Anúncio</h3>
+        <button class="drawer-close-btn" id="btn-close-app-extract" type="button">✕</button>
+      </div>
+      <div class="drawer-body">
+        <p style="font-size: 13px; color: var(--color-on-surface-variant); margin-bottom: 12px;">
+          Cole o link de um anúncio do <strong>e-Leilões</strong> ou do <strong>OLX</strong> para captar automaticamente os dados:
+        </p>
+        <form id="form-app-extract-url">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="app-input-extract-url">Link URL *</label>
+            <input type="url" id="app-input-extract-url" class="fecho-input" placeholder="https://olx.pt/... ou https://e-leiloes.pt/..." required style="height: 44px;">
+          </div>
+          <div id="app-extract-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px;"></div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn-secondary-ghost" id="btn-cancel-app-extract" style="flex: 1; height: 44px;">Cancelar</button>
+            <button type="submit" class="btn-primary-action" id="btn-submit-app-extract" style="flex: 1.5; height: 44px;">Extrair Imóvel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Oposição RGPD (Art. 21) -->
+  <div class="fecho-modal-overlay" id="modal-app-rgpd-lead">
+    <div class="fecho-drawer-sheet" style="max-height: 60vh;">
+      <div class="drawer-header">
+        <h3 style="font-size: 16px; font-weight: 600; color: var(--color-error);">Oposição RGPD (Art. 21)</h3>
+        <button class="drawer-close-btn" id="btn-close-app-rgpd" type="button">✕</button>
+      </div>
+      <div class="drawer-body">
+        <p style="font-size: 13px; color: var(--color-on-surface-variant); margin-bottom: 12px;">
+          O titular manifestou oposição a ser contactado. O telemóvel será incluído na lista de exclusão da agência.
+        </p>
+        <form id="form-app-rgpd-lead">
+          <input type="hidden" id="app-rgpd-lead-id">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="app-rgpd-motivo">Motivo</label>
+            <input type="text" id="app-rgpd-motivo" class="fecho-input" value="Proprietário recusa contactos de mediação imobiliária" style="height: 44px;">
+          </div>
+          <div id="app-rgpd-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px;"></div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn-secondary-ghost" id="btn-cancel-app-rgpd" style="flex: 1; height: 44px;">Cancelar</button>
+            <button type="submit" class="btn-primary-action" id="btn-submit-app-rgpd" style="flex: 1.5; height: 44px; background: var(--color-error);">Bloquear Telemóvel</button>
+          </div>
         </form>
       </div>
     </div>

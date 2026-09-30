@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 30/09/2026 - 01:25
-* **Fase Atual:** Modo Manutenção e Evolução Contínua (Design Polishment & Captação)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O logotipo oficial da marca Fecho foi ampliado de forma responsiva (de 28px para 36px em mobile e 40px em desktop/telas amplas), com padronização no modal de login (38px) e backoffice. Atualizou-se o Service Worker para a versão de cache `fecho-static-v8` para invalidar caches locais. A suíte automatizada conta com **108 testes com 100% de aprovação**.
+* **Última Atualização:** 30/09/2026 - 01:30
+* **Fase Atual:** Modo Manutenção e Evolução Contínua (Captação no PWA & Terminologia PT)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O módulo de **Captação e Angariação de Imóveis** foi integralmente disponibilizado na aplicação principal do consultor (`static/index.html` e `static/js/app.js`) através de um botão nobre na tela inicial e uma gaveta mobile-first com chips rápidos de Concelhos de Portugal, abordagem via WhatsApp e conversão em 1 toque para a carteira ativa. A terminologia territorial de Portugal foi rigorosamente padronizada (substituindo 'Estado' por 'Concelho' e status por 'Fase da Prospecção'). Atualizou-se o Service Worker para `fecho-static-v8`. A suíte automatizada conta com **108 testes com 100% de aprovação**.
 
 ---
 

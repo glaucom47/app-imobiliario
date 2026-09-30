@@ -431,6 +431,21 @@
           </div>
         </main>
 
+        <!-- Chips Rápidos de Concelhos de Portugal -->
+        <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span class="label-caps" style="font-size: 11px; color: var(--color-outline);">Concelhos Rápidos:</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="bo-lead-concelho-chips">
+            <button type="button" class="status-pill active" style="cursor: pointer; font-size: 11px; padding: 4px 10px;" data-concelho="">Todos</button>
+            <button type="button" class="status-pill" style="cursor: pointer; font-size: 11px; padding: 4px 10px; background: #ffffff; border: 1px solid var(--color-outline-variant);" data-concelho="Lisboa">Lisboa</button>
+            <button type="button" class="status-pill" style="cursor: pointer; font-size: 11px; padding: 4px 10px; background: #ffffff; border: 1px solid var(--color-outline-variant);" data-concelho="Cascais">Cascais</button>
+            <button type="button" class="status-pill" style="cursor: pointer; font-size: 11px; padding: 4px 10px; background: #ffffff; border: 1px solid var(--color-outline-variant);" data-concelho="Oeiras">Oeiras</button>
+            <button type="button" class="status-pill" style="cursor: pointer; font-size: 11px; padding: 4px 10px; background: #ffffff; border: 1px solid var(--color-outline-variant);" data-concelho="Sintra">Sintra</button>
+            <button type="button" class="status-pill" style="cursor: pointer; font-size: 11px; padding: 4px 10px; background: #ffffff; border: 1px solid var(--color-outline-variant);" data-concelho="Porto">Porto</button>
+            <button type="button" class="status-pill" style="cursor: pointer; font-size: 11px; padding: 4px 10px; background: #ffffff; border: 1px solid var(--color-outline-variant);" data-concelho="Matosinhos">Matosinhos</button>
+            <button type="button" class="status-pill" style="cursor: pointer; font-size: 11px; padding: 4px 10px; background: #ffffff; border: 1px solid var(--color-outline-variant);" data-concelho="Faro">Faro</button>
+          </div>
+        </div>
+
         <!-- Filtros Rápidos de Listagem -->
         <section class="card-tier1" style="padding: 16px; margin-bottom: var(--spacing-md);">
           <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
@@ -444,9 +459,9 @@
               </select>
             </div>
             <div style="flex: 1; min-width: 160px;">
-              <label class="label-caps" style="font-size: 11px; margin-bottom: 4px; display: block;">Estado da Prospecção</label>
+              <label class="label-caps" style="font-size: 11px; margin-bottom: 4px; display: block;">Fase da Prospecção</label>
               <select id="filter-lead-status" class="fecho-input" style="height: 38px; font-size: 13px;">
-                <option value="">Todos os Estados</option>
+                <option value="">Todas as Fases</option>
                 <option value="Novo">Novo (Aguardando Abordagem)</option>
                 <option value="Em Prospeccao">Em Prospecção</option>
                 <option value="Convertido">Convertido na Carteira</option>
@@ -456,7 +471,7 @@
             </div>
             <div style="flex: 1; min-width: 160px;">
               <label class="label-caps" style="font-size: 11px; margin-bottom: 4px; display: block;">Concelho</label>
-              <input type="text" id="filter-lead-concelho" class="fecho-input" placeholder="ex: Lisboa, Cascais..." style="height: 38px; font-size: 13px;">
+              <input type="text" id="filter-lead-concelho" class="fecho-input" placeholder="ex: Lisboa, Cascais, Porto..." style="height: 38px; font-size: 13px;">
             </div>
             <div style="flex: 1; min-width: 160px;">
               <label class="label-caps" style="font-size: 11px; margin-bottom: 4px; display: block;">Pesquisa Livre</label>
@@ -483,10 +498,10 @@
                 <tr>
                   <th>Fonte</th>
                   <th>Imóvel & Referência</th>
-                  <th>Tipologia / Zona</th>
+                  <th>Tipologia / Concelho</th>
                   <th style="text-align: right;">Preço Pedido / Base</th>
                   <th>Contacto / Anunciante</th>
-                  <th>Estado</th>
+                  <th>Fase</th>
                   <th style="text-align: right;">Ações</th>
                 </tr>
               </thead>
@@ -1429,7 +1444,11 @@
           let contactoHtml = escapeHtml(lead.nome_contacto || 'Proprietário');
           if (lead.telefone_contacto && lead.telefone_contacto !== '000000000') {
             const rawPhone = lead.telefone_contacto.replace(/[^0-9]/g, '');
-            contactoHtml += `<br><a href="https://wa.me/${encodeURIComponent(rawPhone)}" target="_blank" rel="noopener" style="font-size: 12px; color: var(--color-secondary); font-weight: 500; text-decoration: none;">💬 ${escapeHtml(lead.telefone_contacto)}</a>`;
+            const nomeProp = lead.nome_contacto || 'Proprietário';
+            const concelhoProp = lead.concelho || 'Portugal';
+            const msgWa = `Olá ${nomeProp}, vi o anúncio do seu imóvel em ${concelhoProp} (${lead.tipologia || 'imóvel'}) e gostaria de partilhar consigo clientes qualificados da nossa agência. Terá disponibilidade para uma breve conversa?`;
+            const waUrl = `https://wa.me/${encodeURIComponent(rawPhone)}?text=${encodeURIComponent(msgWa)}`;
+            contactoHtml += `<br><a href="${escapeHtml(waUrl)}" target="_blank" rel="noopener" style="font-size: 12px; color: #16a34a; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px;" title="Iniciar conversa no WhatsApp com proposta de angariação">💬 ${escapeHtml(lead.telefone_contacto)}</a>`;
           }
 
           // Botões de Ação
@@ -1470,6 +1489,23 @@
 
       // Filtros
       document.getElementById('btn-apply-lead-filters').addEventListener('click', loadLeads);
+
+      // Chips Rápidos de Concelho no Backoffice
+      const boConcelhoChips = document.querySelectorAll('#bo-lead-concelho-chips button');
+      boConcelhoChips.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          boConcelhoChips.forEach((b) => {
+            b.classList.remove('active');
+            b.style.background = '#ffffff';
+            b.style.color = 'inherit';
+          });
+          btn.classList.add('active');
+          btn.style.background = 'var(--color-primary)';
+          btn.style.color = '#ffffff';
+          document.getElementById('filter-lead-concelho').value = btn.dataset.concelho;
+          loadLeads();
+        });
+      });
 
       // Disparo de Varredura
       const btnScan = document.getElementById('btn-trigger-scan');

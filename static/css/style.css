@@ -60,9 +60,17 @@ body {
 }
 
 .brand-logo {
-  height: 28px;
+  height: 36px;
   width: auto;
   display: block;
+  object-fit: contain;
+  transition: height 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .brand-logo {
+    height: 40px;
+  }
 }
 
 /* Cartões com Borda Hairline */

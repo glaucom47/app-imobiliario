@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 30/09/2026 - 01:00
-* **Fase Atual:** Modo Manutenção e Evolução Contínua (Módulo Entregue: Captação e Angariação de Fontes Abertas & FSBO)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O novo módulo de **Captação e Angariação de Imóveis** foi integralmente implementado e integrado à plataforma Fecho: inclui scrapers modulares de hasta pública (`e-leiloes.pt`) e de anúncios de particulares (`OLX Portugal`), nova aba no Backoffice da Diretora com KPIs e filtros avançados, conversão transacional em 1 clique para imóvel ativo da carteira (`Property`), governança e lista de exclusão do RGPD (Art. 21) e captura rápida via URL. Atualizou-se o Service Worker para a versão de cache `fecho-static-v7`, com tratamento amigável de conectividade no frontend. A suíte automatizada conta com **108 testes com 100% de aprovação**.
+* **Última Atualização:** 30/09/2026 - 01:25
+* **Fase Atual:** Modo Manutenção e Evolução Contínua (Design Polishment & Captação)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O logotipo oficial da marca Fecho foi ampliado de forma responsiva (de 28px para 36px em mobile e 40px em desktop/telas amplas), com padronização no modal de login (38px) e backoffice. Atualizou-se o Service Worker para a versão de cache `fecho-static-v8` para invalidar caches locais. A suíte automatizada conta com **108 testes com 100% de aprovação**.
 
 ---
 

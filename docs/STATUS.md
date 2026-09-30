@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 30/09/2026 - 02:20
-* **Fase Atual:** Modo Manutenção e Evolução Contínua (Acabamentos de Luxo PWA & SW v10)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. Aplicados com sucesso os **Refinamentos Visuais de Alto Padrão** inspirados no mockup de referência internacional: adição de **puxador tátil (*drag handle*)** e cantos de 26px em todas as gavetas móveis (*Bottom Sheets*); **chips de filtro táteis arredondados** com rolagem horizontal contínua; **inputs de busca e selects redesenhados** com cantos suaves e anéis de foco sutil; e **cards de imóveis e leads** com cantos de 18px e elevação difusa. Service Worker elevado para `fecho-static-v10`. A suíte automatizada conta com **108 testes com 100% de aprovação**.
+* **Última Atualização:** 30/09/2026 - 02:40
+* **Fase Atual:** Modo Manutenção e Evolução Contínua (Design Original Restaurado & SW v11)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O **Design e Layout Original** do Fecho (`fecho.pt`) foi integralmente restaurado a pedido do utilizador: card com ilustração SVG de Calor Arquitetural (Penthouse ao pôr do sol), grade vertical de 6 botões no meio da tela (`.actions-grid`), banners e gavetas originais operacionais. Service Worker elevado para `fecho-static-v11` com cabeçalhos `no-cache` na rota raiz para descarte imediato de versões de teste nos navegadores. A suíte automatizada conta com **108 testes com 100% de aprovação**.
 
 ---
 

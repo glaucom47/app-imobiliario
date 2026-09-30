@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 30/09/2026 - 02:40
-* **Fase Atual:** Modo Manutenção e Evolução Contínua (Design Original Restaurado & SW v11)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O **Design e Layout Original** do Fecho (`fecho.pt`) foi integralmente restaurado a pedido do utilizador: card com ilustração SVG de Calor Arquitetural (Penthouse ao pôr do sol), grade vertical de 6 botões no meio da tela (`.actions-grid`), banners e gavetas originais operacionais. Service Worker elevado para `fecho-static-v11` com cabeçalhos `no-cache` na rota raiz para descarte imediato de versões de teste nos navegadores. A suíte automatizada conta com **108 testes com 100% de aprovação**.
+* **Última Atualização:** 30/09/2026 - 02:50
+* **Fase Atual:** Modo Manutenção e Evolução Contínua (Carrossel Fotográfico de Alto Luxo & SW v12)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O **Card do Imóvel em Foco** (`#hero-image-area`) recebeu um **Carrossel Fotográfico Editorial de Alto Padrão** com 3 fotografias cinematográficas de arquitetura contemporânea de luxo em Portugal (Fachada externa ao pôr do sol, Interior open space pé-direito duplo com vista mar e Terraço panorâmico com piscina infinita). A navegação inclui transição suave por cross-fade, setas táteis glassmorphism, dots indicadores em pílula translúcida, autoplay a cada 5 segundos com pausa ao toque/hover e suporte completo a gestos touch (swipe horizontal). A estrutura original da aplicação (grade vertical de 6 botões de ação de campo, gavetas e métricas) foi 100% preservada. O Service Worker foi atualizado para `fecho-static-v12` incluindo os novos assets em cache offline. A suíte automatizada conta com **108 testes com 100% de aprovação**.
 
 ---
 

@@ -464,6 +464,133 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (navCarteira) navCarteira.addEventListener('click', handleOpenPortfolio);
   if (btnClosePortfolio) btnClosePortfolio.addEventListener('click', () => closeDrawer(drawerPortfolio));
 
+  // Inicialização do Carrossel Fotográfico de Alto Luxo do Imóvel em Destaque
+  function initHeroCarousel() {
+    const carousel = document.getElementById('hero-carousel');
+    if (!carousel) return;
+
+    const slides = carousel.querySelectorAll('.hero-carousel-slide');
+    const dots = carousel.querySelectorAll('.hero-carousel-dot');
+    const btnPrev = document.getElementById('hero-prev-btn');
+    const btnNext = document.getElementById('hero-next-btn');
+
+    if (!slides.length) return;
+
+    let currentIndex = 0;
+    let autoplayTimer = null;
+
+    function showSlide(index) {
+      if (index < 0) {
+        currentIndex = slides.length - 1;
+      } else if (index >= slides.length) {
+        currentIndex = 0;
+      } else {
+        currentIndex = index;
+      }
+
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === currentIndex);
+      });
+
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex);
+      });
+    }
+
+    function nextSlide() {
+      showSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentIndex - 1);
+    }
+
+    function startAutoplay() {
+      stopAutoplay();
+      autoplayTimer = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    function restartAutoplay() {
+      stopAutoplay();
+      startAutoplay();
+    }
+
+    if (btnPrev) {
+      btnPrev.addEventListener('click', (e) => {
+        e.stopPropagation();
+        prevSlide();
+        restartAutoplay();
+      });
+    }
+
+    if (btnNext) {
+      btnNext.addEventListener('click', (e) => {
+        e.stopPropagation();
+        nextSlide();
+        restartAutoplay();
+      });
+    }
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetIndex = parseInt(dot.getAttribute('data-slide'), 10);
+        if (!isNaN(targetIndex)) {
+          showSlide(targetIndex);
+          restartAutoplay();
+        }
+      });
+    });
+
+    // Pausar autoplay ao passar o cursor no desktop
+    carousel.addEventListener('mouseenter', stopAutoplay);
+    carousel.addEventListener('mouseleave', startAutoplay);
+
+    // Suporte a gestos touch (swipe horizontal suave no telemóvel)
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    carousel.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        stopAutoplay();
+      }
+    }, { passive: true });
+
+    carousel.addEventListener('touchend', (e) => {
+      if (e.changedTouches && e.changedTouches.length === 1) {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        // Se o movimento foi horizontal e suficiente (> 40px)
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+          if (diffX < 0) {
+            nextSlide();
+          } else {
+            prevSlide();
+          }
+        }
+        startAutoplay();
+      }
+    }, { passive: true });
+
+    // Iniciar autoplay de 5 segundos
+    startAutoplay();
+  }
+
+  // Inicializa o carrossel fotográfico imediatamente
+  initHeroCarousel();
+
   // Fechar ao clicar no backdrop (fecho-modal-overlay)
   document.querySelectorAll('.fecho-modal-overlay').forEach((overlay) => {
     overlay.addEventListener('click', (e) => {

@@ -4,7 +4,7 @@
  * para motores client-side (Calculadora IMT/Selo e Teleprompter).
  */
 
-const CACHE_NAME = 'fecho-static-v11';
+const CACHE_NAME = 'fecho-static-v12';
 const ASSETS_TO_CACHE = [
   '/',
   '/backoffice',
@@ -17,7 +17,10 @@ const ASSETS_TO_CACHE = [
   '/static/js/teleprompter.js',
   '/static/js/audio_recorder.js',
   '/static/img/screen.png',
-  '/static/img/logo.png'
+  '/static/img/logo.png',
+  '/static/img/hero/villa_exterior.jpg',
+  '/static/img/hero/villa_interior.jpg',
+  '/static/img/hero/villa_terrace.jpg'
 ];
 
 self.addEventListener('install', (event) => {

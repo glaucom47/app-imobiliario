@@ -552,15 +552,125 @@ body {
 }
 
 .hero-image-box {
-  height: 164px;
+  height: 180px;
   position: relative;
-  background: #242220;
+  background: #1a1816;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 12px 14px;
   box-sizing: border-box;
+}
+
+/* Carrossel Fotográfico de Alto Luxo */
+.hero-carousel-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.hero-carousel-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s ease-out;
+  transform: scale(1.03);
+  pointer-events: none;
+}
+
+.hero-carousel-slide.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.hero-carousel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Controles de Navegação Glassmorphism */
+.hero-carousel-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, 0.42);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+  opacity: 0.85;
+  padding: 0;
+}
+
+.hero-carousel-nav:hover,
+.hero-carousel-nav:active {
+  background: rgba(17, 17, 17, 0.8);
+  border-color: rgba(255, 255, 255, 0.7);
+  opacity: 1;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.hero-carousel-prev {
+  left: 8px;
+}
+
+.hero-carousel-next {
+  right: 8px;
+}
+
+/* Dots Indicadores em Pílula Translúcida */
+.hero-carousel-dots {
+  position: absolute;
+  bottom: 58px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 5;
+  background: rgba(17, 17, 17, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 3px 7px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hero-carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.hero-carousel-dot.active {
+  background: #eedcc6;
+  width: 14px;
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(238, 220, 198, 0.7);
 }
 
 .hero-svg-bg {
@@ -573,13 +683,14 @@ body {
 .hero-gradient-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(17, 17, 17, 0.05) 0%, rgba(17, 17, 17, 0.82) 100%);
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.45) 0%, rgba(17, 17, 17, 0.12) 35%, rgba(17, 17, 17, 0.88) 100%);
   pointer-events: none;
+  z-index: 2;
 }
 
 .hero-top-row {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -612,7 +723,7 @@ body {
 
 .hero-bottom-info {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   color: #ffffff;
 }
 

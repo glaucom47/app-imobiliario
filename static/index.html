@@ -75,23 +75,33 @@
       <!-- Seletor do Imóvel Ativo (Obrigatório em Visitas) com Calor Arquitetural -->
       <section class="hero-property-card" id="property-selector-card" style="cursor: pointer; margin-bottom: var(--spacing-margin);">
         <div class="hero-image-box" id="hero-image-area">
-          <!-- SVG Arquitetônico de Penthouse Contemporânea ao Pôr do Sol (Golden Hour) -->
-          <svg class="hero-svg-bg" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="warmSunsetApp" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#C5A880"/>
-                <stop offset="45%" stop-color="#DFCAAC"/>
-                <stop offset="100%" stop-color="#F2E6D5"/>
-              </linearGradient>
-            </defs>
-            <rect width="400" height="200" fill="url(#warmSunsetApp)"/>
-            <path d="M0 130 L20 125 L40 132 L70 120 L100 128 L140 115 L180 124 L220 118 L260 124 L300 112 L340 122 L380 119 L400 125 L400 200 L0 200 Z" fill="#9C876D" opacity="0.4"/>
-            <polygon points="30,200 30,70 260,35 370,55 370,200" fill="#242220"/>
-            <polygon points="50,85 160,65 160,170 50,170" fill="#EBD9C2" opacity="0.55"/>
-            <polygon points="175,62 340,78 340,170 175,170" fill="#DFCAAC" opacity="0.65"/>
-            <rect x="0" y="165" width="400" height="35" fill="#1A1816"/>
-            <rect x="200" y="172" width="180" height="20" rx="3" fill="#3D5A80" opacity="0.75"/>
-          </svg>
+          <!-- Carrossel de Fotos Arquiteturais de Alto Luxo -->
+          <div class="hero-carousel-container" id="hero-carousel" aria-label="Galeria do Imóvel em Destaque">
+            <div class="hero-carousel-slide active" data-index="0">
+              <img src="/static/img/hero/villa_exterior.jpg" alt="Villa Contemporânea em Cascais - Fachada e Piscina" class="hero-carousel-img" loading="eager" />
+            </div>
+            <div class="hero-carousel-slide" data-index="1">
+              <img src="/static/img/hero/villa_interior.jpg" alt="Villa Contemporânea em Cascais - Sala com Vista Mar" class="hero-carousel-img" loading="lazy" />
+            </div>
+            <div class="hero-carousel-slide" data-index="2">
+              <img src="/static/img/hero/villa_terrace.jpg" alt="Villa Contemporânea em Cascais - Terraço Panorâmico com Piscina Infinita" class="hero-carousel-img" loading="lazy" />
+            </div>
+
+            <!-- Controles Sutis de Navegação Glassmorphism -->
+            <button type="button" class="hero-carousel-nav hero-carousel-prev" id="hero-prev-btn" aria-label="Foto anterior" title="Foto anterior">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button type="button" class="hero-carousel-nav hero-carousel-next" id="hero-next-btn" aria-label="Próxima foto" title="Próxima foto">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+
+            <!-- Indicadores (Dots) Elegantes -->
+            <div class="hero-carousel-dots" id="hero-carousel-dots" role="tablist">
+              <button type="button" class="hero-carousel-dot active" data-slide="0" aria-label="Foto 1"></button>
+              <button type="button" class="hero-carousel-dot" data-slide="1" aria-label="Foto 2"></button>
+              <button type="button" class="hero-carousel-dot" data-slide="2" aria-label="Foto 3"></button>
+            </div>
+          </div>
 
           <div class="hero-gradient-overlay"></div>
 

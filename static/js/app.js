@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 1. Registro de Service Worker para suporte offline
   if ('serviceWorker' in navigator) {
     const registerSW = () => {
-      navigator.serviceWorker.register('/static/sw.js')
+      navigator.serviceWorker.register('/static/sw.js?v=10')
         .then((registration) => {
           console.log('[PWA] Service Worker registrado:', registration.scope);
           if (registration.update) registration.update();

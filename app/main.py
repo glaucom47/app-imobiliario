@@ -93,7 +93,10 @@ async def serve_pwa_shell():
     """Serve a casca principal da aplicação PWA móvel para consultores."""
     index_path = os.path.join(settings.STATIC_DIR, "index.html")
     if os.path.exists(index_path):
-        return FileResponse(index_path)
+        return FileResponse(
+            index_path,
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={"detail": "PWA shell não encontrado."}
@@ -105,7 +108,10 @@ async def serve_backoffice_shell():
     """Serve o painel web de gestão da agência para diretores e brokers."""
     backoffice_path = os.path.join(settings.STATIC_DIR, "backoffice.html")
     if os.path.exists(backoffice_path):
-        return FileResponse(backoffice_path)
+        return FileResponse(
+            backoffice_path,
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={"detail": "Backoffice shell não encontrado."}

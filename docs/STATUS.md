@@ -1,11 +1,18 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 04/10/2026 - 19:05
-* **Fase Atual:** Evolução Contínua - Visão e Gestão de Metas e KPIs Individuais pelo Consultor (PWA Móvel e API REST)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend) de visualização, cálculo do que falta e atualização de metas pelo próprio consultor:
-  1. **Endpoints REST do Consultor (`GET /api/v1/commercial/my-goals` e `PUT /api/v1/commercial/my-goals`):** Acessíveis a consultores autenticados com isolamento estrito horizontal e multi-tenant (injeção de `current_user.id` e `current_user.agencia_id`), permitindo leitura e atualização de metas de faturação, visitas, angariações, contactos, reuniões, propostas, CPCVs e escrituras com cálculo dinâmico do que falta atingir (`falta = max(0, meta - realizado)`);
-  2. **PWA do Consultor (`static/index.html` e `static/js/app.js`):** Botão de ação direta na tela principal com badge de cumprimento, drawer deslizante `#drawer-my-goals` com hero card de faturação, destaque "O que falta para atingir a meta: X €", semáforo de trajetória pessoal (🟢🟡🔴), grid de atividades operacionais e modal de ajuste de metas `#modal-edit-my-goals`;
-  3. **Suíte de Testes Automatizados:** Suíte com **150 testes automatizados e 100% de aprovação (`pytest -v`)**. Service Worker mantido em `fecho-static-v18`.
+* **Última Atualização:** 04/10/2026 - 19:15
+* **Fase Atual:** Evolução Contínua - Meta Global da Loja, Desdobramento Orientado Top-Down e Metas Projetadas vs Atingidas
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend) da arquitetura de metas globais e individuais:
+  1. **Meta Global da Loja & Desdobramento Top-Down (`StoreGoal` e Migração Alembic `c119662148b6`):** Tabela persistente com isolamento multi-tenant por agência, permitindo ao Diretor definir o teto orçamentário mensal da loja, acompanhando em tempo real quanto já foi distribuído à equipa e o saldo livre a desdobrar;
+  2. **Diferenciação Rigorosa de Métricas:**
+     - *Meta Projetada:* Planeamento financeiro atribuído (Loja e Consultor);
+     - *Faturação Atingida:* Comissões efetivamente concretizadas em escrituras celebradas;
+     - *Gap Faltante:* Défice para bater a meta (`max(0, meta - atingido)`);
+     - *Forecast / Projeção Estimada:* Faturação atingida somada ao pipeline ponderado de negócios abertos;
+     - *Peso na Loja (%):* Participação relativa da meta do consultor em relação à meta global da agência;
+  3. **Reatividade Instantânea no Backoffice (`static/backoffice.html`):** Faixa executiva de desdobramento da loja, tabela de 11 colunas na Equipa Comercial e sincronização em tempo real das abas de Direção Comercial e Equipa ao gravar metas no modal sem necessidade de refresh manual (F5);
+  4. **PWA do Consultor (`static/index.html` e `static/js/app.js`):** Visualização e edição de metas próprias do consultor com cálculo em tempo real do gap faltante;
+  5. **Suíte de Testes Automatizados:** Suíte com **152 testes automatizados e 100% de aprovação (`pytest -v`)**. Service Worker elevado para `fecho-static-v19`.
 
 ---
 

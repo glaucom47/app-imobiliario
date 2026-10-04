@@ -1,12 +1,11 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 04/10/2026 - 17:15
-* **Fase Atual:** Evolução Contínua - Estatísticas Individuais e de Equipa (Direção Comercial, Equipa Comercial e Painel de Assiduidade)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend) de estatísticas e métricas comparativas individuais e de equipa em todas as áreas-chave do Backoffice:
-  1. **Direção Comercial (`#tab-commercial`):** Seletor de escopo duplo ("🏢 Toda a Loja / Equipa" vs "👤 Consultor Individual"), Faixa Executiva com Raio-X da Equipa (consultores ativos, média de faturação, top performer do mês, carteira global e contagem de semáforos 🟢🟡🔴), Banner de Foco Individual para o consultor selecionado com botões de ação rápida (Ficha 4 Blocos, Reunião 1-on-1, Metas), além do recálculo dinâmico dos 4 cartões de KPIs e do Funil de Vendas de 7 etapas para o escopo escolhido;
-  2. **Equipa Comercial (`#tab-team`):** Faixa de 4 KPIs estratégicos da equipa (Total de Consultores Ativos/Inativos, Faturação Total e Média por Consultor, Meta Global e Cumprimento Médio %, Carteira de Imóveis e Média por Consultor), e Tabela Enriquecida de 8 colunas exibindo métricas individuais em tempo real (Imóveis Ativos, Faturação vs Meta Mês, % Cumprimento, Visitas Realizadas, Semáforo de Trajetória, Estado e Ações de Gestão direta como Ficha e Reunião);
-  3. **Painel & Assiduidade (`#tab-kpis`):** Filtro de escopo por consultor ("🏢 Toda a Equipa" vs "Consultor") com atualização reativa dos 4 indicadores de assiduidade e notas por voz (total de visitas, taxa de adesão ao feedback, taxa de prestação de contas ao proprietário e interesse médio).
-A suíte automatizada conta com **145 testes com 100% de aprovação**. Service Worker atualizado para `fecho-static-v18`.
+* **Última Atualização:** 04/10/2026 - 19:05
+* **Fase Atual:** Evolução Contínua - Visão e Gestão de Metas e KPIs Individuais pelo Consultor (PWA Móvel e API REST)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend) de visualização, cálculo do que falta e atualização de metas pelo próprio consultor:
+  1. **Endpoints REST do Consultor (`GET /api/v1/commercial/my-goals` e `PUT /api/v1/commercial/my-goals`):** Acessíveis a consultores autenticados com isolamento estrito horizontal e multi-tenant (injeção de `current_user.id` e `current_user.agencia_id`), permitindo leitura e atualização de metas de faturação, visitas, angariações, contactos, reuniões, propostas, CPCVs e escrituras com cálculo dinâmico do que falta atingir (`falta = max(0, meta - realizado)`);
+  2. **PWA do Consultor (`static/index.html` e `static/js/app.js`):** Botão de ação direta na tela principal com badge de cumprimento, drawer deslizante `#drawer-my-goals` com hero card de faturação, destaque "O que falta para atingir a meta: X €", semáforo de trajetória pessoal (🟢🟡🔴), grid de atividades operacionais e modal de ajuste de metas `#modal-edit-my-goals`;
+  3. **Suíte de Testes Automatizados:** Suíte com **150 testes automatizados e 100% de aprovação (`pytest -v`)**. Service Worker mantido em `fecho-static-v18`.
 
 ---
 

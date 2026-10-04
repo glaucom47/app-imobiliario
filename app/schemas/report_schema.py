@@ -172,6 +172,10 @@ class ConsultorResponse(BaseModel):
     faturacao_mes: Optional[float] = Field(None, description="Faturação do consultor no mês corrente em euros")
     meta_mes: Optional[float] = Field(None, description="Meta mensal de faturação em euros")
     percentual_meta: Optional[float] = Field(None, description="Percentual de cumprimento da meta no mês")
+    meta_projetada: Optional[float] = Field(None, description="Meta mensal projetada do consultor em euros")
+    faturacao_atingida: Optional[float] = Field(None, description="Faturação atingida pelo consultor em euros")
+    gap_faltante: Optional[float] = Field(None, description="Saldo em falta para bater a meta do consultor")
+    peso_na_loja_pct: Optional[float] = Field(None, description="Peso da meta do consultor na meta global da loja")
     total_visitas_mes: Optional[int] = Field(None, description="Visitas realizadas pelo consultor no mês")
     trajetoria: Optional[str] = Field(None, description="Classificação de semáforo ('NoRitmo', 'Atencao', 'Critico')")
 

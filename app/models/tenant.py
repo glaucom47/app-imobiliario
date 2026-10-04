@@ -34,6 +34,7 @@ class Tenant(Base):
     settings = relationship("Settings", back_populates="tenant", uselist=False, cascade="all, delete-orphan")
     logs = relationship("Log", back_populates="tenant", cascade="all, delete-orphan")
     goals = relationship("Goal", back_populates="tenant", cascade="all, delete-orphan")
+    store_goals = relationship("StoreGoal", back_populates="tenant", cascade="all, delete-orphan")
     pipeline_deals = relationship("PipelineDeal", back_populates="tenant", cascade="all, delete-orphan")
     weekly_meetings = relationship("WeeklyMeeting", back_populates="tenant", cascade="all, delete-orphan")
 

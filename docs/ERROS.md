@@ -19,6 +19,14 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 
 ## Registros Históricos
 
+### 2026-10-04 - NameError 'ConsultoresPerformanceResponse' por omissão acidental em importações do serviço comercial
+
+- **Sintoma:** Ao executar `pytest -v`, 3 testes falharam com `NameError: name 'ConsultoresPerformanceResponse' is not defined` em `app/services/commercial_service.py:669`.
+- **Causa:** Ao adicionar novos schemas para o módulo de metas individuais do consultor (`ConsultorGoalItem`, `ConsultorGoalsProgressResponse`, `ConsultorGoalUpdateRequest`), a classe existente `ConsultoresPerformanceResponse` foi acidentalmente removida do bloco de importação de `app.schemas.commercial_schema`.
+- **Solução aplicada:** O símbolo `ConsultoresPerformanceResponse` foi reintegrado ao bloco de importação em `app/services/commercial_service.py`, normalizando todos os 150 testes automatizados da aplicação.
+- **Como evitar no futuro:** Sempre inspecionar diffs de blocos de importações com ferramentas como `git diff` antes de disparar suites de testes abrangentes.
+
+
 ### 2026-09-28 - Falha no hook de telemetria pré-tool impedindo execução de ferramentas no Windows
 
 - **Sintoma:** Ao tentar ler arquivos ou executar comandos, ocorria o erro:

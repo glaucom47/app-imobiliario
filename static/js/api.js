@@ -655,6 +655,17 @@ const Api = {
     });
   },
 
+  async getStoreGoal(ano, mes) {
+    return await this.request(`/backoffice/store-goals?ano=${encodeURIComponent(ano)}&mes=${encodeURIComponent(mes)}`);
+  },
+
+  async setStoreGoal(storeGoalData) {
+    return await this.request('/backoffice/store-goals', {
+      method: 'POST',
+      body: JSON.stringify(storeGoalData),
+    });
+  },
+
   async getPipelineDeals(consultorId = null, fase = null, ativoApenas = true) {
     const params = new URLSearchParams();
     if (consultorId) params.append('consultor_id', consultorId);
@@ -681,6 +692,27 @@ const Api = {
   async deletePipelineDeal(dealId) {
     return await this.request(`/backoffice/pipeline/${dealId}`, {
       method: 'DELETE',
+    });
+  },
+
+  /**
+   * Obtém as metas individuais e o progresso de KPIs do consultor autenticado.
+   */
+  async getMyGoals(ano = null, mes = null) {
+    const params = new URLSearchParams();
+    if (ano) params.append('ano', ano);
+    if (mes) params.append('mes', mes);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return await this.request(`/commercial/my-goals${qs}`);
+  },
+
+  /**
+   * Atualiza as próprias metas mensais do consultor autenticado.
+   */
+  async updateMyGoals(goalData) {
+    return await this.request('/commercial/my-goals', {
+      method: 'PUT',
+      body: JSON.stringify(goalData),
     });
   },
 

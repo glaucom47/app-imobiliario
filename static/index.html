@@ -219,6 +219,15 @@
           </div>
           <span style="font-size: 11px; color: #78603e; font-weight: 600;">09:00</span>
         </button>
+        <button class="btn-secondary-ghost" id="btn-open-my-goals" type="button" style="border-style: solid; border-color: rgba(114, 91, 56, 0.5); display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: rgba(254, 222, 178, 0.12);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="luxury-gold-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </span>
+            <span>As Minhas Metas & KPIs</span>
+          </div>
+          <span id="home-my-goals-badge" style="font-size: 11px; color: var(--color-secondary); font-weight: 700; background: var(--color-secondary-container); padding: 2px 8px; border-radius: 4px;">🎯 Metas</span>
+        </button>
       </section>
     </main>
 
@@ -1833,6 +1842,199 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       DRAWER: AS MINHAS METAS & KPIS COMERCIAIS
+       =================================================================== -->
+  <div class="fecho-modal-overlay" id="drawer-my-goals">
+    <div class="fecho-drawer-sheet" style="max-height: 94vh;">
+      <div class="drawer-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h3 style="font-size: 16px; font-weight: 700;">As Minhas Metas & KPIs</h3>
+            <span class="status-pill status-pill-notarized" style="font-size: 10px;" id="my-goals-period-label">Este Mês</span>
+          </div>
+          <span style="font-size: 12px; color: var(--color-outline);" id="my-goals-subtitle">Acompanhamento de objetivos, faturação e ritmo de fecho</span>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="drawer-close-btn" id="btn-close-my-goals" type="button" aria-label="Fechar">✕</button>
+        </div>
+      </div>
+
+      <div class="drawer-body" style="padding-bottom: 32px;">
+        <!-- Barra de Seleção de Mês e Botão de Ajuste -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin); flex-wrap: wrap; gap: 10px; background: var(--color-surface); padding: 10px 14px; border-radius: var(--radius-md); border: var(--border-hairline);">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <label for="select-my-goals-mes" class="label-caps" style="color: var(--color-outline); font-size: 11px;">Mês:</label>
+            <select id="select-my-goals-mes" class="fecho-input" style="height: 36px; width: auto; font-size: 13px; padding: 0 10px;">
+              <option value="1">Janeiro</option>
+              <option value="2">Fevereiro</option>
+              <option value="3">Março</option>
+              <option value="4">Abril</option>
+              <option value="5">Maio</option>
+              <option value="6">Junho</option>
+              <option value="7">Julho</option>
+              <option value="8">Agosto</option>
+              <option value="9">Setembro</option>
+              <option value="10">Outubro</option>
+              <option value="11">Novembro</option>
+              <option value="12">Dezembro</option>
+            </select>
+            <select id="select-my-goals-ano" class="fecho-input" style="height: 36px; width: auto; font-size: 13px; padding: 0 10px;">
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+              <option value="2027">2027</option>
+            </select>
+            <button type="button" class="btn-card-action" id="btn-refresh-my-goals" style="height: 36px; padding: 0 10px; font-size: 12px; background: var(--color-surface-dim); color: var(--color-primary); border-radius: var(--radius-sm);" title="Recarregar">
+              ↻
+            </button>
+          </div>
+
+          <button type="button" class="btn-card-action btn-card-primary" id="btn-open-edit-my-goals" style="font-size: 12px; padding: 7px 14px; display: inline-flex; align-items: center; gap: 6px;">
+            <span>✏️</span> Ajustar Metas
+          </button>
+        </div>
+
+        <!-- Card Hero de Faturação da Carteira (Destaque Principal) -->
+        <section class="card-tier1" style="background: linear-gradient(135deg, rgba(254, 222, 178, 0.25) 0%, rgba(255, 255, 255, 0.95) 100%); border: 1px solid rgba(114, 91, 56, 0.3); margin-bottom: var(--spacing-margin);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary);">Faturação Pessoal (Comissões)</span>
+              <div class="financial-display" style="margin-top: 4px; font-size: 26px;" id="my-goals-faturacao-realizada">0,00 €</div>
+            </div>
+            <div style="text-align: right;">
+              <span id="my-goals-semaforo-badge" class="status-pill status-pill-notarized" style="font-size: 11px;">🟢 No Ritmo</span>
+              <div style="font-size: 11px; color: var(--color-outline); margin-top: 4px;" id="my-goals-dias-restantes">-- dias restantes</div>
+            </div>
+          </div>
+
+          <!-- Barra de Progresso Dourada -->
+          <div style="margin-top: 12px;">
+            <div style="height: 8px; width: 100%; background: var(--color-surface-dim); border-radius: 4px; overflow: hidden;">
+              <div id="my-goals-faturacao-bar" style="height: 100%; width: 0%; background: var(--color-secondary); transition: width 0.4s ease;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px;">
+              <span style="color: var(--color-outline);">Meta: <strong id="my-goals-faturacao-meta" style="color: var(--color-primary);">0,00 €</strong></span>
+              <span id="my-goals-faturacao-pct" style="font-weight: 700; color: var(--color-primary);">0%</span>
+            </div>
+          </div>
+
+          <!-- Box Destacada do que Falta Faturar -->
+          <div style="margin-top: 14px; padding: 10px 14px; background: rgba(255, 255, 255, 0.85); border-radius: var(--radius-sm); border-left: 3px solid var(--color-secondary); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 12px; color: var(--color-outline);">O que falta para atingir a meta:</span>
+            <strong id="my-goals-falta-faturar" style="font-size: 14px; color: var(--color-secondary);">0,00 €</strong>
+          </div>
+
+          <!-- Justificação da Trajetória / Diagnóstico -->
+          <p id="my-goals-justificacao-trajetoria" style="font-size: 12px; color: var(--color-outline); margin-top: 10px; line-height: 1.4;">
+            A carregar diagnóstico de ritmo comercial...
+          </p>
+        </section>
+
+        <!-- Resumo de Pipeline Ponderado e Negócios em Curso -->
+        <section style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: var(--spacing-margin);">
+          <div class="card-tier1" style="margin-bottom: 0; padding: 12px 14px;">
+            <span class="label-caps" style="color: var(--color-outline); font-size: 10px;">Pipeline Ativo</span>
+            <div style="font-size: 17px; font-weight: 700; margin-top: 4px; color: var(--color-primary);" id="my-goals-pipeline-ativo">0,00 €</div>
+            <span style="font-size: 11px; color: var(--color-outline);">Comissões potenciais</span>
+          </div>
+          <div class="card-tier1" style="margin-bottom: 0; padding: 12px 14px;">
+            <span class="label-caps" style="color: var(--color-secondary); font-size: 10px;">Pipeline Ponderado</span>
+            <div style="font-size: 17px; font-weight: 700; margin-top: 4px; color: var(--color-secondary);" id="my-goals-pipeline-ponderado">0,00 €</div>
+            <span style="font-size: 11px; color: var(--color-outline);">Ajustado pela probabilidade</span>
+          </div>
+        </section>
+
+        <!-- Título da Seção de Indicadores -->
+        <div style="margin-bottom: 10px;">
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--color-primary);">Atividades & Objetivos Operacionais</h4>
+          <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;">Progresso de cada marco de trabalho em campo e saldo restante</p>
+        </div>
+
+        <!-- Grid de Cartões de Indicadores (Visitas, Angariações, Contactos, etc.) -->
+        <div id="my-goals-indicators-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px;">
+          <!-- Preenchido dinamicamente via JS -->
+          <p style="text-align: center; color: var(--color-outline); font-size: 12px; padding: 24px 0; grid-column: 1 / -1;">A carregar metas operacionais...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edição das Minhas Metas -->
+  <div class="fecho-modal-overlay" id="modal-edit-my-goals">
+    <div class="fecho-drawer-sheet" style="max-height: 90vh;">
+      <div class="drawer-header">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 700;">Definir as Minhas Metas</h3>
+          <span style="font-size: 12px; color: var(--color-outline);" id="edit-my-goals-modal-period-title">Definição para o mês selecionado</span>
+        </div>
+        <button class="drawer-close-btn" id="btn-close-edit-my-goals" type="button" aria-label="Fechar">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <form id="form-edit-my-goals">
+          <div class="fecho-form-group">
+            <label class="fecho-label" for="edit-goal-faturacao">Meta de Faturação Mensal (€) *</label>
+            <input type="number" id="edit-goal-faturacao" class="fecho-input" placeholder="10000" min="0" step="any" required>
+            <span style="font-size: 11px; color: var(--color-outline); margin-top: 2px; display: block;">Valor estimado de comissões líquidas da sua carteira no mês</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="edit-goal-visitas">Meta de Visitas *</label>
+              <input type="number" id="edit-goal-visitas" class="fecho-input" placeholder="15" min="0" required>
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="edit-goal-angariacoes">Meta de Angariações *</label>
+              <input type="number" id="edit-goal-angariacoes" class="fecho-input" placeholder="3" min="0" required>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="edit-goal-exclusivos">Angariações em Exclusivo</label>
+              <input type="number" id="edit-goal-exclusivos" class="fecho-input" placeholder="2" min="0">
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="edit-goal-contactos">Contactos de Prospeção</label>
+              <input type="number" id="edit-goal-contactos" class="fecho-input" placeholder="30" min="0">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="edit-goal-reunioes">Reuniões Comerciais</label>
+              <input type="number" id="edit-goal-reunioes" class="fecho-input" placeholder="10" min="0">
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="edit-goal-propostas">Propostas Apresentadas</label>
+              <input type="number" id="edit-goal-propostas" class="fecho-input" placeholder="4" min="0">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="edit-goal-cpcv">CPCVs Celebrados</label>
+              <input type="number" id="edit-goal-cpcv" class="fecho-input" placeholder="2" min="0">
+            </div>
+            <div class="fecho-form-group">
+              <label class="fecho-label" for="edit-goal-escrituras">Escrituras Finais</label>
+              <input type="number" id="edit-goal-escrituras" class="fecho-input" placeholder="1" min="0">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button type="button" class="btn-card-action" id="btn-cancel-edit-my-goals" style="flex: 1; height: 44px; background: var(--color-surface-dim); color: var(--color-primary); font-weight: 600;">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary-action" id="btn-submit-edit-my-goals" style="flex: 1.5; height: 44px; font-size: 13px;">
+              Guardar Metas
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

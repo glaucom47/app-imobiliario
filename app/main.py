@@ -72,6 +72,7 @@ app.include_router(scripts_controller.router, prefix=settings.API_V1_STR)
 app.include_router(contacts_controller.router, prefix=settings.API_V1_STR)
 app.include_router(backoffice_controller.router, prefix=settings.API_V1_STR)
 app.include_router(commercial_controller.router, prefix=settings.API_V1_STR)
+app.include_router(commercial_controller.consultor_router, prefix=settings.API_V1_STR)
 app.include_router(leads_controller.router, prefix=settings.API_V1_STR)
 
 # Montagem dos arquivos estáticos do frontend/PWA

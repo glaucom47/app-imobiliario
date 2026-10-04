@@ -260,6 +260,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Carrega o imóvel em foco ou inicializa carteira
       initPortfolioContext();
       checkMorningAnniversaries();
+      if (typeof carregarMinhasMetas === 'function') {
+        carregarMinhasMetas(true);
+      }
     } else {
       if (userBadge) {
         userBadge.textContent = 'Não autenticado';
@@ -268,6 +271,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (btnLogout) btnLogout.style.display = 'none';
       if (authModal) authModal.style.display = 'flex';
       renderFocusProperty(null);
+
+      const homeBadge = document.getElementById('home-my-goals-badge');
+      if (homeBadge) {
+        homeBadge.textContent = '🎯 Metas';
+        homeBadge.style.background = 'var(--color-secondary-container)';
+        homeBadge.style.color = 'var(--color-secondary)';
+      }
     }
   }
 
@@ -2989,7 +2999,306 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 13. Ouvintes de Eventos Globais de Sessão e Imóveis
+  // =====================================================================
+  // 13. MÓDULO DE METAS & KPIS INDIVIDUAIS DO CONSULTOR
+  // =====================================================================
+  const drawerMyGoals = document.getElementById('drawer-my-goals');
+  const btnOpenMyGoals = document.getElementById('btn-open-my-goals');
+  const btnCloseMyGoals = document.getElementById('btn-close-my-goals');
+  const btnRefreshMyGoals = document.getElementById('btn-refresh-my-goals');
+  const selectMyGoalsMes = document.getElementById('select-my-goals-mes');
+  const selectMyGoalsAno = document.getElementById('select-my-goals-ano');
+  const homeMyGoalsBadge = document.getElementById('home-my-goals-badge');
+
+  const myGoalsFaturacaoRealizada = document.getElementById('my-goals-faturacao-realizada');
+  const myGoalsFaturacaoMeta = document.getElementById('my-goals-faturacao-meta');
+  const myGoalsFaturacaoPct = document.getElementById('my-goals-faturacao-pct');
+  const myGoalsFaturacaoBar = document.getElementById('my-goals-faturacao-bar');
+  const myGoalsFaltaFaturar = document.getElementById('my-goals-falta-faturar');
+  const myGoalsSemaforoBadge = document.getElementById('my-goals-semaforo-badge');
+  const myGoalsDiasRestantes = document.getElementById('my-goals-dias-restantes');
+  const myGoalsJustificacaoTrajetoria = document.getElementById('my-goals-justificacao-trajetoria');
+  const myGoalsPipelineAtivo = document.getElementById('my-goals-pipeline-ativo');
+  const myGoalsPipelinePonderado = document.getElementById('my-goals-pipeline-ponderado');
+  const myGoalsIndicatorsGrid = document.getElementById('my-goals-indicators-grid');
+  const myGoalsPeriodLabel = document.getElementById('my-goals-period-label');
+
+  // Modal de Edição de Metas
+  const modalEditMyGoals = document.getElementById('modal-edit-my-goals');
+  const btnOpenEditMyGoals = document.getElementById('btn-open-edit-my-goals');
+  const btnCloseEditMyGoals = document.getElementById('btn-close-edit-my-goals');
+  const btnCancelEditMyGoals = document.getElementById('btn-cancel-edit-my-goals');
+  const formEditMyGoals = document.getElementById('form-edit-my-goals');
+  const editMyGoalsModalPeriodTitle = document.getElementById('edit-my-goals-modal-period-title');
+
+  let currentMyGoalsData = null;
+
+  // Inicializar seletores com o mês e ano correntes
+  const agoraHoje = new Date();
+  if (selectMyGoalsMes) selectMyGoalsMes.value = String(agoraHoje.getMonth() + 1);
+  if (selectMyGoalsAno) selectMyGoalsAno.value = String(agoraHoje.getFullYear());
+
+  const formatarEuro = (valor) => {
+    const num = Number(valor) || 0;
+    return num.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' });
+  };
+
+  async function carregarMinhasMetas(silencioso = false) {
+    if (!Api.isAuthenticated()) return;
+    try {
+      const mes = selectMyGoalsMes ? parseInt(selectMyGoalsMes.value, 10) : (agoraHoje.getMonth() + 1);
+      const ano = selectMyGoalsAno ? parseInt(selectMyGoalsAno.value, 10) : agoraHoje.getFullYear();
+
+      const dados = await Api.getMyGoals(ano, mes);
+      currentMyGoalsData = dados;
+
+      // 1. Atualizar Badge da Home
+      if (homeMyGoalsBadge) {
+        homeMyGoalsBadge.textContent = `${dados.percentual_faturacao}% Atingido`;
+        if (dados.semaforo_trajetoria === 'verde') {
+          homeMyGoalsBadge.style.background = '#dcfce7';
+          homeMyGoalsBadge.style.color = '#15803d';
+        } else if (dados.semaforo_trajetoria === 'amarelo') {
+          homeMyGoalsBadge.style.background = '#fef9c3';
+          homeMyGoalsBadge.style.color = '#a16207';
+        } else {
+          homeMyGoalsBadge.style.background = '#fee2e2';
+          homeMyGoalsBadge.style.color = '#b91c1c';
+        }
+      }
+
+      // Se a gaveta estiver fechada e for carregamento silencioso de inicialização, paramos aqui
+      if (silencioso && (!drawerMyGoals || drawerMyGoals.style.display !== 'flex')) {
+        return;
+      }
+
+      // 2. Atualizar Card Hero de Faturação
+      if (myGoalsPeriodLabel) {
+        const nomesMeses = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        myGoalsPeriodLabel.textContent = `${nomesMeses[dados.mes]} ${dados.ano}`;
+      }
+
+      if (myGoalsFaturacaoRealizada) myGoalsFaturacaoRealizada.textContent = formatarEuro(dados.faturacao_realizada);
+      if (myGoalsFaturacaoMeta) myGoalsFaturacaoMeta.textContent = formatarEuro(dados.meta_faturacao);
+      if (myGoalsFaturacaoPct) myGoalsFaturacaoPct.textContent = `${dados.percentual_faturacao}%`;
+      if (myGoalsFaturacaoBar) {
+        myGoalsFaturacaoBar.style.width = `${Math.min(dados.percentual_faturacao, 100)}%`;
+      }
+      if (myGoalsFaltaFaturar) {
+        const faltaNum = Number(dados.falta_faturar) || 0;
+        if (faltaNum <= 0) {
+          myGoalsFaltaFaturar.textContent = '🎉 Meta Atingida!';
+          myGoalsFaltaFaturar.style.color = '#16a34a';
+        } else {
+          myGoalsFaltaFaturar.textContent = formatarEuro(faltaNum);
+          myGoalsFaltaFaturar.style.color = 'var(--color-secondary)';
+        }
+      }
+
+      if (myGoalsDiasRestantes) {
+        myGoalsDiasRestantes.textContent = `${dados.dias_restantes_mes} dias restantes`;
+      }
+
+      if (myGoalsSemaforoBadge) {
+        if (dados.semaforo_trajetoria === 'verde') {
+          myGoalsSemaforoBadge.className = 'status-pill status-pill-notarized';
+          myGoalsSemaforoBadge.innerHTML = '🟢 No Ritmo';
+        } else if (dados.semaforo_trajetoria === 'amarelo') {
+          myGoalsSemaforoBadge.className = 'status-pill status-pill-reserved';
+          myGoalsSemaforoBadge.innerHTML = '🟡 Atenção';
+        } else {
+          myGoalsSemaforoBadge.className = 'status-pill status-pill-active';
+          myGoalsSemaforoBadge.innerHTML = '🔴 Crítico';
+        }
+      }
+
+      if (myGoalsJustificacaoTrajetoria) {
+        myGoalsJustificacaoTrajetoria.textContent = dados.justificacao_trajetoria;
+      }
+
+      // 3. Pipeline
+      if (myGoalsPipelineAtivo) myGoalsPipelineAtivo.textContent = formatarEuro(dados.pipeline_ativo);
+      if (myGoalsPipelinePonderado) myGoalsPipelinePonderado.textContent = formatarEuro(dados.pipeline_ponderado);
+
+      // 4. Grid de Indicadores Operacionais
+      if (myGoalsIndicatorsGrid) {
+        if (!dados.indicadores || dados.indicadores.length === 0) {
+          myGoalsIndicatorsGrid.innerHTML = '<p style="text-align: center; color: var(--color-outline); font-size: 12px; grid-column: 1 / -1; padding: 16px;">Sem indicadores para este período.</p>';
+          return;
+        }
+
+        const cardsHtml = dados.indicadores.map(ind => {
+          const isAtingido = ind.atingido;
+          const faltaTexto = isAtingido
+            ? '<span style="color: #16a34a; font-weight: 700;">Meta Atingida! 🎉</span>'
+            : `<span style="color: var(--color-outline);">Falta: <strong style="color: var(--color-primary);">${ind.chave === 'faturacao' ? formatarEuro(ind.falta) : ind.falta + ' ' + escapeHtml(ind.unidade)}</strong></span>`;
+
+          const barraCor = isAtingido ? '#16a34a' : 'var(--color-secondary)';
+          const valorReal = ind.chave === 'faturacao' ? formatarEuro(ind.realizado) : `${ind.realizado}`;
+          const valorMeta = ind.chave === 'faturacao' ? formatarEuro(ind.meta) : `${ind.meta} ${escapeHtml(ind.unidade)}`;
+
+          return `
+            <div class="card-tier1" style="margin-bottom: 0; padding: 12px; border: var(--border-hairline); display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <span class="label-caps" style="color: var(--color-outline); font-size: 10px; line-height: 1.2;">${escapeHtml(ind.indicador)}</span>
+                  <span style="font-size: 11px; font-weight: 700; color: ${isAtingido ? '#16a34a' : 'var(--color-primary)'};">${ind.percentual}%</span>
+                </div>
+                <div style="font-size: 16px; font-weight: 700; margin-top: 6px; color: var(--color-primary);">
+                  ${valorReal}
+                  <span style="font-size: 11px; font-weight: 400; color: var(--color-outline);"> / ${valorMeta}</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 10px;">
+                <div style="height: 6px; width: 100%; background: var(--color-surface-dim); border-radius: 3px; overflow: hidden;">
+                  <div style="height: 100%; width: ${Math.min(ind.percentual, 100)}%; background: ${barraCor}; transition: width 0.3s ease;"></div>
+                </div>
+                <div style="margin-top: 6px; font-size: 11px; display: flex; justify-content: space-between; align-items: center;">
+                  ${faltaTexto}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        myGoalsIndicatorsGrid.innerHTML = cardsHtml;
+      }
+    } catch (err) {
+      console.warn('[MinhasMetas] Erro ao carregar metas:', err);
+      if (myGoalsIndicatorsGrid) {
+        myGoalsIndicatorsGrid.innerHTML = `<p style="text-align: center; color: var(--color-error); font-size: 12px; grid-column: 1 / -1; padding: 16px;">Erro ao carregar metas: ${escapeHtml(err.message)}</p>`;
+      }
+    }
+  }
+
+  // Abrir e fechar Drawer de Metas
+  if (btnOpenMyGoals) {
+    btnOpenMyGoals.addEventListener('click', () => {
+      if (drawerMyGoals) {
+        openDrawer(drawerMyGoals);
+        carregarMinhasMetas();
+      }
+    });
+  }
+
+  if (btnCloseMyGoals) {
+    btnCloseMyGoals.addEventListener('click', () => {
+      if (drawerMyGoals) closeDrawer(drawerMyGoals);
+    });
+  }
+
+  if (btnRefreshMyGoals) {
+    btnRefreshMyGoals.addEventListener('click', () => {
+      carregarMinhasMetas();
+    });
+  }
+
+  if (selectMyGoalsMes) {
+    selectMyGoalsMes.addEventListener('change', () => {
+      carregarMinhasMetas();
+    });
+  }
+
+  if (selectMyGoalsAno) {
+    selectMyGoalsAno.addEventListener('change', () => {
+      carregarMinhasMetas();
+    });
+  }
+
+  // Abrir Modal de Edição de Metas
+  if (btnOpenEditMyGoals) {
+    btnOpenEditMyGoals.addEventListener('click', () => {
+      const mes = selectMyGoalsMes ? parseInt(selectMyGoalsMes.value, 10) : (agoraHoje.getMonth() + 1);
+      const ano = selectMyGoalsAno ? parseInt(selectMyGoalsAno.value, 10) : agoraHoje.getFullYear();
+      const nomesMeses = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+      if (editMyGoalsModalPeriodTitle) {
+        editMyGoalsModalPeriodTitle.textContent = `Ajustar metas para ${nomesMeses[mes]} de ${ano}`;
+      }
+
+      // Preencher campos com dados atuais se existirem
+      if (currentMyGoalsData) {
+        const indMap = {};
+        (currentMyGoalsData.indicadores || []).forEach(i => { indMap[i.chave] = i.meta; });
+
+        const setVal = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.value = val !== undefined ? val : '';
+        };
+
+        setVal('edit-goal-faturacao', currentMyGoalsData.meta_faturacao || 10000);
+        setVal('edit-goal-visitas', indMap['visitas'] !== undefined ? indMap['visitas'] : 15);
+        setVal('edit-goal-angariacoes', indMap['angariacoes'] !== undefined ? indMap['angariacoes'] : 3);
+        setVal('edit-goal-exclusivos', indMap['exclusivos'] !== undefined ? indMap['exclusivos'] : 2);
+        setVal('edit-goal-contactos', indMap['contactos'] !== undefined ? indMap['contactos'] : 30);
+        setVal('edit-goal-reunioes', indMap['reunioes'] !== undefined ? indMap['reunioes'] : 10);
+        setVal('edit-goal-propostas', indMap['propostas'] !== undefined ? indMap['propostas'] : 4);
+        setVal('edit-goal-cpcv', indMap['cpcv'] !== undefined ? indMap['cpcv'] : 2);
+        setVal('edit-goal-escrituras', indMap['escrituras'] !== undefined ? indMap['escrituras'] : 1);
+      }
+
+      if (modalEditMyGoals) openDrawer(modalEditMyGoals);
+    });
+  }
+
+  const fecharModalEditMetas = () => {
+    if (modalEditMyGoals) closeDrawer(modalEditMyGoals);
+  };
+
+  if (btnCloseEditMyGoals) btnCloseEditMyGoals.addEventListener('click', fecharModalEditMetas);
+  if (btnCancelEditMyGoals) btnCancelEditMyGoals.addEventListener('click', fecharModalEditMetas);
+
+  // Submissão do Formulário de Edição de Metas
+  if (formEditMyGoals) {
+    formEditMyGoals.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const mes = selectMyGoalsMes ? parseInt(selectMyGoalsMes.value, 10) : (agoraHoje.getMonth() + 1);
+      const ano = selectMyGoalsAno ? parseInt(selectMyGoalsAno.value, 10) : agoraHoje.getFullYear();
+
+      const getNum = (id, def = 0) => {
+        const el = document.getElementById(id);
+        const val = el ? parseFloat(el.value) : def;
+        return isNaN(val) ? def : val;
+      };
+
+      const payload = {
+        ano: ano,
+        mes: mes,
+        meta_faturacao: getNum('edit-goal-faturacao', 10000),
+        meta_visitas: Math.round(getNum('edit-goal-visitas', 15)),
+        meta_angariacoes: Math.round(getNum('edit-goal-angariacoes', 3)),
+        meta_exclusivos: Math.round(getNum('edit-goal-exclusivos', 2)),
+        meta_contactos: Math.round(getNum('edit-goal-contactos', 30)),
+        meta_reunioes: Math.round(getNum('edit-goal-reunioes', 10)),
+        meta_propostas: Math.round(getNum('edit-goal-propostas', 4)),
+        meta_cpcv: Math.round(getNum('edit-goal-cpcv', 2)),
+        meta_escrituras: Math.round(getNum('edit-goal-escrituras', 1)),
+      };
+
+      const submitBtn = document.getElementById('btn-submit-edit-my-goals');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'A guardar...';
+      }
+
+      try {
+        await Api.updateMyGoals(payload);
+        fecharModalEditMetas();
+        await carregarMinhasMetas();
+        alert('✓ Metas atualizadas com sucesso!');
+      } catch (err) {
+        alert('Erro ao guardar metas: ' + (err.message || 'Falha de comunicação.'));
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Guardar Metas';
+        }
+      }
+    });
+  }
+
+  // 14. Ouvintes de Eventos Globais de Sessão e Imóveis
   window.addEventListener('fecho:unauthorized', () => {
     updateAuthUI(null);
   });

@@ -60,6 +60,47 @@ class GoalResponse(GoalBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class StoreGoalBase(BaseModel):
+    ano: int = Field(..., ge=2020, le=2050, description="Ano de vigência da meta da loja")
+    mes: int = Field(..., ge=1, le=12, description="Mês de vigência da meta da loja (1 a 12)")
+    meta_faturacao: Decimal = Field(default=Decimal("50000.00"), ge=0, description="Meta global de faturação da loja em euros")
+    meta_angariacoes: int = Field(default=10, ge=0, description="Meta global de novas angariações")
+    meta_visitas: int = Field(default=30, ge=0, description="Meta global de visitas a imóveis")
+    meta_propostas: int = Field(default=10, ge=0, description="Meta global de propostas")
+    meta_cpcv: int = Field(default=5, ge=0, description="Meta global de CPCV")
+    meta_escrituras: int = Field(default=5, ge=0, description="Meta global de escrituras")
+
+
+class StoreGoalCreate(StoreGoalBase):
+    pass
+
+
+class StoreGoalUpdate(BaseModel):
+    meta_faturacao: Optional[Decimal] = Field(None, ge=0)
+    meta_angariacoes: Optional[int] = Field(None, ge=0)
+    meta_visitas: Optional[int] = Field(None, ge=0)
+    meta_propostas: Optional[int] = Field(None, ge=0)
+    meta_cpcv: Optional[int] = Field(None, ge=0)
+    meta_escrituras: Optional[int] = Field(None, ge=0)
+
+
+class StoreGoalResponse(StoreGoalBase):
+    id: int
+    agencia_id: int
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DesdobramentoLojaInfo(BaseModel):
+    meta_global_loja: Decimal = Field(description="Meta global mensal da loja")
+    total_distribuido: Decimal = Field(description="Soma das metas atribuídas aos consultores")
+    saldo_a_distribuir: Decimal = Field(description="Saldo que falta distribuir ou 0 se 100% coberto")
+    percentual_distribuido: float = Field(description="Percentual da meta global já desdobrado na equipa")
+    peso_consultor_pct: Optional[float] = Field(None, description="Peso da meta deste consultor na meta global da loja")
+
+
 # ==========================================
 # 2. Oportunidades do Funil (PipelineDeal)
 # ==========================================
@@ -159,6 +200,13 @@ class CommercialKPIData(BaseModel):
     pipeline_ponderado: Decimal = Field(description="Soma ponderada das comissões (comissão × probabilidade)")
     total_negocios_ativos: int = Field(description="Quantidade total de oportunidades ativas em carteira")
 
+    # Diferenciação explícita entre Meta Projetada vs Faturação Atingida
+    meta_projetada: Decimal = Field(default=Decimal("0.00"), description="Meta financeira projetada para o período")
+    faturacao_atingida: Decimal = Field(default=Decimal("0.00"), description="Faturação efetivamente atingida com escrituras")
+    gap_faltante: Decimal = Field(default=Decimal("0.00"), description="Saldo em falta para bater a meta projetada")
+    projecao_fecho: Decimal = Field(default=Decimal("0.00"), description="Forecast estimado de fecho (atingido + pipeline ponderado)")
+    desdobramento_loja: Optional[DesdobramentoLojaInfo] = Field(None, description="Indicadores do desdobramento da meta global da loja")
+
 
 class CommercialDashboardResponse(BaseModel):
     filtro: str
@@ -204,6 +252,10 @@ class ConsultorPerformanceItem(BaseModel):
     telemovel: Optional[str] = None
     meta_mensal: Decimal
     faturacao_realizada: Decimal
+    meta_projetada: Decimal = Field(default=Decimal("0.00"), description="Meta mensal projetada")
+    faturacao_atingida: Decimal = Field(default=Decimal("0.00"), description="Faturação atingida")
+    gap_faltante: Decimal = Field(default=Decimal("0.00"), description="Saldo em falta para bater a meta")
+    peso_na_loja_pct: float = Field(default=0.0, description="Peso percentual da meta deste consultor na meta global da loja")
     percentual_cumprimento: float
     pipeline_ativo: Decimal
     pipeline_ponderado: Decimal
@@ -393,3 +445,54 @@ class WeeklyMeetingResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ==========================================
+# 9. Visão e Gestão de Metas pelo Consultor
+# ==========================================
+
+class ConsultorGoalItem(BaseModel):
+    indicador: str = Field(description="Nome do indicador (ex: Faturação, Visitas, Angariações)")
+    chave: str = Field(description="Identificador técnico (ex: faturacao, visitas, angariacoes)")
+    unidade: str = Field(default="", description="Unidade de medida (ex: €, un)")
+    meta: float = Field(ge=0.0, description="Valor da meta fixada")
+    realizado: float = Field(ge=0.0, description="Valor realizado até o momento no período")
+    falta: float = Field(ge=0.0, description="Quantidade ou valor restante para atingir a meta")
+    percentual: float = Field(ge=0.0, description="Percentual de cumprimento da meta")
+    atingido: bool = Field(default=False, description="Indica se a meta já foi alcançada ou superada")
+
+
+class ConsultorGoalsProgressResponse(BaseModel):
+    consultor_id: int
+    consultor_nome: str
+    ano: int
+    mes: int
+    meta_faturacao: Decimal
+    faturacao_realizada: Decimal
+    falta_faturar: Decimal
+    percentual_faturacao: float
+    pipeline_ativo: Decimal
+    pipeline_ponderado: Decimal
+    ritmo_esperado_mes: float
+    semaforo_trajetoria: TrajetoriaSemaforo
+    justificacao_trajetoria: str
+    dias_restantes_mes: int
+    indicadores: List[ConsultorGoalItem]
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ConsultorGoalUpdateRequest(BaseModel):
+    ano: int = Field(ge=2020, le=2050, description="Ano da meta")
+    mes: int = Field(ge=1, le=12, description="Mês da meta (1 a 12)")
+    meta_faturacao: Optional[Decimal] = Field(None, ge=0.0, description="Meta de faturação em euros")
+    meta_contactos: Optional[int] = Field(None, ge=0, description="Meta de contactos")
+    meta_reunioes: Optional[int] = Field(None, ge=0, description="Meta de reuniões")
+    meta_angariacoes: Optional[int] = Field(None, ge=0, description="Meta de angariações")
+    meta_exclusivos: Optional[int] = Field(None, ge=0, description="Meta de angariações em exclusivo")
+    meta_visitas: Optional[int] = Field(None, ge=0, description="Meta de visitas realizadas")
+    meta_propostas: Optional[int] = Field(None, ge=0, description="Meta de propostas recebidas/apresentadas")
+    meta_cpcv: Optional[int] = Field(None, ge=0, description="Meta de CPCVs assinados")
+    meta_escrituras: Optional[int] = Field(None, ge=0, description="Meta de escrituras celebradas")
+

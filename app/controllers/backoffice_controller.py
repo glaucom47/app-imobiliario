@@ -41,6 +41,7 @@ from app.schemas.report_schema import (
     TagUpdate,
 )
 from app.services.auth_service import hash_password
+from app.services.commercial_service import CommercialService
 from app.services.export_service import ExportService
 
 router = APIRouter(prefix="/backoffice", tags=["Backoffice Web & Métricas"])
@@ -558,6 +559,10 @@ def list_consultores(
     dias_no_mes = ultimo_dia
     ritmo_esperado = (hoje.day / dias_no_mes) * 100.0
 
+    # Meta global da loja para referência de desdobramento
+    store_goal = CommercialService.get_or_default_store_goal(db, agencia_id, hoje.year, hoje.month)
+    store_meta_fat = float(store_goal.meta_faturacao) if store_goal.meta_faturacao else 50000.0
+
     res: List[ConsultorResponse] = []
     for c in consultores:
         total_ativos = db.query(Property).filter(
@@ -583,6 +588,9 @@ def list_consultores(
         ).all()
         faturacao_mes = sum((float(p.preco) * 0.05 for p in props_vendidos if p.preco), 0.0)
         percentual_meta = round((faturacao_mes / meta_mes) * 100.0, 1) if meta_mes > 0 else 0.0
+
+        gap_faltante = round(max(0.0, meta_mes - faturacao_mes), 2)
+        peso_na_loja = round((meta_mes / store_meta_fat) * 100.0, 1) if store_meta_fat > 0 else 0.0
 
         total_visitas = db.query(Visit).filter(
             Visit.agencia_id == agencia_id,
@@ -621,6 +629,10 @@ def list_consultores(
                 faturacao_mes=round(faturacao_mes, 2),
                 meta_mes=round(meta_mes, 2),
                 percentual_meta=percentual_meta,
+                meta_projetada=round(meta_mes, 2),
+                faturacao_atingida=round(faturacao_mes, 2),
+                gap_faltante=gap_faltante,
+                peso_na_loja_pct=peso_na_loja,
                 total_visitas_mes=total_visitas,
                 trajetoria=trajetoria,
             )

@@ -15,11 +15,13 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from database.connection import get_db
-from app.dependencies import require_diretor
+from app.dependencies import require_consultor, require_diretor
 from app.models.user import User
 from app.schemas.commercial_schema import (
     CommercialDashboardResponse,
     ConsultoresPerformanceResponse,
+    ConsultorGoalsProgressResponse,
+    ConsultorGoalUpdateRequest,
     ConsultorIndividualPerformanceResponse,
     GoalCreate,
     GoalResponse,
@@ -29,12 +31,16 @@ from app.schemas.commercial_schema import (
     PipelineDealResponse,
     PipelineDealUpdate,
     SalesFunnelResponse,
+    StoreGoalCreate,
+    StoreGoalResponse,
     WeeklyMeetingResponse,
 )
 from app.services.commercial_service import CommercialService
 from app.services.meeting_service import MeetingService
 
 router = APIRouter(prefix="/backoffice", tags=["Direção Comercial & Gestão de Equipa"])
+consultor_router = APIRouter(prefix="/commercial", tags=["Metas e KPIs do Consultor"])
+
 
 
 # ==========================================
@@ -249,6 +255,45 @@ def set_goal(
     )
 
 
+@router.get(
+    "/store-goals",
+    response_model=StoreGoalResponse,
+    summary="Obter Meta Global da Loja",
+    description="Retorna a meta global mensal da agência para o ano e mês indicados (ou padrão resiliente de 50.000€).",
+)
+def get_store_goal(
+    ano: int = Query(..., ge=2020, le=2050),
+    mes: int = Query(..., ge=1, le=12),
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    return CommercialService.get_or_default_store_goal(
+        db,
+        agencia_id=current_user.agencia_id,
+        ano=ano,
+        mes=mes,
+    )
+
+
+@router.post(
+    "/store-goals",
+    response_model=StoreGoalResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Definir Meta Global da Loja",
+    description="Regista ou atualiza a meta global mensal da agência orientando o desdobramento da equipa.",
+)
+def set_store_goal(
+    payload: StoreGoalCreate,
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    return CommercialService.set_store_goal(
+        db,
+        agencia_id=current_user.agencia_id,
+        payload=payload,
+    )
+
+
 # ==========================================
 # 7. Gestão de Oportunidades do Pipeline
 # ==========================================
@@ -330,3 +375,57 @@ def delete_pipeline_deal(
         agencia_id=current_user.agencia_id,
         deal_id=deal_id,
     )
+
+
+# ==========================================
+# 8. Metas e KPIs Individuais do Consultor
+# ==========================================
+
+@consultor_router.get(
+    "/my-goals",
+    response_model=ConsultorGoalsProgressResponse,
+    summary="Minhas Metas e Progresso de KPIs",
+    description="Retorna as metas do mês, valores realizados, o saldo que falta atingir e projeção de ritmo do consultor autenticado.",
+)
+def get_my_goals(
+    ano: Optional[int] = Query(None, ge=2020, le=2050, description="Ano de referência"),
+    mes: Optional[int] = Query(None, ge=1, le=12, description="Mês de referência (1-12)"),
+    current_user: User = Depends(require_consultor),
+    db: Session = Depends(get_db),
+):
+    """
+    Retorna as metas, os valores já realizados em campo, o saldo que falta atingir,
+    a barra percentual e o semáforo de trajetória do consultor autenticado.
+    Isolamento multi-tenant estrito: usa sempre current_user.id e current_user.agencia_id.
+    """
+    return CommercialService.get_my_goals_progress(
+        db,
+        agencia_id=current_user.agencia_id,
+        consultor_id=current_user.id,
+        ano=ano,
+        mes=mes,
+    )
+
+
+@consultor_router.put(
+    "/my-goals",
+    response_model=ConsultorGoalsProgressResponse,
+    summary="Atualizar as Minhas Metas Comerciais",
+    description="Permite ao consultor definir ou ajustar as suas próprias metas numéricas para o mês/ano selecionado.",
+)
+def update_my_goals(
+    payload: ConsultorGoalUpdateRequest,
+    current_user: User = Depends(require_consultor),
+    db: Session = Depends(get_db),
+):
+    """
+    Permite ao consultor atualizar os seus próprios objetivos mensais.
+    Garante isolamento de dados: altera exclusivamente as metas do consultor logado.
+    """
+    return CommercialService.update_my_goals(
+        db,
+        agencia_id=current_user.agencia_id,
+        consultor_id=current_user.id,
+        payload=payload,
+    )
+

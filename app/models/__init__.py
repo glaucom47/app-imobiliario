@@ -14,6 +14,7 @@ from app.models.log import Log
 from app.models.lead import LeadAngariacao, LeadBlacklist
 from app.models.commercial import (
     Goal,
+    StoreGoal,
     PipelineDeal,
     WeeklyMeeting,
     MeetingCommitment,
@@ -33,6 +34,7 @@ __all__ = [
     "LeadAngariacao",
     "LeadBlacklist",
     "Goal",
+    "StoreGoal",
     "PipelineDeal",
     "WeeklyMeeting",
     "MeetingCommitment",

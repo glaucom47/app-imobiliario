@@ -455,3 +455,53 @@ def test_commercial_backoffice_frontend_integration(client):
     assert 'id="modal-commercial-goals"' in html
     assert 'id="modal-pipeline-deal"' in html
 
+
+def test_store_goal_crud_and_desdobramento(client, auth_headers):
+    """Testa definição da Meta Global da Loja pela Diretora e reflexo no desdobramento do dashboard."""
+    hoje = date.today()
+    payload = {
+        "ano": hoje.year,
+        "mes": hoje.month,
+        "meta_faturacao": 80000.0,
+        "meta_angariacoes": 10,
+        "meta_visitas": 50,
+        "meta_propostas": 12,
+        "meta_cpcv": 6,
+        "meta_escrituras": 4,
+    }
+
+    # 1. Diretora A grava meta global da loja
+    resp_post = client.post("/api/v1/backoffice/store-goals", json=payload, headers=auth_headers["diretora_a"])
+    assert resp_post.status_code == status.HTTP_200_OK
+    store_goal = resp_post.json()
+    assert float(store_goal["meta_faturacao"]) == 80000.0
+
+    # 2. Diretora A recupera a meta global da loja
+    resp_get = client.get(f"/api/v1/backoffice/store-goals?ano={hoje.year}&mes={hoje.month}", headers=auth_headers["diretora_a"])
+    assert resp_get.status_code == status.HTTP_200_OK
+    data_get = resp_get.json()
+    assert float(data_get["meta_faturacao"]) == 80000.0
+
+    # 3. No dashboard comercial, desdobramento_loja reflete os 80.000 €
+    resp_dash = client.get("/api/v1/backoffice/commercial-dashboard?filtro=este_mes", headers=auth_headers["diretora_a"])
+    assert resp_dash.status_code == status.HTTP_200_OK
+    kpis = resp_dash.json()["kpis"]
+    assert "desdobramento_loja" in kpis
+    assert float(kpis["desdobramento_loja"]["meta_global_loja"]) == 80000.0
+    assert "saldo_a_distribuir" in kpis["desdobramento_loja"]
+
+
+def test_store_goal_multitenant_and_rbac(client, auth_headers):
+    """Garante isolamento multi-tenant e RBAC restrito a diretores para a Meta Global da Loja."""
+    hoje = date.today()
+
+    # Consultor não pode consultar nem definir meta da loja
+    resp_cons = client.get(f"/api/v1/backoffice/store-goals?ano={hoje.year}&mes={hoje.month}", headers=auth_headers["consultor_a"])
+    assert resp_cons.status_code == status.HTTP_403_FORBIDDEN
+
+    # Diretora B (outra agência) ao consultar recebe o padrão da sua agência e não a meta de 80.000 da agência A
+    resp_b = client.get(f"/api/v1/backoffice/store-goals?ano={hoje.year}&mes={hoje.month}", headers=auth_headers["diretora_b"])
+    assert resp_b.status_code == status.HTTP_200_OK
+    assert float(resp_b.json()["meta_faturacao"]) == 50000.0
+
+

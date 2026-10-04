@@ -15,7 +15,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.models.commercial import Goal, PipelineDeal, WeeklyMeeting
+from app.models.commercial import Goal, PipelineDeal, StoreGoal, WeeklyMeeting
 from app.models.property import Property
 from app.models.user import User
 from app.models.visit import Visit
@@ -24,9 +24,13 @@ from app.schemas.commercial_schema import (
     BlocoObjetivos,
     CommercialDashboardResponse,
     CommercialKPIData,
+    ConsultorGoalItem,
+    ConsultorGoalsProgressResponse,
+    ConsultorGoalUpdateRequest,
     ConsultoresPerformanceResponse,
     ConsultorIndividualPerformanceResponse,
     ConsultorPerformanceItem,
+    DesdobramentoLojaInfo,
     FunnelStepItem,
     GoalCreate,
     GoalResponse,
@@ -36,6 +40,9 @@ from app.schemas.commercial_schema import (
     PipelineDealResponse,
     PipelineDealUpdate,
     SalesFunnelResponse,
+    StoreGoalCreate,
+    StoreGoalResponse,
+    StoreGoalUpdate,
 )
 
 
@@ -155,22 +162,56 @@ class CommercialService:
         faturacao_anterior = _faturacao_periodo(inicio_anterior, fim_anterior)
         var_faturacao = cls._calcular_variacao_percentual(float(faturacao_atual), float(faturacao_anterior))
 
-        # 2. Metas de faturação da equipa ou individual no período
+        # 2. Metas de faturação da equipa ou individual no período e Meta Global da Loja
         ano_ref = inicio_atual.year
         mes_ref = inicio_atual.month
-        metas_q = db.query(Goal).filter(
+        store_goal = cls.get_or_default_store_goal(db, agencia_id, ano_ref, mes_ref)
+
+        metas_equipa_q = db.query(Goal).filter(
             Goal.agencia_id == agencia_id,
             Goal.ano == ano_ref,
             Goal.mes == mes_ref,
         )
-        if consultor_id:
-            metas_q = metas_q.filter(Goal.consultor_id == consultor_id)
-        metas = metas_q.all()
-        meta_faturacao_total = sum((Decimal(str(g.meta_faturacao)) for g in metas), Decimal("0.00"))
+        metas_equipa = metas_equipa_q.all()
+        total_distribuido_equipa = sum((Decimal(str(g.meta_faturacao)) for g in metas_equipa), Decimal("0.00"))
+        saldo_a_distribuir = max(Decimal("0.00"), store_goal.meta_faturacao - total_distribuido_equipa)
+        pct_distribuido = (
+            round(float((total_distribuido_equipa / store_goal.meta_faturacao) * 100), 1)
+            if store_goal.meta_faturacao > 0
+            else 100.0
+        )
 
+        if consultor_id:
+            goal_consultor = next((g for g in metas_equipa if g.consultor_id == consultor_id), None)
+            meta_projetada = Decimal(str(goal_consultor.meta_faturacao)) if goal_consultor else Decimal("10000.00")
+            peso_consultor = (
+                round(float((meta_projetada / store_goal.meta_faturacao) * 100), 1)
+                if store_goal.meta_faturacao > 0
+                else 0.0
+            )
+            desdobramento_loja = DesdobramentoLojaInfo(
+                meta_global_loja=store_goal.meta_faturacao,
+                total_distribuido=total_distribuido_equipa,
+                saldo_a_distribuir=saldo_a_distribuir,
+                percentual_distribuido=pct_distribuido,
+                peso_consultor_pct=peso_consultor,
+            )
+        else:
+            meta_projetada = store_goal.meta_faturacao
+            desdobramento_loja = DesdobramentoLojaInfo(
+                meta_global_loja=store_goal.meta_faturacao,
+                total_distribuido=total_distribuido_equipa,
+                saldo_a_distribuir=saldo_a_distribuir,
+                percentual_distribuido=pct_distribuido,
+                peso_consultor_pct=None,
+            )
+
+        faturacao_atingida = faturacao_atual
+        gap_faltante = max(Decimal("0.00"), meta_projetada - faturacao_atingida)
         taxa_cumprimento_faturacao = 0.0
-        if meta_faturacao_total > 0:
-            taxa_cumprimento_faturacao = round(float((faturacao_atual / meta_faturacao_total) * 100), 1)
+        if meta_projetada > 0:
+            taxa_cumprimento_faturacao = round(float((faturacao_atingida / meta_projetada) * 100), 1)
+        meta_faturacao_total = meta_projetada
 
         # 3. Visitas
         vis_base = db.query(Visit).filter(Visit.agencia_id == agencia_id)
@@ -290,10 +331,12 @@ class CommercialService:
             for d in deals_destaque_model
         ]
 
+        projecao_fecho = faturacao_atingida + pipeline_ponderado
+
         kpis = CommercialKPIData(
             faturacao_realizada=faturacao_atual,
             variacao_faturacao=var_faturacao,
-            meta_faturacao_total=meta_faturacao_total,
+            meta_faturacao_total=meta_projetada,
             taxa_cumprimento_faturacao=taxa_cumprimento_faturacao,
             total_angariacoes=angariacoes_atual,
             variacao_angariacoes=var_angariacoes,
@@ -308,6 +351,11 @@ class CommercialService:
             pipeline_bruto=pipeline_bruto,
             pipeline_ponderado=pipeline_ponderado,
             total_negocios_ativos=len(deals_ativos),
+            meta_projetada=meta_projetada,
+            faturacao_atingida=faturacao_atingida,
+            gap_faltante=gap_faltante,
+            projecao_fecho=projecao_fecho,
+            desdobramento_loja=desdobramento_loja,
         )
 
         # Resumo executivo da equipa (quando em visão de loja)
@@ -493,6 +541,7 @@ class CommercialService:
         hoje = date.today()
         ano_ref = ano or hoje.year
         mes_ref = mes or hoje.month
+        store_goal = cls.get_or_default_store_goal(db, agencia_id, ano_ref, mes_ref)
 
         # Consultores ativos da agência
         consultores = db.query(User).filter(
@@ -535,6 +584,14 @@ class CommercialService:
             percentual_cumprimento = 0.0
             if meta_faturacao > 0:
                 percentual_cumprimento = round(float((faturacao / meta_faturacao) * 100), 1)
+
+            # Métricas analíticas Projetado vs Atingido vs Loja
+            gap_faltante = max(Decimal("0.00"), meta_faturacao - faturacao)
+            peso_na_loja_pct = (
+                round(float((meta_faturacao / store_goal.meta_faturacao) * 100), 1)
+                if store_goal.meta_faturacao > 0
+                else 0.0
+            )
 
             # 3. Pipeline do consultor
             deals = db.query(PipelineDeal).filter(
@@ -592,6 +649,10 @@ class CommercialService:
                     telemovel=c.telemovel,
                     meta_mensal=meta_faturacao,
                     faturacao_realizada=faturacao,
+                    meta_projetada=meta_faturacao,
+                    faturacao_atingida=faturacao,
+                    gap_faltante=gap_faltante,
+                    peso_na_loja_pct=peso_na_loja_pct,
                     percentual_cumprimento=percentual_cumprimento,
                     pipeline_ativo=pipeline_ativo,
                     pipeline_ponderado=pipeline_ponderado,
@@ -884,6 +945,91 @@ class CommercialService:
         ]
 
     # ==========================================
+    # Operações de Metas Globais da Loja (Store Goals)
+    # ==========================================
+
+    @staticmethod
+    def get_or_default_store_goal(db: Session, agencia_id: int, ano: int, mes: int) -> StoreGoal:
+        """
+        Retorna a meta global da loja para o ano/mês ou cria o padrão resiliente (50.000€) se ainda não configurada.
+        Isolamento estrito por agencia_id.
+        """
+        store_goal = db.query(StoreGoal).filter(
+            StoreGoal.agencia_id == agencia_id,
+            StoreGoal.ano == ano,
+            StoreGoal.mes == mes,
+        ).first()
+
+        if not store_goal:
+            store_goal = StoreGoal(
+                agencia_id=agencia_id,
+                ano=ano,
+                mes=mes,
+                meta_faturacao=Decimal("50000.00"),
+                meta_angariacoes=10,
+                meta_visitas=30,
+                meta_propostas=10,
+                meta_cpcv=5,
+                meta_escrituras=5,
+            )
+            db.add(store_goal)
+            db.commit()
+            db.refresh(store_goal)
+
+        return store_goal
+
+    @staticmethod
+    def set_store_goal(db: Session, agencia_id: int, payload: StoreGoalCreate) -> StoreGoalResponse:
+        """
+        Cria ou atualiza a meta global da loja para o ano/mês indicado.
+        Permite ao Diretor orientar o desdobramento da equipa.
+        """
+        store_goal = db.query(StoreGoal).filter(
+            StoreGoal.agencia_id == agencia_id,
+            StoreGoal.ano == payload.ano,
+            StoreGoal.mes == payload.mes,
+        ).first()
+
+        if store_goal:
+            store_goal.meta_faturacao = payload.meta_faturacao
+            store_goal.meta_angariacoes = payload.meta_angariacoes
+            store_goal.meta_visitas = payload.meta_visitas
+            store_goal.meta_propostas = payload.meta_propostas
+            store_goal.meta_cpcv = payload.meta_cpcv
+            store_goal.meta_escrituras = payload.meta_escrituras
+        else:
+            store_goal = StoreGoal(
+                agencia_id=agencia_id,
+                ano=payload.ano,
+                mes=payload.mes,
+                meta_faturacao=payload.meta_faturacao,
+                meta_angariacoes=payload.meta_angariacoes,
+                meta_visitas=payload.meta_visitas,
+                meta_propostas=payload.meta_propostas,
+                meta_cpcv=payload.meta_cpcv,
+                meta_escrituras=payload.meta_escrituras,
+            )
+            db.add(store_goal)
+
+        db.commit()
+        db.refresh(store_goal)
+
+        return StoreGoalResponse(
+            id=store_goal.id,
+            agencia_id=store_goal.agencia_id,
+            ano=store_goal.ano,
+            mes=store_goal.mes,
+            meta_faturacao=store_goal.meta_faturacao,
+            meta_angariacoes=store_goal.meta_angariacoes,
+            meta_visitas=store_goal.meta_visitas,
+            meta_propostas=store_goal.meta_propostas,
+            meta_cpcv=store_goal.meta_cpcv,
+            meta_escrituras=store_goal.meta_escrituras,
+            created_at=store_goal.created_at,
+            updated_at=store_goal.updated_at,
+        )
+
+    # ==========================================
     # Operações de Oportunidades (Pipeline Deals)
     # ==========================================
 
@@ -1056,3 +1202,260 @@ class CommercialService:
         db.delete(deal)
         db.commit()
         return {"sucesso": True, "mensagem": "Oportunidade removida com sucesso."}
+
+    # ==========================================
+    # Metas e KPIs Individuais do Consultor
+    # ==========================================
+
+    @classmethod
+    def get_my_goals_progress(
+        cls,
+        db: Session,
+        agencia_id: int,
+        consultor_id: int,
+        ano: Optional[int] = None,
+        mes: Optional[int] = None,
+    ) -> ConsultorGoalsProgressResponse:
+        """
+        Retorna as metas individuais e o progresso em tempo real do consultor autenticado.
+        Calcula os valores realizados de campo, o saldo restante ("o que falta"),
+        o percentual de cumprimento, semáforo de ritmo e pipeline ponderado.
+        """
+        hoje = date.today()
+        ano_ref = ano or hoje.year
+        mes_ref = mes or hoje.month
+
+        # Verificar se o consultor existe e pertence à agência
+        consultor = db.query(User).filter(
+            User.id == consultor_id,
+            User.agencia_id == agencia_id,
+        ).first()
+        if not consultor:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Consultor não encontrado.")
+
+        # Janela do mês
+        _, total_dias_mes = monthrange(ano_ref, mes_ref)
+        dia_atual = hoje.day if (hoje.year == ano_ref and hoje.month == mes_ref) else total_dias_mes
+        dias_restantes = max(0, total_dias_mes - dia_atual)
+        ritmo_esperado = (dia_atual / total_dias_mes) * 100.0
+
+        inicio_mes = date(ano_ref, mes_ref, 1)
+        fim_mes = date(ano_ref, mes_ref, total_dias_mes)
+
+        # Buscar meta do consultor para o mês
+        goal = db.query(Goal).filter(
+            Goal.agencia_id == agencia_id,
+            Goal.consultor_id == consultor_id,
+            Goal.ano == ano_ref,
+            Goal.mes == mes_ref,
+        ).first()
+
+        meta_fat = float(goal.meta_faturacao) if goal else 10000.0
+        meta_vis = goal.meta_visitas if goal else 15
+        meta_ang = goal.meta_angariacoes if goal else 3
+        meta_exc = goal.meta_exclusivos if goal else 2
+        meta_con = goal.meta_contactos if goal else 30
+        meta_reu = goal.meta_reunioes if goal else 10
+        meta_pro = goal.meta_propostas if goal else 4
+        meta_cpc = goal.meta_cpcv if goal else 2
+        meta_esc = goal.meta_escrituras if goal else 1
+
+        # Realizados no mês
+        # 1. Faturação e Escrituras
+        props_vendidos = db.query(Property).filter(
+            Property.agencia_id == agencia_id,
+            Property.consultor_id == consultor_id,
+            Property.status == "Vendido",
+            Property.data_escritura >= inicio_mes,
+            Property.data_escritura <= fim_mes,
+        ).all()
+        faturacao_realizada = sum((float(p.preco) * 0.05 for p in props_vendidos), 0.0)
+        escrituras_realizadas = len(props_vendidos)
+
+        # 2. Visitas
+        visitas_realizadas = db.query(Visit).filter(
+            Visit.agencia_id == agencia_id,
+            Visit.consultor_id == consultor_id,
+            func.date(Visit.data_visita) >= inicio_mes,
+            func.date(Visit.data_visita) <= fim_mes,
+        ).count()
+
+        # 3. Angariações
+        props_criados = db.query(Property).filter(
+            Property.agencia_id == agencia_id,
+            Property.consultor_id == consultor_id,
+            func.date(Property.created_at) >= inicio_mes,
+            func.date(Property.created_at) <= fim_mes,
+        ).all()
+        angariacoes_realizadas = len(props_criados)
+        exclusivos_realizados = len(props_criados)
+
+        # 4. Propostas e CPCV através de Pipeline Deals
+        deals_no_mes = db.query(PipelineDeal).filter(
+            PipelineDeal.agencia_id == agencia_id,
+            PipelineDeal.consultor_id == consultor_id,
+            func.date(PipelineDeal.created_at) >= inicio_mes,
+            func.date(PipelineDeal.created_at) <= fim_mes,
+        ).all()
+
+        propostas_realizadas = sum(1 for d in deals_no_mes if d.fase in ["Proposta", "Negociacao", "CPCV", "Escritura", "Ganho"])
+        cpcv_realizados = sum(1 for d in deals_no_mes if d.fase in ["CPCV", "Escritura", "Ganho"])
+
+        # 5. Contactos e Reuniões (reuniões semanais + leads/deals)
+        meetings = db.query(WeeklyMeeting).filter(
+            WeeklyMeeting.agencia_id == agencia_id,
+            WeeklyMeeting.consultor_id == consultor_id,
+            func.date(WeeklyMeeting.data_reuniao) >= inicio_mes,
+            func.date(WeeklyMeeting.data_reuniao) <= fim_mes,
+        ).all()
+        contactos_realizados = max(sum((m.contactos_realizados for m in meetings), 0), len(deals_no_mes) * 3, visitas_realizadas * 2, 5 if visitas_realizadas > 0 else 0)
+        reunioes_realizadas = max(sum((m.reunioes_realizadas for m in meetings), 0), len(deals_no_mes), visitas_realizadas)
+
+        # 6. Pipeline Ativo e Ponderado
+        active_deals = db.query(PipelineDeal).filter(
+            PipelineDeal.agencia_id == agencia_id,
+            PipelineDeal.consultor_id == consultor_id,
+            PipelineDeal.ativo.is_(True),
+            PipelineDeal.fase.notin_(["Ganho", "Perdido"]),
+        ).all()
+        pipeline_ativo = sum((Decimal(str(d.comissao_estimada)) for d in active_deals), Decimal("0.00"))
+        pipeline_ponderado = sum((Decimal(str(d.comissao_estimada)) * (Decimal(str(d.probabilidade)) / Decimal("100")) for d in active_deals), Decimal("0.00"))
+
+        # Cálculo do que falta e percentual de faturação
+        falta_faturar = max(0.0, meta_fat - faturacao_realizada)
+        pct_faturacao = round((faturacao_realizada / meta_fat * 100), 1) if meta_fat > 0 else 0.0
+
+        # Semáforo de Trajetória
+        if pct_faturacao >= ritmo_esperado or pct_faturacao >= 100.0:
+            semaforo = "verde"
+            justificacao = f"Excelente ritmo ({pct_faturacao:.1f}% faturado vs {ritmo_esperado:.1f}% esperado). Mantenha a cadência de fechos!"
+        elif (pct_faturacao >= (ritmo_esperado * 0.6)) or (float(pipeline_ponderado) >= falta_faturar):
+            semaforo = "amarelo"
+            justificacao = f"Atenção ao ritmo ({pct_faturacao:.1f}% vs {ritmo_esperado:.1f}%). Tem {float(pipeline_ponderado):,.2f} € em pipeline ponderado para recuperar."
+        else:
+            semaforo = "vermelho"
+            justificacao = f"Trajetória crítica ({pct_faturacao:.1f}% vs {ritmo_esperado:.1f}%). Acelere visitas e novos contactos com urgência."
+
+        # Gerar lista estruturada de indicadores operacionais
+        raw_items = [
+            ("Faturação da Carteira", "faturacao", "€", meta_fat, faturacao_realizada),
+            ("Visitas Realizadas", "visitas", "visitas", float(meta_vis), float(visitas_realizadas)),
+            ("Angariações de Imóveis", "angariacoes", "imóveis", float(meta_ang), float(angariacoes_realizadas)),
+            ("Angariações em Exclusivo", "exclusivos", "imóveis", float(meta_exc), float(exclusivos_realizados)),
+            ("Contactos de Prospeção", "contactos", "contactos", float(meta_con), float(contactos_realizados)),
+            ("Reuniões Comerciais", "reunioes", "reuniões", float(meta_reu), float(reunioes_realizadas)),
+            ("Propostas Apresentadas", "propostas", "propostas", float(meta_pro), float(propostas_realizadas)),
+            ("CPCVs Celebrados", "cpcv", "contratos", float(meta_cpc), float(cpcv_realizados)),
+            ("Escrituras Realizadas", "escrituras", "escrituras", float(meta_esc), float(escrituras_realizadas)),
+        ]
+
+        indicadores: List[ConsultorGoalItem] = []
+        for nome_ind, chave, unid, meta_val, real_val in raw_items:
+            falta_val = max(0.0, meta_val - real_val)
+            pct = round((real_val / meta_val * 100), 1) if meta_val > 0 else 0.0
+            indicadores.append(
+                ConsultorGoalItem(
+                    indicador=nome_ind,
+                    chave=chave,
+                    unidade=unid,
+                    meta=round(meta_val, 2),
+                    realizado=round(real_val, 2),
+                    falta=round(falta_val, 2),
+                    percentual=pct,
+                    atingido=(real_val >= meta_val and meta_val > 0),
+                )
+            )
+
+        return ConsultorGoalsProgressResponse(
+            consultor_id=consultor.id,
+            consultor_nome=consultor.nome,
+            ano=ano_ref,
+            mes=mes_ref,
+            meta_faturacao=Decimal(str(round(meta_fat, 2))),
+            faturacao_realizada=Decimal(str(round(faturacao_realizada, 2))),
+            falta_faturar=Decimal(str(round(falta_faturar, 2))),
+            percentual_faturacao=pct_faturacao,
+            pipeline_ativo=pipeline_ativo,
+            pipeline_ponderado=pipeline_ponderado,
+            ritmo_esperado_mes=round(ritmo_esperado, 1),
+            semaforo_trajetoria=semaforo,
+            justificacao_trajetoria=justificacao,
+            dias_restantes_mes=dias_restantes,
+            indicadores=indicadores,
+            updated_at=goal.updated_at if goal else None,
+        )
+
+    @classmethod
+    def update_my_goals(
+        cls,
+        db: Session,
+        agencia_id: int,
+        consultor_id: int,
+        payload: ConsultorGoalUpdateRequest,
+    ) -> ConsultorGoalsProgressResponse:
+        """
+        Permite ao consultor atualizar os valores de suas próprias metas mensais.
+        Garante isolamento absoluto: consultor altera exclusivamente as suas metas.
+        """
+        consultor = db.query(User).filter(
+            User.id == consultor_id,
+            User.agencia_id == agencia_id,
+        ).first()
+        if not consultor:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Consultor não encontrado.")
+
+        goal = db.query(Goal).filter(
+            Goal.agencia_id == agencia_id,
+            Goal.consultor_id == consultor_id,
+            Goal.ano == payload.ano,
+            Goal.mes == payload.mes,
+        ).first()
+
+        if goal:
+            if payload.meta_faturacao is not None:
+                goal.meta_faturacao = payload.meta_faturacao
+            if payload.meta_contactos is not None:
+                goal.meta_contactos = payload.meta_contactos
+            if payload.meta_reunioes is not None:
+                goal.meta_reunioes = payload.meta_reunioes
+            if payload.meta_angariacoes is not None:
+                goal.meta_angariacoes = payload.meta_angariacoes
+            if payload.meta_exclusivos is not None:
+                goal.meta_exclusivos = payload.meta_exclusivos
+            if payload.meta_visitas is not None:
+                goal.meta_visitas = payload.meta_visitas
+            if payload.meta_propostas is not None:
+                goal.meta_propostas = payload.meta_propostas
+            if payload.meta_cpcv is not None:
+                goal.meta_cpcv = payload.meta_cpcv
+            if payload.meta_escrituras is not None:
+                goal.meta_escrituras = payload.meta_escrituras
+        else:
+            goal = Goal(
+                agencia_id=agencia_id,
+                consultor_id=consultor_id,
+                ano=payload.ano,
+                mes=payload.mes,
+                meta_faturacao=payload.meta_faturacao if payload.meta_faturacao is not None else Decimal("10000.00"),
+                meta_contactos=payload.meta_contactos if payload.meta_contactos is not None else 30,
+                meta_reunioes=payload.meta_reunioes if payload.meta_reunioes is not None else 10,
+                meta_angariacoes=payload.meta_angariacoes if payload.meta_angariacoes is not None else 3,
+                meta_exclusivos=payload.meta_exclusivos if payload.meta_exclusivos is not None else 2,
+                meta_visitas=payload.meta_visitas if payload.meta_visitas is not None else 15,
+                meta_propostas=payload.meta_propostas if payload.meta_propostas is not None else 4,
+                meta_cpcv=payload.meta_cpcv if payload.meta_cpcv is not None else 2,
+                meta_escrituras=payload.meta_escrituras if payload.meta_escrituras is not None else 1,
+            )
+            db.add(goal)
+
+        db.commit()
+        db.refresh(goal)
+
+        return cls.get_my_goals_progress(
+            db=db,
+            agencia_id=agencia_id,
+            consultor_id=consultor_id,
+            ano=payload.ano,
+            mes=payload.mes,
+        )
+

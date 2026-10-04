@@ -551,15 +551,15 @@
           </div>
 
           <div class="card-tier1" style="margin-bottom: 0;">
-            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Faturação da Equipa (Mês)</span>
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Faturação Atingida (Mês)</span>
             <div class="financial-display" style="color: var(--color-primary);" id="team-kpi-faturacao-total">0,00 €</div>
             <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="team-kpi-media-sub">Média: 0,00 € / consultor</p>
           </div>
 
           <div class="card-tier1" style="margin-bottom: 0;">
-            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Meta Global & Cumprimento</span>
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Meta Projetada & Cumprimento</span>
             <div class="financial-display" id="team-kpi-cumprimento-global">0%</div>
-            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="team-kpi-meta-sub">Meta: 0,00 €</p>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="team-kpi-meta-sub">Meta da Loja: 0,00 €</p>
           </div>
 
           <div class="card-tier1" style="margin-bottom: 0;">
@@ -582,8 +582,11 @@
                 <tr>
                   <th>Consultor</th>
                   <th style="text-align: center;">Imóveis Ativos</th>
-                  <th style="text-align: right;">Faturação (Mês)</th>
+                  <th style="text-align: right;">Meta Projetada</th>
+                  <th style="text-align: right;">Faturação Atingida</th>
+                  <th style="text-align: right;">Em Falta (Gap)</th>
                   <th style="text-align: center;">% Meta</th>
+                  <th style="text-align: center;">Peso Loja</th>
                   <th style="text-align: center;">Visitas (Mês)</th>
                   <th style="text-align: center;">Trajetória</th>
                   <th style="text-align: center;">Estado</th>
@@ -592,7 +595,7 @@
               </thead>
               <tbody id="team-consultores-table-body">
                 <tr>
-                  <td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar equipa comercial...</td>
+                  <td colspan="11" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar equipa comercial...</td>
                 </tr>
               </tbody>
             </table>
@@ -672,22 +675,63 @@
           </div>
         </div>
 
+        <!-- Faixa de Desdobramento de Metas da Loja (Visão Top-Down do Diretor) -->
+        <div id="comm-store-goal-strip" class="card-tier1" style="background: #ffffff; margin-bottom: var(--spacing-md); border-top: 3px solid var(--color-secondary); padding: 14px 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+              <div>
+                <span class="label-caps" style="color: var(--color-secondary); font-size: 11px;">Meta Global da Loja</span>
+                <div style="display: flex; align-items: baseline; gap: 8px;">
+                  <strong style="font-size: 18px; font-weight: 700; color: var(--color-primary);" id="comm-strip-meta-loja">50.000,00 €</strong>
+                  <span id="comm-strip-consultor-peso" class="status-pill status-pill-notarized" style="font-size: 11px; display: none;"></span>
+                </div>
+              </div>
+              <div style="border-left: 1px solid var(--color-outline-variant); height: 32px; margin: 0 4px;"></div>
+              <div>
+                <span class="label-caps" style="color: var(--color-outline); font-size: 11px;">Distribuído à Equipa</span>
+                <div style="font-size: 15px; font-weight: 600; color: var(--color-primary);" id="comm-strip-distribuido">0,00 € (0%)</div>
+              </div>
+              <div style="border-left: 1px solid var(--color-outline-variant); height: 32px; margin: 0 4px;"></div>
+              <div>
+                <span class="label-caps" style="color: var(--color-outline); font-size: 11px;">Saldo a Distribuir</span>
+                <div style="font-size: 15px; font-weight: 600; color: var(--color-secondary);" id="comm-strip-saldo">50.000,00 €</div>
+              </div>
+            </div>
+            <button type="button" class="btn-secondary-ghost" style="width: auto; height: 34px; padding: 0 12px; font-size: 12px;" onclick="window.openCommercialGoalsModal()">
+              🎯 Ajustar Metas da Loja & Consultores
+            </button>
+          </div>
+        </div>
+
         <!-- Grid de 4 Indicadores Estratégicos com Variação Homóloga -->
         <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--spacing-margin); margin-bottom: var(--spacing-lg);">
-          <!-- Card 1: Faturação -->
+          <!-- Card 1: Faturação Atingida vs Meta Projetada -->
           <div class="card-tier1" style="margin-bottom: 0;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <span class="label-caps" style="color: var(--color-outline);" id="comm-kpi-faturacao-title">Faturação da Loja</span>
+              <div>
+                <span class="label-caps" style="color: var(--color-outline);" id="comm-kpi-faturacao-title">Faturação da Loja</span>
+                <span style="font-size: 11px; color: var(--color-outline); display: block; margin-top: 1px;">Escrituras celebradas</span>
+              </div>
               <span id="comm-kpi-faturacao-badge" class="status-pill" style="font-size: 11px;">0%</span>
             </div>
-            <div class="financial-display" style="margin-top: 8px;" id="comm-kpi-faturacao">0,00 €</div>
+            <div class="financial-display" style="margin-top: 6px;" id="comm-kpi-faturacao">0,00 €</div>
             <div style="margin-top: 6px;">
               <span class="bo-progress-track">
                 <span class="bo-progress-fill" id="comm-kpi-faturacao-bar" style="width: 0%; background: var(--color-secondary);"></span>
               </span>
               <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-outline); margin-top: 4px;">
-                <span id="comm-kpi-meta-faturacao-label">Meta: 0,00 €</span>
+                <span id="comm-kpi-meta-faturacao-label">Meta Projetada: 0,00 €</span>
                 <span id="comm-kpi-faturacao-pct" style="font-weight: 600; color: var(--color-primary);">0%</span>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--color-surface-container-high); font-size: 11px;">
+              <div>
+                <span style="color: var(--color-outline); display: block;">Em Falta (Gap):</span>
+                <strong style="color: var(--color-error); font-size: 12px;" id="comm-kpi-gap-faturacao-label">0,00 €</strong>
+              </div>
+              <div>
+                <span style="color: var(--color-outline); display: block;">Forecast (Atingido + Pipe):</span>
+                <strong style="color: var(--color-primary); font-size: 12px;" id="comm-kpi-projecao-fecho-label">0,00 €</strong>
               </div>
             </div>
           </div>
@@ -1393,6 +1437,25 @@
       </div>
 
       <form id="form-commercial-goals">
+        <!-- Seção 1: Meta Global da Loja (Orçamento Mensal da Agência) -->
+        <div style="background: var(--color-surface-container-low); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--color-outline-variant); margin-bottom: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span class="label-caps" style="color: var(--color-secondary); font-size: 11px;">1. Meta Global da Loja (Mês)</span>
+            <span style="font-size: 11px; color: var(--color-outline);">Teto da Agência</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center;">
+            <div>
+              <label class="fecho-label" style="font-size: 11px;" for="input-store-goals-faturacao">Meta Global da Loja (€) *</label>
+              <input type="number" id="input-store-goals-faturacao" class="fecho-input" placeholder="ex: 50000" min="0" step="500" required style="height: 38px;">
+            </div>
+            <div style="font-size: 11px; color: var(--color-outline); line-height: 1.4;">
+              <div>Distribuído: <strong id="modal-goals-distribuido-label" style="color: var(--color-primary);">0,00 € (0%)</strong></div>
+              <div>Saldo Livre: <strong id="modal-goals-saldo-label" style="color: var(--color-secondary);">50.000,00 €</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <span class="label-caps" style="color: var(--color-primary); display: block; margin-bottom: 8px; font-size: 11px;">2. Desdobramento Individual do Consultor</span>
         <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 14px;">
           <div class="fecho-form-group" style="margin-bottom: 0;">
             <label class="fecho-label" for="select-goals-consultor">Consultor *</label>
@@ -1409,7 +1472,10 @@
         </div>
 
         <div class="fecho-form-group">
-          <label class="fecho-label" for="input-goals-faturacao">Meta de Faturação (€) *</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label class="fecho-label" for="input-goals-faturacao" style="margin-bottom: 0;">Meta de Faturação do Consultor (€) *</label>
+            <span id="modal-goals-peso-badge" class="status-pill status-pill-notarized" style="font-size: 11px; padding: 2px 8px;">0.0% da loja</span>
+          </div>
           <input type="number" id="input-goals-faturacao" class="fecho-input" placeholder="ex: 15000" min="0" step="100" required>
         </div>
 
@@ -2541,7 +2607,7 @@
           if (kpiImovMedia) kpiImovMedia.textContent = `Média: ${(ativosCount > 0 ? totalImoveis / ativosCount : 0).toFixed(1)} ativos / consultor`;
 
           if (consultores.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">Nenhum consultor registado na sua agência. Clique em "+ Novo Consultor" para adicionar.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: var(--color-outline); padding: 24px;">Nenhum consultor registado na sua agência. Clique em "+ Novo Consultor" para adicionar.</td></tr>';
             return;
           }
 
@@ -2557,6 +2623,11 @@
 
             const pctMeta = c.percentual_meta !== null && c.percentual_meta !== undefined ? Number(c.percentual_meta) : 0;
             const metaBadgeClass = pctMeta >= 100 ? 'status-pill-notarized' : 'status-pill-secondary';
+
+            const metaProj = c.meta_projetada !== undefined && c.meta_projetada !== null ? c.meta_projetada : (c.meta_mes || 0);
+            const fatAting = c.faturacao_atingida !== undefined && c.faturacao_atingida !== null ? c.faturacao_atingida : (c.faturacao_mes || 0);
+            const gapFalta = c.gap_faltante !== undefined && c.gap_faltante !== null ? c.gap_faltante : Math.max(0, metaProj - fatAting);
+            const pesoLoja = c.peso_na_loja_pct !== undefined && c.peso_na_loja_pct !== null ? Number(c.peso_na_loja_pct) : 0;
 
             return `
               <tr>
@@ -2574,12 +2645,20 @@
                 <td style="text-align: center;">
                   <span class="financial-display" style="font-size: 15px;">${c.total_imoveis_ativos || 0}</span>
                 </td>
-                <td style="text-align: right;">
-                  <div style="font-weight: 700; color: var(--color-primary);">${formatPrice(c.faturacao_mes || 0)}</div>
-                  <span style="font-size: 11px; color: var(--color-outline);">Meta: ${formatPrice(c.meta_mes || 0)}</span>
+                <td style="text-align: right; font-variant-numeric: tabular-nums;">
+                  <div style="font-weight: 600; color: var(--color-outline);">${formatPrice(metaProj)}</div>
+                </td>
+                <td style="text-align: right; font-variant-numeric: tabular-nums;">
+                  <div style="font-weight: 700; color: var(--color-primary);">${formatPrice(fatAting)}</div>
+                </td>
+                <td style="text-align: right; font-variant-numeric: tabular-nums;">
+                  <div style="font-weight: 600; color: ${gapFalta > 0 ? 'var(--color-error)' : 'var(--color-notarized)'};">${formatPrice(gapFalta)}</div>
                 </td>
                 <td style="text-align: center;">
                   <span class="status-pill ${metaBadgeClass}" style="font-size: 11px; font-weight: 600;">${pctMeta.toFixed(1)}%</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="status-pill status-pill-notarized" style="font-size: 11px;">${pesoLoja.toFixed(1)}%</span>
                 </td>
                 <td style="text-align: center; font-weight: 600; font-variant-numeric: tabular-nums;">
                   ${c.total_visitas_mes || 0}
@@ -2595,6 +2674,9 @@
                     </button>
                     <button class="status-pill" style="border: 1px solid var(--color-primary); background: #ffffff; color: var(--color-primary); cursor: pointer; height: 32px; padding: 0 10px; font-size: 11px; font-weight: 600;" onclick="openStartMeetingModal(${c.id})" title="Iniciar Reunião Semanal 1-on-1">
                       🤝 Reunião
+                    </button>
+                    <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 32px; padding: 0 10px; font-size: 11px; font-weight: 600;" onclick="window.openCommercialGoalsModal(${c.id})" title="Definir Metas do Consultor">
+                      🎯 Metas
                     </button>
                     <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 32px; padding: 0 10px; font-size: 11px;" onclick="openEditConsultorModal(${c.id})">
                       Editar
@@ -2894,16 +2976,54 @@
             }
           }
 
-          // Card 1: Faturação
+          // Faixa de Desdobramento de Metas da Loja (Visão Top-Down do Diretor)
+          if (kpis.desdobramento_loja) {
+            const d = kpis.desdobramento_loja;
+            const stripMeta = document.getElementById('comm-strip-meta-loja');
+            if (stripMeta) stripMeta.textContent = formatPrice(d.meta_global_loja);
+            const stripDist = document.getElementById('comm-strip-distribuido');
+            if (stripDist) stripDist.textContent = `${formatPrice(d.total_distribuido_equipa)} (${d.pct_distribuido}%)`;
+            const stripSaldo = document.getElementById('comm-strip-saldo');
+            if (stripSaldo) stripSaldo.textContent = formatPrice(d.saldo_a_distribuir);
+          }
+
+          const stripPeso = document.getElementById('comm-strip-consultor-peso');
+          if (stripPeso) {
+            if (kpis.peso_na_loja_pct !== null && kpis.peso_na_loja_pct !== undefined) {
+              stripPeso.textContent = `Representa ${kpis.peso_na_loja_pct}% da Meta da Loja`;
+              stripPeso.style.display = 'inline-block';
+            } else {
+              stripPeso.style.display = 'none';
+            }
+          }
+
+          // Card 1: Faturação Atingida vs Meta Projetada
           const faturacaoElem = document.getElementById('comm-kpi-faturacao');
-          if (faturacaoElem) faturacaoElem.textContent = formatPrice(kpis.faturacao_realizada);
+          const fatAtingida = kpis.faturacao_atingida !== undefined ? kpis.faturacao_atingida : kpis.faturacao_realizada;
+          if (faturacaoElem) faturacaoElem.textContent = formatPrice(fatAtingida);
+
+          const metaProjetada = kpis.meta_projetada !== undefined ? kpis.meta_projetada : kpis.meta_global_faturacao;
           const metaFatLabel = document.getElementById('comm-kpi-meta-faturacao-label');
-          if (metaFatLabel) metaFatLabel.textContent = `Meta: ${formatPrice(kpis.meta_global_faturacao)}`;
+          if (metaFatLabel) metaFatLabel.textContent = `Meta Projetada: ${formatPrice(metaProjetada)}`;
+
           const fatPctElem = document.getElementById('comm-kpi-faturacao-pct');
           if (fatPctElem) fatPctElem.textContent = `${kpis.percentual_cumprimento_faturacao}%`;
+
           const fatBar = document.getElementById('comm-kpi-faturacao-bar');
           if (fatBar) fatBar.style.width = `${Math.min(kpis.percentual_cumprimento_faturacao, 100)}%`;
           formatVariationBadge(document.getElementById('comm-kpi-faturacao-badge'), kpis.variacao_homologa_faturacao);
+
+          // Indicadores de Gap (Em Falta) e Projeção Estimada (Forecast)
+          const gapFatLabel = document.getElementById('comm-kpi-gap-faturacao-label');
+          if (gapFatLabel) {
+            const gapVal = kpis.gap_faltante !== undefined ? kpis.gap_faltante : Math.max(0, metaProjetada - fatAtingida);
+            gapFatLabel.textContent = formatPrice(gapVal);
+          }
+          const projFatLabel = document.getElementById('comm-kpi-projecao-fecho-label');
+          if (projFatLabel) {
+            const projVal = kpis.projecao_fecho !== undefined ? kpis.projecao_fecho : (fatAtingida + (kpis.pipeline_ponderado || 0));
+            projFatLabel.textContent = formatPrice(projVal);
+          }
 
           // Card 2: Pipeline
           const pipePondElem = document.getElementById('comm-kpi-pipeline-ponderado');
@@ -3416,22 +3536,69 @@
       if (btnCloseGoals) btnCloseGoals.addEventListener('click', () => { modalGoals.style.display = 'none'; });
       if (btnCancelGoals) btnCancelGoals.addEventListener('click', () => { modalGoals.style.display = 'none'; });
 
+      function updateModalGoalsWeights() {
+        const storeFat = Number(document.getElementById('input-store-goals-faturacao').value) || 0;
+        const consFat = Number(document.getElementById('input-goals-faturacao').value) || 0;
+        const pesoBadge = document.getElementById('modal-goals-peso-badge');
+        if (pesoBadge) {
+          const pct = storeFat > 0 ? ((consFat / storeFat) * 100).toFixed(1) : '0.0';
+          pesoBadge.textContent = `${pct}% da loja`;
+        }
+      }
+
+      const inputStoreFat = document.getElementById('input-store-goals-faturacao');
+      if (inputStoreFat) inputStoreFat.addEventListener('input', updateModalGoalsWeights);
+
+      const inputConsFat = document.getElementById('input-goals-faturacao');
+      if (inputConsFat) inputConsFat.addEventListener('input', updateModalGoalsWeights);
+
       window.openCommercialGoalsModal = async function(consultorId = null) {
         errGoals.style.display = 'none';
         formGoals.reset();
 
         const now = new Date();
-        document.getElementById('input-goals-ano').value = now.getFullYear();
-        document.getElementById('input-goals-mes').value = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
+        document.getElementById('input-goals-ano').value = currentYear;
+        document.getElementById('input-goals-mes').value = currentMonth;
 
         // Garante que a lista de consultores esteja carregada e atualizada
         await ensureCommercialConsultores();
 
-        if (consultorId) {
-          document.getElementById('select-goals-consultor').value = String(consultorId);
-          // Tentar buscar meta existente para pré-preencher
+        // 1. Carregar Meta Global da Loja
+        let storeGoalVal = 50000;
+        try {
+          const sg = await Api.getStoreGoal(currentYear, currentMonth);
+          if (sg && sg.meta_faturacao !== undefined && sg.meta_faturacao !== null) {
+            storeGoalVal = sg.meta_faturacao;
+          }
+        } catch (e) {
+          console.warn('Erro ao carregar meta global da loja:', e);
+        }
+        if (inputStoreFat) inputStoreFat.value = storeGoalVal;
+
+        // 2. Carregar Indicadores de Desdobramento da Loja
+        try {
+          const dData = await Api.getCommercialDashboard('mes', null);
+          if (dData && dData.kpis && dData.kpis.desdobramento_loja) {
+            const dl = dData.kpis.desdobramento_loja;
+            const distLabel = document.getElementById('modal-goals-distribuido-label');
+            if (distLabel) distLabel.textContent = `${formatPrice(dl.total_distribuido_equipa)} (${dl.pct_distribuido}%)`;
+            const saldoLabel = document.getElementById('modal-goals-saldo-label');
+            if (saldoLabel) saldoLabel.textContent = formatPrice(dl.saldo_a_distribuir);
+          }
+        } catch (e) {
+          console.warn('Erro ao carregar desdobramento:', e);
+        }
+
+        // 3. Selecionar Consultor e carregar metas individuais
+        const selectGoalsCons = document.getElementById('select-goals-consultor');
+        const targetConsId = consultorId || (selectGoalsCons && selectGoalsCons.value ? Number(selectGoalsCons.value) : null);
+
+        if (targetConsId && selectGoalsCons) {
+          selectGoalsCons.value = String(targetConsId);
           try {
-            const goals = await Api.getCommercialGoals(now.getFullYear(), now.getMonth() + 1, consultorId);
+            const goals = await Api.getCommercialGoals(currentYear, currentMonth, targetConsId);
             if (goals && goals.length > 0) {
               const g = goals[0];
               document.getElementById('input-goals-faturacao').value = g.meta_faturacao || 0;
@@ -3443,12 +3610,15 @@
               document.getElementById('input-goals-propostas').value = g.meta_propostas || 0;
               document.getElementById('input-goals-cpcv').value = g.meta_cpcv || 0;
               document.getElementById('input-goals-escrituras').value = g.meta_escrituras || 0;
+            } else {
+              document.getElementById('input-goals-faturacao').value = '';
             }
           } catch (e) {
             console.warn('Sem meta prévia encontrada');
           }
         }
 
+        updateModalGoalsWeights();
         modalGoals.style.display = 'flex';
       };
 
@@ -3488,6 +3658,7 @@
               console.warn('Sem meta prévia encontrada ao alterar consultor');
             }
           }
+          updateModalGoalsWeights();
         });
       }
 
@@ -3500,24 +3671,47 @@
           btnSubmit.textContent = 'A guardar metas...';
 
           try {
-            const payload = {
-              consultor_id: Number(document.getElementById('select-goals-consultor').value),
-              ano: Number(document.getElementById('input-goals-ano').value),
-              mes: Number(document.getElementById('input-goals-mes').value),
-              meta_faturacao: Number(document.getElementById('input-goals-faturacao').value),
-              meta_contactos: Number(document.getElementById('input-goals-contactos').value) || 0,
-              meta_reunioes: Number(document.getElementById('input-goals-reunioes').value) || 0,
-              meta_angariacoes: Number(document.getElementById('input-goals-angariacoes').value) || 0,
-              meta_exclusivos: Number(document.getElementById('input-goals-exclusivos').value) || 0,
-              meta_visitas: Number(document.getElementById('input-goals-visitas').value) || 0,
-              meta_propostas: Number(document.getElementById('input-goals-propostas').value) || 0,
-              meta_cpcv: Number(document.getElementById('input-goals-cpcv').value) || 0,
-              meta_escrituras: Number(document.getElementById('input-goals-escrituras').value) || 0,
-            };
+            const ano = Number(document.getElementById('input-goals-ano').value);
+            const mes = Number(document.getElementById('input-goals-mes').value);
+            const storeFat = Number(document.getElementById('input-store-goals-faturacao').value);
 
-            await Api.setCommercialGoal(payload);
+            // 1. Salvar Meta Global da Loja se informada
+            if (storeFat >= 0) {
+              await Api.setStoreGoal({
+                ano: ano,
+                mes: mes,
+                meta_faturacao: storeFat
+              });
+            }
+
+            // 2. Salvar Meta Individual do Consultor
+            const consId = document.getElementById('select-goals-consultor').value ? Number(document.getElementById('select-goals-consultor').value) : null;
+            if (consId) {
+              const payload = {
+                consultor_id: consId,
+                ano: ano,
+                mes: mes,
+                meta_faturacao: Number(document.getElementById('input-goals-faturacao').value) || 0,
+                meta_contactos: Number(document.getElementById('input-goals-contactos').value) || 0,
+                meta_reunioes: Number(document.getElementById('input-goals-reunioes').value) || 0,
+                meta_angariacoes: Number(document.getElementById('input-goals-angariacoes').value) || 0,
+                meta_exclusivos: Number(document.getElementById('input-goals-exclusivos').value) || 0,
+                meta_visitas: Number(document.getElementById('input-goals-visitas').value) || 0,
+                meta_propostas: Number(document.getElementById('input-goals-propostas').value) || 0,
+                meta_cpcv: Number(document.getElementById('input-goals-cpcv').value) || 0,
+                meta_escrituras: Number(document.getElementById('input-goals-escrituras').value) || 0,
+              };
+
+              await Api.setCommercialGoal(payload);
+            }
+
             modalGoals.style.display = 'none';
-            loadCommercialDashboard();
+
+            // 3. Atualizar simultaneamente sem necessidade de refresh manual (F5)
+            await Promise.all([
+              loadCommercialDashboard(),
+              loadTeamConsultores()
+            ]);
           } catch (err) {
             errGoals.textContent = err.message || 'Erro ao guardar metas comerciais.';
             errGoals.style.display = 'block';

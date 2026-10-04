@@ -25,6 +25,44 @@ from sqlalchemy.sql import func
 from database.connection import Base
 
 
+class StoreGoal(Base):
+    """
+    Metas Comerciais Globais da Loja/Agência para o mês/ano.
+    Isolamento obrigatório por agencia_id.
+    Permite ao Diretor definir o teto orçamentário mensal e orientar o desdobramento
+    entre os consultores da equipa.
+    """
+    __tablename__ = "store_goals"
+    __table_args__ = (
+        UniqueConstraint(
+            "agencia_id", "ano", "mes",
+            name="uq_store_goals_agencia_ano_mes",
+        ),
+        CheckConstraint("mes >= 1 AND mes <= 12", name="chk_store_goal_mes"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    agencia_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
+    ano = Column(Integer, nullable=False, index=True)
+    mes = Column(Integer, nullable=False, index=True)
+
+    meta_faturacao = Column(Numeric(12, 2), nullable=False, default=50000.0)
+    meta_angariacoes = Column(Integer, nullable=False, default=10)
+    meta_visitas = Column(Integer, nullable=False, default=30)
+    meta_propostas = Column(Integer, nullable=False, default=10)
+    meta_cpcv = Column(Integer, nullable=False, default=5)
+    meta_escrituras = Column(Integer, nullable=False, default=5)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    # Relacionamentos
+    tenant = relationship("Tenant", back_populates="store_goals")
+
+    def __repr__(self) -> str:
+        return f"<StoreGoal(id={self.id}, agencia_id={self.agencia_id}, ano={self.ano}, mes={self.mes}, meta_faturacao={self.meta_faturacao})>"
+
+
 class Goal(Base):
     """
     Metas Comerciais Individuais de consultores para o mês/ano.

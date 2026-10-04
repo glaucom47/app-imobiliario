@@ -236,3 +236,18 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 - **Solução aplicada:** Adicionou-se o `</div>` de fechamento do overlay em `static/backoffice.html` e validou-se o balanceamento estrito de tags `<div>` via script automatizado (0 unclosed divs).
 - **Como evitar no futuro:** Sempre validar o balanceamento sintático de tags HTML ao criar novos overlays e modais para evitar aprisionamento hierárquico no DOM.
 
+### 2026-10-04 - Lista de consultores vazia no modal "Definir Metas" e falta de sincronização dinâmica
+
+- **Sintoma:** Ao abrir o modal "Definir Metas" na Direção Comercial, o seletor de consultores exibia apenas o placeholder inicial sem listar nenhum consultor da agência, mesmo após cadastrar consultores na aba "Equipa Comercial".
+- **Causa:**
+  1. O endpoint backend `GET /api/v1/backoffice/consultores` retorna uma lista direta (`List[ConsultorResponse]`). Em `static/backoffice.html`, a função `loadCommercialDashboard()` lia `resTeam.consultores || []`, o que avaliava para `undefined` e resultava em array vazio `commercialTeamConsultores = []`.
+  2. Ao cadastrar um novo consultor via `formCreateConsultor`, a lista comercial não era sincronizada nem os seletores eram atualizados dinamicamente.
+  3. A abertura do modal de metas ocorria sem assegurar a resolução assíncrona da listagem de consultores.
+- **Solução aplicada:**
+  1. Criou-se a função centralizadora `ensureCommercialConsultores(forceRefresh)` com suporte resiliente a retorno em array ou objeto (`Array.isArray(res) ? res : res.consultores || []`), sincronizando `teamConsultoresData` e `commercialTeamConsultores`;
+  2. Assegurou-se que `openCommercialGoalsModal` e o botão de criação de deals invoquem `await ensureCommercialConsultores()`;
+  3. No callback de criação (`formCreateConsultor`), edição (`formEditConsultor`) e alteração de status (`handleToggleConsultorStatus`), garantiu-se a atualização imediata dos selects e tabelas;
+  4. Adicionou-se listener dinâmico para pré-carregar metas já salvas ao selecionar um consultor no dropdown;
+  5. Incrementou-se a versão de cache do Service Worker para `fecho-static-v17` e atualizou-se o teste correspondente em `test_security_multitenant_stress.py`.
+- **Como evitar no futuro:** Em clientes JavaScript, sempre inspecionar o contrato real de resposta retornado pela API (array direto vs payload envelopado em chave) e unificar o estado compartilhado entre abas afins através de funções de sincronização reativas.
+

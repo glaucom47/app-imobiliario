@@ -2373,10 +2373,13 @@
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar consultores da agência...</td></tr>';
 
         try {
-          const consultores = await Api.getBackofficeConsultores();
+          const res = await Api.getBackofficeConsultores();
+          const consultores = Array.isArray(res) ? res : (res && res.consultores ? res.consultores : []);
           teamConsultoresData = consultores;
+          commercialTeamConsultores = consultores;
+          populateCommercialConsultoresSelects();
 
-          const ativosCount = consultores.filter(c => c.ativo).length;
+          const ativosCount = consultores.filter(c => c.ativo !== false).length;
           countLabel.textContent = `${consultores.length} consultor(es) • ${ativosCount} ativo(s)`;
 
           if (consultores.length === 0) {
@@ -2433,7 +2436,7 @@
 
         try {
           await Api.updateBackofficeConsultorStatus(consultorId, { ativo: !currentStatus });
-          loadTeamConsultores();
+          await loadTeamConsultores();
         } catch (err) {
           alert('Erro ao atualizar estado do consultor: ' + err.message);
         }
@@ -2482,7 +2485,7 @@
             await Api.createBackofficeConsultor(payload);
             modalCreateConsultor.style.display = 'none';
             formCreateConsultor.reset();
-            loadTeamConsultores();
+            await loadTeamConsultores();
           } catch (err) {
             errCreateConsultor.textContent = err.message || 'Erro ao criar consultor.';
             errCreateConsultor.style.display = 'block';
@@ -2541,7 +2544,7 @@
 
             await Api.updateBackofficeConsultor(consultorId, payload);
             modalEditConsultor.style.display = 'none';
-            loadTeamConsultores();
+            await loadTeamConsultores();
           } catch (err) {
             errEditConsultor.textContent = err.message || 'Erro ao atualizar consultor.';
             errEditConsultor.style.display = 'block';
@@ -2617,18 +2620,26 @@
         }
       }
 
+      async function ensureCommercialConsultores(forceRefresh = false) {
+        if (forceRefresh || !commercialTeamConsultores || commercialTeamConsultores.length === 0) {
+          try {
+            const resTeam = await Api.getBackofficeConsultores();
+            const list = Array.isArray(resTeam) ? resTeam : (resTeam && resTeam.consultores ? resTeam.consultores : []);
+            commercialTeamConsultores = list;
+            teamConsultoresData = list;
+          } catch (e) {
+            console.warn('Erro ao carregar lista de consultores para direção comercial:', e);
+            commercialTeamConsultores = [];
+          }
+          populateCommercialConsultoresSelects();
+        }
+        return commercialTeamConsultores;
+      }
+
       async function loadCommercialDashboard() {
         try {
           // 1. Carregar Consultores para os seletores (se ainda não carregados)
-          if (commercialTeamConsultores.length === 0) {
-            try {
-              const resTeam = await Api.getBackofficeConsultores();
-              commercialTeamConsultores = resTeam.consultores || [];
-              populateCommercialConsultoresSelects();
-            } catch (e) {
-              console.warn('Erro ao carregar lista de consultores para direção comercial:', e);
-            }
-          }
+          await ensureCommercialConsultores();
 
           // 2. Chamar endpoint consolidado
           const data = await Api.getCommercialDashboard(currentCommercialFilter);
@@ -2682,7 +2693,7 @@
         const selectGoals = document.getElementById('select-goals-consultor');
         const selectDeal = document.getElementById('select-deal-consultor');
 
-        const activeConsultores = commercialTeamConsultores.filter(c => c.ativo);
+        const activeConsultores = (commercialTeamConsultores || []).filter(c => c.ativo !== false);
 
         if (selectFunnel) {
           const currentVal = selectFunnel.value;
@@ -2690,21 +2701,35 @@
           activeConsultores.forEach(c => {
             selectFunnel.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}</option>`;
           });
-          selectFunnel.value = currentVal;
+          if (currentVal) selectFunnel.value = currentVal;
         }
 
         if (selectGoals) {
+          const currentVal = selectGoals.value;
           selectGoals.innerHTML = '<option value="" disabled selected>Selecione um consultor</option>';
-          activeConsultores.forEach(c => {
-            selectGoals.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}</option>`;
-          });
+          if (activeConsultores.length === 0) {
+            selectGoals.innerHTML += '<option value="" disabled>Nenhum consultor ativo registado</option>';
+          } else {
+            activeConsultores.forEach(c => {
+              const emailInfo = c.email ? ` (${escapeHtml(c.email)})` : '';
+              selectGoals.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}${emailInfo}</option>`;
+            });
+          }
+          if (currentVal) selectGoals.value = currentVal;
         }
 
         if (selectDeal) {
+          const currentVal = selectDeal.value;
           selectDeal.innerHTML = '<option value="" disabled selected>Selecione o consultor responsável</option>';
-          activeConsultores.forEach(c => {
-            selectDeal.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}</option>`;
-          });
+          if (activeConsultores.length === 0) {
+            selectDeal.innerHTML += '<option value="" disabled>Nenhum consultor ativo registado</option>';
+          } else {
+            activeConsultores.forEach(c => {
+              const emailInfo = c.email ? ` (${escapeHtml(c.email)})` : '';
+              selectDeal.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}${emailInfo}</option>`;
+            });
+          }
+          if (currentVal) selectDeal.value = currentVal;
         }
       }
 
@@ -2852,7 +2877,8 @@
 
       window.openConsultorPerformanceModal = async function(consultorId) {
         currentPerfConsultorId = consultorId;
-        const consultor = commercialTeamConsultores.find(c => c.id === consultorId);
+        await ensureCommercialConsultores();
+        const consultor = commercialTeamConsultores.find(c => c.id === Number(consultorId));
 
         document.getElementById('modal-perf-consultor-nome').textContent = consultor ? consultor.nome : `Consultor #${consultorId}`;
         document.getElementById('modal-perf-consultor-contacto').textContent = consultor ? `${consultor.email} • ${consultor.telemovel || 'Sem telemóvel'}` : '';
@@ -2975,8 +3001,9 @@
         containerNewCommitments.innerHTML = '';
         formMeeting.reset();
 
+        await ensureCommercialConsultores();
         document.getElementById('input-meeting-consultor-id').value = consultorId;
-        const consultor = commercialTeamConsultores.find(c => c.id === consultorId);
+        const consultor = commercialTeamConsultores.find(c => c.id === Number(consultorId));
         document.getElementById('modal-meeting-consultor-title').textContent = `Reunião: ${consultor ? consultor.nome : '#' + consultorId}`;
 
         modalMeeting.style.display = 'flex';
@@ -3129,10 +3156,11 @@
         document.getElementById('input-goals-ano').value = now.getFullYear();
         document.getElementById('input-goals-mes').value = now.getMonth() + 1;
 
-        populateCommercialConsultoresSelects();
+        // Garante que a lista de consultores esteja carregada e atualizada
+        await ensureCommercialConsultores();
 
         if (consultorId) {
-          document.getElementById('select-goals-consultor').value = consultorId;
+          document.getElementById('select-goals-consultor').value = String(consultorId);
           // Tentar buscar meta existente para pré-preencher
           try {
             const goals = await Api.getCommercialGoals(now.getFullYear(), now.getMonth() + 1, consultorId);
@@ -3155,6 +3183,45 @@
 
         modalGoals.style.display = 'flex';
       };
+
+      // Carregamento dinâmico de metas ao selecionar consultor no modal
+      const selectGoalsCons = document.getElementById('select-goals-consultor');
+      if (selectGoalsCons) {
+        selectGoalsCons.addEventListener('change', async () => {
+          const consId = selectGoalsCons.value ? Number(selectGoalsCons.value) : null;
+          const ano = Number(document.getElementById('input-goals-ano').value);
+          const mes = Number(document.getElementById('input-goals-mes').value);
+          if (consId && ano && mes) {
+            try {
+              const goals = await Api.getCommercialGoals(ano, mes, consId);
+              if (goals && goals.length > 0) {
+                const g = goals[0];
+                document.getElementById('input-goals-faturacao').value = g.meta_faturacao || 0;
+                document.getElementById('input-goals-contactos').value = g.meta_contactos || 0;
+                document.getElementById('input-goals-reunioes').value = g.meta_reunioes || 0;
+                document.getElementById('input-goals-angariacoes').value = g.meta_angariacoes || 0;
+                document.getElementById('input-goals-exclusivos').value = g.meta_exclusivos || 0;
+                document.getElementById('input-goals-visitas').value = g.meta_visitas || 0;
+                document.getElementById('input-goals-propostas').value = g.meta_propostas || 0;
+                document.getElementById('input-goals-cpcv').value = g.meta_cpcv || 0;
+                document.getElementById('input-goals-escrituras').value = g.meta_escrituras || 0;
+              } else {
+                document.getElementById('input-goals-faturacao').value = '';
+                document.getElementById('input-goals-contactos').value = 0;
+                document.getElementById('input-goals-reunioes').value = 0;
+                document.getElementById('input-goals-angariacoes').value = 0;
+                document.getElementById('input-goals-exclusivos').value = 0;
+                document.getElementById('input-goals-visitas').value = 0;
+                document.getElementById('input-goals-propostas').value = 0;
+                document.getElementById('input-goals-cpcv').value = 0;
+                document.getElementById('input-goals-escrituras').value = 0;
+              }
+            } catch (e) {
+              console.warn('Sem meta prévia encontrada ao alterar consultor');
+            }
+          }
+        });
+      }
 
       if (formGoals) {
         formGoals.addEventListener('submit', async (e) => {
@@ -3205,10 +3272,10 @@
       const errDeal = document.getElementById('modal-deal-error');
 
       if (btnOpenDeal) {
-        btnOpenDeal.addEventListener('click', () => {
+        btnOpenDeal.addEventListener('click', async () => {
           errDeal.style.display = 'none';
           formDeal.reset();
-          populateCommercialConsultoresSelects();
+          await ensureCommercialConsultores();
           modalDeal.style.display = 'flex';
         });
       }

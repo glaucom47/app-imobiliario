@@ -1,8 +1,12 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 04/10/2026 - 16:45
-* **Fase Atual:** Evolução Contínua - Módulo de Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP Completo: Backend & Frontend)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend) do Módulo de Direção Comercial (FSD Seção 8): modelos relacionais SQLAlchemy (`Goal`, `PipelineDeal`, `WeeklyMeeting`, `MeetingCommitment`), migração Alembic aplicada, contratos Pydantic v2, serviços de negócio para KPIs consolidados, funil de 7 etapas, pipeline ponderado, semáforo de trajetória individual (🟢🟡🔴) e reuniões semanais com snapshot atômico congelado, além de endpoints REST sob `/api/v1/backoffice/` com controle de acesso estrito (`require_diretor`) e isolamento multi-tenant por agência. No Frontend do Backoffice (`static/backoffice.html`), corrigiu-se o carregamento e sincronização dinâmica dos consultores em todos os seletores e modais comerciais ("Definir Metas", "Novo Negócio", "Ficha Individual", "Reunião Semanal"), garantindo que novos consultores criados na aba da equipa apareçam imediatamente sem necessidade de recarregar a página. A suíte automatizada conta com **145 testes com 100% de aprovação**.
+* **Última Atualização:** 04/10/2026 - 17:15
+* **Fase Atual:** Evolução Contínua - Estatísticas Individuais e de Equipa (Direção Comercial, Equipa Comercial e Painel de Assiduidade)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend) de estatísticas e métricas comparativas individuais e de equipa em todas as áreas-chave do Backoffice:
+  1. **Direção Comercial (`#tab-commercial`):** Seletor de escopo duplo ("🏢 Toda a Loja / Equipa" vs "👤 Consultor Individual"), Faixa Executiva com Raio-X da Equipa (consultores ativos, média de faturação, top performer do mês, carteira global e contagem de semáforos 🟢🟡🔴), Banner de Foco Individual para o consultor selecionado com botões de ação rápida (Ficha 4 Blocos, Reunião 1-on-1, Metas), além do recálculo dinâmico dos 4 cartões de KPIs e do Funil de Vendas de 7 etapas para o escopo escolhido;
+  2. **Equipa Comercial (`#tab-team`):** Faixa de 4 KPIs estratégicos da equipa (Total de Consultores Ativos/Inativos, Faturação Total e Média por Consultor, Meta Global e Cumprimento Médio %, Carteira de Imóveis e Média por Consultor), e Tabela Enriquecida de 8 colunas exibindo métricas individuais em tempo real (Imóveis Ativos, Faturação vs Meta Mês, % Cumprimento, Visitas Realizadas, Semáforo de Trajetória, Estado e Ações de Gestão direta como Ficha e Reunião);
+  3. **Painel & Assiduidade (`#tab-kpis`):** Filtro de escopo por consultor ("🏢 Toda a Equipa" vs "Consultor") com atualização reativa dos 4 indicadores de assiduidade e notas por voz (total de visitas, taxa de adesão ao feedback, taxa de prestação de contas ao proprietário e interesse médio).
+A suíte automatizada conta com **145 testes com 100% de aprovação**. Service Worker atualizado para `fecho-static-v18`.
 
 ---
 

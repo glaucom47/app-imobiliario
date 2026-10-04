@@ -71,17 +71,25 @@
            ABA 1: PAINEL DE KPIS E ASSIDUIDADE
            =================================================================== -->
       <div id="tab-kpis" class="bo-tab-content">
-        <!-- Barra de Filtro de Período -->
+        <!-- Barra de Filtro de Período e Consultor -->
         <div class="bo-filter-bar">
           <div>
-            <h2 style="font-size: 18px; font-weight: 600;">Métricas Globais da Agência</h2>
-            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">Assiduidade de visitas e adesão ao feedback por voz</p>
+            <h2 style="font-size: 18px; font-weight: 600;" id="kpi-panel-title">Métricas Globais da Agência</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;" id="kpi-panel-subtitle">Assiduidade de visitas e adesão ao feedback por voz</p>
           </div>
-          <div class="bo-period-selector" id="kpi-period-selector">
-            <button class="bo-period-btn" data-days="7">7 Dias</button>
-            <button class="bo-period-btn active" data-days="30">30 Dias</button>
-            <button class="bo-period-btn" data-days="90">90 Dias</button>
-            <button class="bo-period-btn" data-days="">Todo o Histórico</button>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label for="kpi-scope-consultor" class="label-caps" style="color: var(--color-outline); font-size: 11px;">Visão:</label>
+              <select id="kpi-scope-consultor" class="fecho-input" style="height: 38px; width: auto; font-size: 13px; padding: 0 12px; font-weight: 500;">
+                <option value="">🏢 Toda a Equipa</option>
+              </select>
+            </div>
+            <div class="bo-period-selector" id="kpi-period-selector">
+              <button class="bo-period-btn" data-days="7">7 Dias</button>
+              <button class="bo-period-btn active" data-days="30">30 Dias</button>
+              <button class="bo-period-btn" data-days="90">90 Dias</button>
+              <button class="bo-period-btn" data-days="">Todo o Histórico</button>
+            </div>
           </div>
         </div>
 
@@ -534,10 +542,37 @@
           </div>
         </div>
 
+        <!-- 4 Indicadores Estratégicos da Equipa -->
+        <main style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--spacing-margin); margin-bottom: var(--spacing-lg);">
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Total de Consultores</span>
+            <div class="financial-display" id="team-kpi-total-consultores">0</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="team-kpi-ativos-sub">0 ativos na loja</p>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Faturação da Equipa (Mês)</span>
+            <div class="financial-display" style="color: var(--color-primary);" id="team-kpi-faturacao-total">0,00 €</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="team-kpi-media-sub">Média: 0,00 € / consultor</p>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Meta Global & Cumprimento</span>
+            <div class="financial-display" id="team-kpi-cumprimento-global">0%</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="team-kpi-meta-sub">Meta: 0,00 €</p>
+          </div>
+
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 8px;">Carteira Total de Imóveis</span>
+            <div class="financial-display" id="team-kpi-imoveis-total">0</div>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 4px;" id="team-kpi-imoveis-media-sub">Média: 0 ativos / consultor</p>
+          </div>
+        </main>
+
         <!-- Tabela de Consultores -->
         <section class="card-tier1">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin); flex-wrap: wrap; gap: 8px;">
-            <h3 style="font-size: 16px; font-weight: 600;">Consultores Registados</h3>
+            <h3 style="font-size: 16px; font-weight: 600;">Consultores Registados & Estatísticas Individuais</h3>
             <span class="label-caps" style="color: var(--color-secondary);" id="team-consultores-count">A carregar...</span>
           </div>
 
@@ -546,16 +581,18 @@
               <thead>
                 <tr>
                   <th>Consultor</th>
-                  <th>E-mail Profissional</th>
-                  <th>Telemóvel</th>
+                  <th style="text-align: center;">Imóveis Ativos</th>
+                  <th style="text-align: right;">Faturação (Mês)</th>
+                  <th style="text-align: center;">% Meta</th>
+                  <th style="text-align: center;">Visitas (Mês)</th>
+                  <th style="text-align: center;">Trajetória</th>
                   <th style="text-align: center;">Estado</th>
-                  <th>Data de Entrada</th>
-                  <th style="text-align: right;">Ações</th>
+                  <th style="text-align: right;">Ações de Gestão</th>
                 </tr>
               </thead>
               <tbody id="team-consultores-table-body">
                 <tr>
-                  <td colspan="6" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar equipa comercial...</td>
+                  <td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar equipa comercial...</td>
                 </tr>
               </tbody>
             </table>
@@ -581,6 +618,14 @@
           </div>
 
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <!-- Seletor de Escopo (Loja vs Consultor Individual) -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label for="commercial-scope-consultor" class="label-caps" style="color: var(--color-outline); font-size: 11px;">Visão:</label>
+              <select id="commercial-scope-consultor" class="fecho-input" style="height: 38px; width: auto; font-size: 13px; padding: 0 12px; font-weight: 600;">
+                <option value="">🏢 Toda a Loja / Equipa</option>
+              </select>
+            </div>
+
             <!-- Seletor de Período Temporal -->
             <div class="bo-period-selector" id="commercial-period-selector">
               <button class="bo-period-btn" data-period="7_dias">7 Dias</button>
@@ -600,12 +645,39 @@
           </div>
         </div>
 
+        <!-- Banner de Foco Individual (Exibido quando um consultor específico é selecionado) -->
+        <div id="commercial-individual-banner" class="card-tier1" style="display: none; background: #faf9f6; margin-bottom: var(--spacing-lg); border-left: 4px solid var(--color-primary);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span id="comm-ind-avatar" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: var(--color-primary); color: #ffffff; font-weight: 700; font-size: 18px;">C</span>
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <h3 style="font-size: 18px; font-weight: 700; margin: 0;" id="comm-ind-name">Consultor</h3>
+                  <span class="status-pill status-pill-notarized" id="comm-ind-status">Ativo</span>
+                </div>
+                <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;" id="comm-ind-sub">Visão Individual • Indicadores, Funil e Atividades</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn-secondary-ghost" style="width: auto; height: 36px; padding: 0 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" id="btn-comm-ind-ficha">
+                <span>📋</span> Ficha 4 Blocos
+              </button>
+              <button type="button" class="btn-primary-action" style="width: auto; height: 36px; padding: 0 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;" id="btn-comm-ind-meeting">
+                <span>🤝</span> Iniciar Reunião 1-on-1
+              </button>
+              <button type="button" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 36px; padding: 0 12px; font-size: 12px; font-weight: 600;" id="btn-comm-ind-goals">
+                <span>🎯</span> Metas
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Grid de 4 Indicadores Estratégicos com Variação Homóloga -->
         <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--spacing-margin); margin-bottom: var(--spacing-lg);">
           <!-- Card 1: Faturação -->
           <div class="card-tier1" style="margin-bottom: 0;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <span class="label-caps" style="color: var(--color-outline);">Faturação da Loja</span>
+              <span class="label-caps" style="color: var(--color-outline);" id="comm-kpi-faturacao-title">Faturação da Loja</span>
               <span id="comm-kpi-faturacao-badge" class="status-pill" style="font-size: 11px;">0%</span>
             </div>
             <div class="financial-display" style="margin-top: 8px;" id="comm-kpi-faturacao">0,00 €</div>
@@ -657,6 +729,43 @@
             </div>
           </div>
         </section>
+
+        <!-- Faixa de Resumo Executivo da Equipa (Exibida em visão de Loja) -->
+        <div id="commercial-team-summary" class="card-tier1" style="background: var(--color-surface); margin-bottom: var(--spacing-lg); border-left: 4px solid var(--color-secondary);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary);">Raio-X Executivo da Equipa</span>
+              <h4 style="font-size: 15px; font-weight: 700; margin-top: 2px;">Resumo & Equilíbrio Global da Loja</h4>
+            </div>
+            <div id="comm-team-semaforo-pills" style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+              <span class="status-pill" style="background: #e8f5e9; color: #1b4332; font-weight: 600;" id="comm-team-ritmo-count">🟢 0 no ritmo</span>
+              <span class="status-pill" style="background: #fef3c7; color: #b45309; font-weight: 600;" id="comm-team-atencao-count">🟡 0 em atenção</span>
+              <span class="status-pill" style="background: #fee2e2; color: #991b1b; font-weight: 600;" id="comm-team-critico-count">🔴 0 em apoio urgente</span>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; font-size: 13px;">
+            <div style="background: #ffffff; padding: 12px 14px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span class="label-caps" style="color: var(--color-outline); font-size: 10px;">Consultores Ativos</span>
+              <div style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin-top: 4px;" id="comm-team-total-ativos">0</div>
+              <span style="font-size: 11px; color: var(--color-outline);">Em atividade no mês</span>
+            </div>
+            <div style="background: #ffffff; padding: 12px 14px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span class="label-caps" style="color: var(--color-outline); font-size: 10px;">Média de Faturação / Consultor</span>
+              <div style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin-top: 4px;" id="comm-team-media-fat">0,00 €</div>
+              <span style="font-size: 11px; color: var(--color-outline);">Média das escrituras realizadas</span>
+            </div>
+            <div style="background: #ffffff; padding: 12px 14px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span class="label-caps" style="color: var(--color-outline); font-size: 10px;">Top Performer do Mês</span>
+              <div style="font-size: 16px; font-weight: 700; color: var(--color-secondary); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="comm-team-top-performer">--</div>
+              <span style="font-size: 11px; color: var(--color-outline);" id="comm-team-top-fat">0,00 € em fecho</span>
+            </div>
+            <div style="background: #ffffff; padding: 12px 14px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span class="label-caps" style="color: var(--color-outline); font-size: 10px;">Carteira Global de Imóveis</span>
+              <div style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin-top: 4px;" id="comm-team-imoveis-carteira">0</div>
+              <span style="font-size: 11px; color: var(--color-outline);">Imóveis em angariação ativa</span>
+            </div>
+          </div>
+        </div>
 
         <!-- Bloco: Funil Comercial de 7 Etapas -->
         <section class="card-tier1" style="margin-bottom: var(--spacing-lg);">
@@ -1582,6 +1691,7 @@
           dirBadge.textContent = `${user.nome} (Diretora)`;
           if (user.agencia_nome) agencyBadge.textContent = user.agencia_nome;
           loadKPIs(selectedKpiDays);
+          ensureCommercialConsultores();
         } else {
           rbacWarning.style.display = 'block';
           boContent.style.display = 'none';
@@ -1708,19 +1818,41 @@
       // =====================================================================
       // 1. CARREGAMENTO DE KPIS E ASSIDUIDADE
       // =====================================================================
+      let selectedKpiDays = 30;
+      let selectedKpiConsultorId = null;
+
+      const kpiScopeConsultor = document.getElementById('kpi-scope-consultor');
+      if (kpiScopeConsultor) {
+        kpiScopeConsultor.addEventListener('change', () => {
+          selectedKpiConsultorId = kpiScopeConsultor.value ? Number(kpiScopeConsultor.value) : null;
+          loadKPIs(selectedKpiDays, selectedKpiConsultorId);
+        });
+      }
+
       const periodButtons = document.querySelectorAll('#kpi-period-selector .bo-period-btn');
       periodButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           periodButtons.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           selectedKpiDays = btn.dataset.days ? parseInt(btn.dataset.days) : null;
-          loadKPIs(selectedKpiDays);
+          loadKPIs(selectedKpiDays, selectedKpiConsultorId);
         });
       });
 
-      async function loadKPIs(days) {
+      async function loadKPIs(days = selectedKpiDays, consultorId = selectedKpiConsultorId) {
         try {
-          const data = await Api.getBackofficeKPIs(days);
+          const data = await Api.getBackofficeKPIs(days, consultorId);
+
+          const titleElem = document.getElementById('kpi-panel-title');
+          const subElem = document.getElementById('kpi-panel-subtitle');
+          if (data.consultor_nome) {
+            if (titleElem) titleElem.textContent = `Métricas de Assiduidade • ${data.consultor_nome}`;
+            if (subElem) subElem.textContent = `Visitas e adesão ao feedback por voz de ${data.consultor_nome}`;
+          } else {
+            if (titleElem) titleElem.textContent = 'Métricas Globais da Agência';
+            if (subElem) subElem.textContent = 'Assiduidade de visitas e adesão ao feedback por voz';
+          }
+
           document.getElementById('kpi-total-visitas').textContent = data.total_visitas;
           document.getElementById('kpi-taxa-adesao').textContent = `${data.taxa_adesao_percent}%`;
           document.getElementById('kpi-adesao-bar').style.width = `${Math.min(100, data.taxa_adesao_percent)}%`;
@@ -2370,7 +2502,7 @@
       async function loadTeamConsultores() {
         const tbody = document.getElementById('team-consultores-table-body');
         const countLabel = document.getElementById('team-consultores-count');
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar consultores da agência...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar consultores da agência...</td></tr>';
 
         try {
           const res = await Api.getBackofficeConsultores();
@@ -2382,13 +2514,38 @@
           const ativosCount = consultores.filter(c => c.ativo !== false).length;
           countLabel.textContent = `${consultores.length} consultor(es) • ${ativosCount} ativo(s)`;
 
+          // Atualizar 4 Indicadores Estratégicos da Equipa
+          const totalFat = consultores.reduce((acc, c) => acc + (c.faturacao_mes || 0), 0);
+          const totalMeta = consultores.reduce((acc, c) => acc + (c.meta_mes || 0), 0);
+          const totalImoveis = consultores.reduce((acc, c) => acc + (c.total_imoveis_ativos || 0), 0);
+          const cumpPct = totalMeta > 0 ? ((totalFat / totalMeta) * 100).toFixed(1) : '0.0';
+
+          const kpiTotalCons = document.getElementById('team-kpi-total-consultores');
+          if (kpiTotalCons) kpiTotalCons.textContent = consultores.length;
+          const kpiAtivosSub = document.getElementById('team-kpi-ativos-sub');
+          if (kpiAtivosSub) kpiAtivosSub.textContent = `${ativosCount} ativos na loja`;
+
+          const kpiFatTotal = document.getElementById('team-kpi-faturacao-total');
+          if (kpiFatTotal) kpiFatTotal.textContent = formatPrice(totalFat);
+          const kpiMediaSub = document.getElementById('team-kpi-media-sub');
+          if (kpiMediaSub) kpiMediaSub.textContent = `Média: ${formatPrice(ativosCount > 0 ? totalFat / ativosCount : 0)} / consultor`;
+
+          const kpiCumpGlobal = document.getElementById('team-kpi-cumprimento-global');
+          if (kpiCumpGlobal) kpiCumpGlobal.textContent = `${cumpPct}%`;
+          const kpiMetaSub = document.getElementById('team-kpi-meta-sub');
+          if (kpiMetaSub) kpiMetaSub.textContent = `Meta: ${formatPrice(totalMeta)}`;
+
+          const kpiImovTotal = document.getElementById('team-kpi-imoveis-total');
+          if (kpiImovTotal) kpiImovTotal.textContent = totalImoveis;
+          const kpiImovMedia = document.getElementById('team-kpi-imoveis-media-sub');
+          if (kpiImovMedia) kpiImovMedia.textContent = `Média: ${(ativosCount > 0 ? totalImoveis / ativosCount : 0).toFixed(1)} ativos / consultor`;
+
           if (consultores.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-outline); padding: 24px;">Nenhum consultor registado na sua agência. Clique em "+ Novo Consultor" para adicionar.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">Nenhum consultor registado na sua agência. Clique em "+ Novo Consultor" para adicionar.</td></tr>';
             return;
           }
 
           tbody.innerHTML = consultores.map(c => {
-            const dataRegisto = c.created_at ? new Date(c.created_at).toLocaleDateString('pt-PT') : 'Sem registo';
             const statusPill = c.ativo
               ? '<span class="status-pill status-pill-notarized" style="display: inline-flex; align-items: center; gap: 4px;">● Ativo</span>'
               : '<span class="status-pill" style="display: inline-flex; align-items: center; gap: 4px; background: #f3f3f3; color: var(--color-outline); border: 1px solid var(--color-outline-variant);">○ Inativo</span>';
@@ -2398,22 +2555,47 @@
               ? 'border-color: var(--color-error); color: var(--color-error);'
               : 'border-color: #1B4332; color: #1B4332;';
 
+            const pctMeta = c.percentual_meta !== null && c.percentual_meta !== undefined ? Number(c.percentual_meta) : 0;
+            const metaBadgeClass = pctMeta >= 100 ? 'status-pill-notarized' : 'status-pill-secondary';
+
             return `
               <tr>
                 <td>
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--color-surface-dim); font-weight: 700; font-size: 13px; color: var(--color-primary);">
-                      ${escapeHtml(c.nome.charAt(0).toUpperCase())}
+                      ${escapeHtml((c.nome || 'C').charAt(0).toUpperCase())}
                     </span>
-                    <strong style="color: var(--color-primary);">${escapeHtml(c.nome)}</strong>
+                    <div>
+                      <strong style="color: var(--color-primary); display: block;">${escapeHtml(c.nome)}</strong>
+                      <span style="color: var(--color-outline); font-size: 11px;">${escapeHtml(c.email)}</span>
+                    </div>
                   </div>
                 </td>
-                <td style="color: var(--color-outline); font-size: 13px;">${escapeHtml(c.email)}</td>
-                <td style="font-size: 13px;">${c.telemovel ? escapeHtml(c.telemovel) : '<span style="color: var(--color-outline); font-style: italic;">Não indicado</span>'}</td>
-                <td style="text-align: center;">${statusPill}</td>
-                <td style="color: var(--color-outline); font-size: 12px;">${dataRegisto}</td>
+                <td style="text-align: center;">
+                  <span class="financial-display" style="font-size: 15px;">${c.total_imoveis_ativos || 0}</span>
+                </td>
                 <td style="text-align: right;">
-                  <div style="display: inline-flex; gap: 6px; justify-content: flex-end;">
+                  <div style="font-weight: 700; color: var(--color-primary);">${formatPrice(c.faturacao_mes || 0)}</div>
+                  <span style="font-size: 11px; color: var(--color-outline);">Meta: ${formatPrice(c.meta_mes || 0)}</span>
+                </td>
+                <td style="text-align: center;">
+                  <span class="status-pill ${metaBadgeClass}" style="font-size: 11px; font-weight: 600;">${pctMeta.toFixed(1)}%</span>
+                </td>
+                <td style="text-align: center; font-weight: 600; font-variant-numeric: tabular-nums;">
+                  ${c.total_visitas_mes || 0}
+                </td>
+                <td style="text-align: center;">
+                  ${getSemaforoPill(c.trajetoria)}
+                </td>
+                <td style="text-align: center;">${statusPill}</td>
+                <td style="text-align: right;">
+                  <div style="display: inline-flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap;">
+                    <button class="status-pill" style="border: 1px solid var(--color-secondary); background: var(--color-secondary-container); color: var(--color-on-secondary-container); cursor: pointer; height: 32px; padding: 0 10px; font-size: 11px; font-weight: 600;" onclick="openConsultorPerformanceModal(${c.id})" title="Ficha de Performance Individual">
+                      📋 Ficha
+                    </button>
+                    <button class="status-pill" style="border: 1px solid var(--color-primary); background: #ffffff; color: var(--color-primary); cursor: pointer; height: 32px; padding: 0 10px; font-size: 11px; font-weight: 600;" onclick="openStartMeetingModal(${c.id})" title="Iniciar Reunião Semanal 1-on-1">
+                      🤝 Reunião
+                    </button>
                     <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 32px; padding: 0 10px; font-size: 11px;" onclick="openEditConsultorModal(${c.id})">
                       Editar
                     </button>
@@ -2426,7 +2608,7 @@
             `;
           }).join('');
         } catch (err) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--color-error); padding: 24px;">Erro ao carregar consultores: ${escapeHtml(err.message)}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--color-error); padding: 24px;">Erro ao carregar consultores: ${escapeHtml(err.message)}</td></tr>`;
         }
       }
 
@@ -2611,13 +2793,26 @@
       }
 
       function getSemaforoPill(trajetoria) {
-        if (trajetoria === 'NoRitmo') {
+        if (trajetoria === 'NoRitmo' || trajetoria === 'verde') {
           return '<span class="status-pill" style="background: #e8f5e9; color: #1b4332; font-weight: 600;">🟢 No Ritmo</span>';
-        } else if (trajetoria === 'Atencao') {
+        } else if (trajetoria === 'Atencao' || trajetoria === 'amarelo') {
           return '<span class="status-pill" style="background: #fef3c7; color: #b45309; font-weight: 600;">🟡 Atenção</span>';
         } else {
           return '<span class="status-pill" style="background: #fee2e2; color: #991b1b; font-weight: 600;">🔴 Crítico</span>';
         }
+      }
+
+      let currentCommercialConsultorId = null;
+      const commercialScopeSelect = document.getElementById('commercial-scope-consultor');
+      if (commercialScopeSelect) {
+        commercialScopeSelect.addEventListener('change', () => {
+          currentCommercialConsultorId = commercialScopeSelect.value ? Number(commercialScopeSelect.value) : null;
+          const selectFunnel = document.getElementById('select-funnel-consultor');
+          if (selectFunnel) {
+            selectFunnel.value = currentCommercialConsultorId ? String(currentCommercialConsultorId) : '';
+          }
+          loadCommercialDashboard();
+        });
       }
 
       async function ensureCommercialConsultores(forceRefresh = false) {
@@ -2642,8 +2837,62 @@
           await ensureCommercialConsultores();
 
           // 2. Chamar endpoint consolidado
-          const data = await Api.getCommercialDashboard(currentCommercialFilter);
+          const data = await Api.getCommercialDashboard(currentCommercialFilter, currentCommercialConsultorId);
           const kpis = data.kpis;
+
+          // Gestão de Visão Loja vs Consultor Individual
+          const indBanner = document.getElementById('commercial-individual-banner');
+          const teamSummary = document.getElementById('commercial-team-summary');
+          const faturacaoTitle = document.getElementById('comm-kpi-faturacao-title');
+
+          if (data.consultor_id) {
+            if (teamSummary) teamSummary.style.display = 'none';
+            if (indBanner) indBanner.style.display = 'block';
+            if (faturacaoTitle) faturacaoTitle.textContent = 'Faturação do Consultor';
+
+            const indName = document.getElementById('comm-ind-name');
+            if (indName) indName.textContent = data.consultor_nome || 'Consultor';
+            const indAvatar = document.getElementById('comm-ind-avatar');
+            if (indAvatar && data.consultor_nome) indAvatar.textContent = data.consultor_nome.charAt(0).toUpperCase();
+
+            const btnFicha = document.getElementById('btn-comm-ind-ficha');
+            if (btnFicha) {
+              btnFicha.onclick = () => openConsultorPerformanceModal(data.consultor_id);
+            }
+            const btnMeeting = document.getElementById('btn-comm-ind-meeting');
+            if (btnMeeting) {
+              btnMeeting.onclick = () => openStartMeetingModal(data.consultor_id);
+            }
+            const btnGoals = document.getElementById('btn-comm-ind-goals');
+            if (btnGoals) {
+              btnGoals.onclick = () => openGoalsModal(data.consultor_id);
+            }
+          } else {
+            if (indBanner) indBanner.style.display = 'none';
+            if (teamSummary) teamSummary.style.display = 'block';
+            if (faturacaoTitle) faturacaoTitle.textContent = 'Faturação da Loja';
+
+            if (data.resumo_equipa) {
+              const r = data.resumo_equipa;
+              const rTotal = document.getElementById('comm-team-total-ativos');
+              if (rTotal) rTotal.textContent = r.total_consultores_ativos;
+              const rMedia = document.getElementById('comm-team-media-fat');
+              if (rMedia) rMedia.textContent = formatPrice(r.media_faturacao_consultor);
+              const rTop = document.getElementById('comm-team-top-performer');
+              if (rTop) rTop.textContent = r.top_performer_nome || 'Nenhum fecho';
+              const rTopFat = document.getElementById('comm-team-top-fat');
+              if (rTopFat) rTopFat.textContent = `${formatPrice(r.top_performer_faturacao)} em fecho`;
+              const rImov = document.getElementById('comm-team-imoveis-carteira');
+              if (rImov) rImov.textContent = r.total_imoveis_carteira;
+
+              const rRitmo = document.getElementById('comm-team-ritmo-count');
+              if (rRitmo) rRitmo.textContent = `🟢 ${r.total_em_ritmo} no ritmo`;
+              const rAtencao = document.getElementById('comm-team-atencao-count');
+              if (rAtencao) rAtencao.textContent = `🟡 ${r.total_em_atencao} em atenção`;
+              const rCritico = document.getElementById('comm-team-critico-count');
+              if (rCritico) rCritico.textContent = `🔴 ${r.total_em_critico} em apoio urgente`;
+            }
+          }
 
           // Card 1: Faturação
           const faturacaoElem = document.getElementById('comm-kpi-faturacao');
@@ -2679,9 +2928,8 @@
           if (exclusivElem) exclusivElem.textContent = `${kpis.angariacoes_exclusivas} exclusivos`;
           formatVariationBadge(document.getElementById('comm-kpi-angariacoes-badge'), kpis.variacao_homologa_angariacoes);
 
-          // Carregar sub-componentes
-          const selectedConsId = selectFunnelCons && selectFunnelCons.value ? Number(selectFunnelCons.value) : null;
-          await loadSalesFunnel(selectedConsId);
+          // Carregar sub-componentes (passando o consultor selecionado)
+          await loadSalesFunnel(currentCommercialConsultorId);
           await loadConsultoresPerformance();
         } catch (err) {
           console.error('Erro ao carregar Dashboard Comercial:', err);
@@ -2689,11 +2937,31 @@
       }
 
       function populateCommercialConsultoresSelects() {
+        const selectScope = document.getElementById('commercial-scope-consultor');
+        const selectKpiScope = document.getElementById('kpi-scope-consultor');
         const selectFunnel = document.getElementById('select-funnel-consultor');
         const selectGoals = document.getElementById('select-goals-consultor');
         const selectDeal = document.getElementById('select-deal-consultor');
 
         const activeConsultores = (commercialTeamConsultores || []).filter(c => c.ativo !== false);
+
+        if (selectScope) {
+          const currentVal = selectScope.value;
+          selectScope.innerHTML = '<option value="">🏢 Toda a Loja / Equipa</option>';
+          activeConsultores.forEach(c => {
+            selectScope.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}</option>`;
+          });
+          if (currentVal) selectScope.value = currentVal;
+        }
+
+        if (selectKpiScope) {
+          const currentVal = selectKpiScope.value;
+          selectKpiScope.innerHTML = '<option value="">🏢 Toda a Equipa</option>';
+          activeConsultores.forEach(c => {
+            selectKpiScope.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}</option>`;
+          });
+          if (currentVal) selectKpiScope.value = currentVal;
+        }
 
         if (selectFunnel) {
           const currentVal = selectFunnel.value;

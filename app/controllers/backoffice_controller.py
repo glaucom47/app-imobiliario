@@ -8,7 +8,9 @@ Endpoints restritos à Direção Comercial (RBAC: 'diretor'):
 - Parametrizações financeiras remotas (spreads, taxas de stress, LTV);
 - Exportação de relatórios em formato aberto CSV (UTF-8 BOM).
 """
-from datetime import datetime, timedelta, timezone
+from calendar import monthrange
+from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func
@@ -16,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from app.dependencies import require_diretor
+from app.models.commercial import Goal, PipelineDeal
 from app.models.objection import ObjectionTag, VisitObjection
 from app.models.property import Property
 from app.models.settings import Settings
@@ -46,6 +49,7 @@ router = APIRouter(prefix="/backoffice", tags=["Backoffice Web & Métricas"])
 @router.get("/kpis", response_model=KPIsSummaryResponse)
 def get_kpis_summary(
     dias: Optional[int] = Query(None, ge=1, le=365, description="Filtro opcional em dias (ex: 7, 30, 90)"),
+    consultor_id: Optional[int] = Query(None, description="Filtro opcional por consultor específico"),
     current_user: User = Depends(require_diretor),
     db: Session = Depends(get_db),
 ):
@@ -55,8 +59,16 @@ def get_kpis_summary(
     """
     agencia_id = current_user.agencia_id
 
+    consultor_nome = None
+    if consultor_id:
+        c_user = db.query(User).filter(User.id == consultor_id, User.agencia_id == agencia_id).first()
+        if c_user:
+            consultor_nome = c_user.nome
+
     # Base query de visitas da agência
     visitas_query = db.query(Visit).filter(Visit.agencia_id == agencia_id)
+    if consultor_id:
+        visitas_query = visitas_query.filter(Visit.consultor_id == consultor_id)
     if dias:
         cutoff = datetime.now(timezone.utc) - timedelta(days=dias)
         visitas_query = visitas_query.filter(Visit.data_visita >= cutoff)
@@ -129,6 +141,8 @@ def get_kpis_summary(
 
     return KPIsSummaryResponse(
         periodo_dias=dias,
+        consultor_id=consultor_id,
+        consultor_nome=consultor_nome,
         total_visitas=total_visitas,
         visitas_com_feedback=visitas_com_feedback,
         taxa_adesao_percent=taxa_adesao,
@@ -523,19 +537,96 @@ def list_consultores(
     db: Session = Depends(get_db),
 ):
     """
-    Lista todos os consultores associados à agência do diretor autenticado.
+    Lista todos os consultores associados à agência do diretor autenticado com métricas individuais em tempo real.
     Garante isolamento multi-tenant estrito por agencia_id e restrição RBAC.
     """
+    agencia_id = current_user.agencia_id
     consultores = (
         db.query(User)
         .filter(
-            User.agencia_id == current_user.agencia_id,
+            User.agencia_id == agencia_id,
             User.role == "consultor",
         )
         .order_by(User.nome.asc())
         .all()
     )
-    return consultores
+
+    hoje = date.today()
+    inicio_mes = hoje.replace(day=1)
+    ultimo_dia = monthrange(hoje.year, hoje.month)[1]
+    fim_mes = hoje.replace(day=ultimo_dia)
+    dias_no_mes = ultimo_dia
+    ritmo_esperado = (hoje.day / dias_no_mes) * 100.0
+
+    res: List[ConsultorResponse] = []
+    for c in consultores:
+        total_ativos = db.query(Property).filter(
+            Property.agencia_id == agencia_id,
+            Property.consultor_id == c.id,
+            Property.status == "Ativo",
+        ).count()
+
+        goal = db.query(Goal).filter(
+            Goal.agencia_id == agencia_id,
+            Goal.consultor_id == c.id,
+            Goal.ano == hoje.year,
+            Goal.mes == hoje.month,
+        ).first()
+        meta_mes = float(goal.meta_faturacao) if goal else 10000.0
+
+        props_vendidos = db.query(Property).filter(
+            Property.agencia_id == agencia_id,
+            Property.consultor_id == c.id,
+            Property.status == "Vendido",
+            Property.data_escritura >= inicio_mes,
+            Property.data_escritura <= fim_mes,
+        ).all()
+        faturacao_mes = sum((float(p.preco) * 0.05 for p in props_vendidos if p.preco), 0.0)
+        percentual_meta = round((faturacao_mes / meta_mes) * 100.0, 1) if meta_mes > 0 else 0.0
+
+        total_visitas = db.query(Visit).filter(
+            Visit.agencia_id == agencia_id,
+            Visit.consultor_id == c.id,
+            func.date(Visit.data_visita) >= inicio_mes,
+            func.date(Visit.data_visita) <= fim_mes,
+        ).count()
+
+        deals = db.query(PipelineDeal).filter(
+            PipelineDeal.agencia_id == agencia_id,
+            PipelineDeal.consultor_id == c.id,
+            PipelineDeal.ativo.is_(True),
+            PipelineDeal.fase.notin_(["Ganho", "Perdido"]),
+        ).all()
+        pipeline_ponderado = sum((float(d.comissao_estimada) * (float(d.probabilidade) / 100.0) for d in deals), 0.0)
+
+        if percentual_meta >= ritmo_esperado or percentual_meta >= 100.0:
+            trajetoria = "verde"
+        elif (percentual_meta >= (ritmo_esperado * 0.6)) or (pipeline_ponderado >= (meta_mes - faturacao_mes)):
+            trajetoria = "amarelo"
+        else:
+            trajetoria = "vermelho"
+
+        res.append(
+            ConsultorResponse(
+                id=c.id,
+                agencia_id=c.agencia_id,
+                nome=c.nome,
+                email=c.email,
+                role=c.role,
+                telemovel=c.telemovel,
+                ativo=c.ativo,
+                created_at=c.created_at,
+                updated_at=c.updated_at,
+                total_imoveis_ativos=total_ativos,
+                faturacao_mes=round(faturacao_mes, 2),
+                meta_mes=round(meta_mes, 2),
+                percentual_meta=percentual_meta,
+                total_visitas_mes=total_visitas,
+                trajetoria=trajetoria,
+            )
+        )
+
+    return res
 
 
 @router.post("/consultores", response_model=ConsultorResponse, status_code=status.HTTP_201_CREATED)

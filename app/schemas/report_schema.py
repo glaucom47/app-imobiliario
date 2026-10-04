@@ -25,6 +25,8 @@ class ConsultorAssiduidade(BaseModel):
 class KPIsSummaryResponse(BaseModel):
     """Resumo consolidado de KPIs da agência para a direção."""
     periodo_dias: Optional[int] = None
+    consultor_id: Optional[int] = None
+    consultor_nome: Optional[str] = None
     total_visitas: int
     visitas_com_feedback: int
     taxa_adesao_percent: float
@@ -155,7 +157,7 @@ class ConsultorUpdateRequest(BaseModel):
 
 
 class ConsultorResponse(BaseModel):
-    """Dados cadastrais e estado do consultor na agência."""
+    """Dados cadastrais, estado e métricas individuais do consultor na agência."""
     id: int
     agencia_id: int
     nome: str
@@ -165,6 +167,13 @@ class ConsultorResponse(BaseModel):
     ativo: bool
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    # Métricas individuais em tempo real
+    total_imoveis_ativos: Optional[int] = Field(None, description="Total de imóveis com status 'Ativo' atribuídos ao consultor")
+    faturacao_mes: Optional[float] = Field(None, description="Faturação do consultor no mês corrente em euros")
+    meta_mes: Optional[float] = Field(None, description="Meta mensal de faturação em euros")
+    percentual_meta: Optional[float] = Field(None, description="Percentual de cumprimento da meta no mês")
+    total_visitas_mes: Optional[int] = Field(None, description="Visitas realizadas pelo consultor no mês")
+    trajetoria: Optional[str] = Field(None, description="Classificação de semáforo ('NoRitmo', 'Atencao', 'Critico')")
 
     model_config = ConfigDict(from_attributes=True)
 

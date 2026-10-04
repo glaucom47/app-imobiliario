@@ -164,8 +164,11 @@ class CommercialDashboardResponse(BaseModel):
     filtro: str
     periodo_inicio: date
     periodo_fim: date
+    consultor_id: Optional[int] = Field(None, description="Identificador do consultor quando em visão individual")
+    consultor_nome: Optional[str] = Field(None, description="Nome do consultor quando em visão individual")
     kpis: CommercialKPIData
     deals_destaque: List[PipelineDealResponse] = Field(default_factory=list, description="Principais oportunidades do pipeline")
+    resumo_equipa: Optional[dict] = Field(None, description="Estatísticas executivas e comparativas da equipa quando em visão global")
 
 
 # ==========================================

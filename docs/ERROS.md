@@ -251,3 +251,14 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
   5. Incrementou-se a versão de cache do Service Worker para `fecho-static-v17` e atualizou-se o teste correspondente em `test_security_multitenant_stress.py`.
 - **Como evitar no futuro:** Em clientes JavaScript, sempre inspecionar o contrato real de resposta retornado pela API (array direto vs payload envelopado em chave) e unificar o estado compartilhado entre abas afins através de funções de sincronização reativas.
 
+### 2026-10-04 - AttributeError ao aceder a atributo 'performance' em vez de 'consultores' na consolidação de resumo de equipa
+
+- **Sintoma:** Ao invocar `GET /api/v1/backoffice/commercial-dashboard`, o servidor retornava status HTTP 500 com o erro: `AttributeError: 'ConsultoresPerformanceResponse' object has no attribute 'performance'`.
+- **Causa:** No cálculo do resumo executivo da equipa (`resumo_equipa`) dentro de `CommercialService.get_dashboard`, o serviço chamava `cls.get_consultores_performance(db, agencia_id)` e tentava acessar o campo inexistente `.performance`. No modelo Pydantic `ConsultoresPerformanceResponse`, a lista de itens é definida como `consultores: List[ConsultorPerformanceItem]`, e o nome do consultor é `.nome` (não `.consultor_nome`), com valores literais de semáforo `'verde'`, `'amarelo'` e `'vermelho'`.
+- **Solução aplicada:**
+  1. Corrigiu-se o acesso para `perf_items = perf_resp.consultores` e `top_p.nome`;
+  2. Alinharam-se os filtros do semáforo para verificar `'verde'`, `'amarelo'` e `'vermelho'`;
+  3. Validou-se a suíte completa de testes (`pytest -v`), obtendo 100% de aprovação (145 de 145 testes).
+- **Como evitar no futuro:** Sempre verificar o contrato exato dos esquemas Pydantic ao reutilizar métodos de serviço internamente, evitando suposições sobre nomes de atributos de resposta.
+
+

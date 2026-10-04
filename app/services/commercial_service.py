@@ -109,86 +109,107 @@ class CommercialService:
         return f"{variacao:.1f}%"
 
     @classmethod
-    def get_dashboard(cls, db: Session, agencia_id: int, filtro: str = "este_mes") -> CommercialDashboardResponse:
-        """Gera o dashboard executivo da direção com KPIs e pipeline ponderado."""
+    def get_dashboard(
+        cls,
+        db: Session,
+        agencia_id: int,
+        filtro: str = "este_mes",
+        consultor_id: Optional[int] = None,
+    ) -> CommercialDashboardResponse:
+        """Gera o dashboard executivo da direção com KPIs da equipa ou de um consultor individual."""
         inicio_atual, fim_atual, inicio_anterior, fim_anterior = cls._calcular_janelas_filtro(filtro)
+
+        consultor_nome = None
+        if consultor_id:
+            user = db.query(User).filter(User.id == consultor_id, User.agencia_id == agencia_id).first()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Consultor não encontrado.")
+            consultor_nome = user.nome
 
         # 1. Faturação (vendas com escritura no período)
         def _faturacao_periodo(ini: date, fim: date) -> Decimal:
-            # Imóveis vendidos no período
-            props = db.query(Property).filter(
+            props_q = db.query(Property).filter(
                 Property.agencia_id == agencia_id,
                 Property.status == "Vendido",
                 Property.data_escritura >= ini,
                 Property.data_escritura <= fim,
-            ).all()
-            # Faturação da agência estimada (comissão padrão média de 5% sobre valor transacionado)
-            fat_props = sum((Decimal(str(p.preco)) * Decimal("0.05") for p in props), Decimal("0.00"))
-            
-            # Deals fechados em carteira
-            deals = db.query(PipelineDeal).filter(
+            )
+            deals_q = db.query(PipelineDeal).filter(
                 PipelineDeal.agencia_id == agencia_id,
                 PipelineDeal.fase.in_(["Escritura", "Ganho"]),
                 PipelineDeal.data_prevista_fecho >= ini,
                 PipelineDeal.data_prevista_fecho <= fim,
-            ).all()
+            )
+            if consultor_id:
+                props_q = props_q.filter(Property.consultor_id == consultor_id)
+                deals_q = deals_q.filter(PipelineDeal.consultor_id == consultor_id)
+
+            props = props_q.all()
+            deals = deals_q.all()
+            fat_props = sum((Decimal(str(p.preco)) * Decimal("0.05") for p in props), Decimal("0.00"))
             fat_deals = sum((Decimal(str(d.comissao_estimada)) for d in deals), Decimal("0.00"))
-            
+
             return max(fat_props, fat_deals)
 
         faturacao_atual = _faturacao_periodo(inicio_atual, fim_atual)
         faturacao_anterior = _faturacao_periodo(inicio_anterior, fim_anterior)
         var_faturacao = cls._calcular_variacao_percentual(float(faturacao_atual), float(faturacao_anterior))
 
-        # 2. Metas de faturação da equipa no período
+        # 2. Metas de faturação da equipa ou individual no período
         ano_ref = inicio_atual.year
         mes_ref = inicio_atual.month
-        metas = db.query(Goal).filter(
+        metas_q = db.query(Goal).filter(
             Goal.agencia_id == agencia_id,
             Goal.ano == ano_ref,
             Goal.mes == mes_ref,
-        ).all()
+        )
+        if consultor_id:
+            metas_q = metas_q.filter(Goal.consultor_id == consultor_id)
+        metas = metas_q.all()
         meta_faturacao_total = sum((Decimal(str(g.meta_faturacao)) for g in metas), Decimal("0.00"))
-        
+
         taxa_cumprimento_faturacao = 0.0
         if meta_faturacao_total > 0:
             taxa_cumprimento_faturacao = round(float((faturacao_atual / meta_faturacao_total) * 100), 1)
 
         # 3. Visitas
-        visitas_atual = db.query(Visit).filter(
-            Visit.agencia_id == agencia_id,
+        vis_base = db.query(Visit).filter(Visit.agencia_id == agencia_id)
+        if consultor_id:
+            vis_base = vis_base.filter(Visit.consultor_id == consultor_id)
+        visitas_atual = vis_base.filter(
             func.date(Visit.data_visita) >= inicio_atual,
             func.date(Visit.data_visita) <= fim_atual,
         ).count()
-        visitas_anterior = db.query(Visit).filter(
-            Visit.agencia_id == agencia_id,
+        visitas_anterior = vis_base.filter(
             func.date(Visit.data_visita) >= inicio_anterior,
             func.date(Visit.data_visita) <= fim_anterior,
         ).count()
         var_visitas = cls._calcular_variacao_percentual(float(visitas_atual), float(visitas_anterior))
 
         # 4. Angariações
-        angariacoes_atual = db.query(Property).filter(
-            Property.agencia_id == agencia_id,
+        ang_base = db.query(Property).filter(Property.agencia_id == agencia_id)
+        if consultor_id:
+            ang_base = ang_base.filter(Property.consultor_id == consultor_id)
+        angariacoes_atual = ang_base.filter(
             func.date(Property.created_at) >= inicio_atual,
             func.date(Property.created_at) <= fim_atual,
         ).count()
-        angariacoes_anterior = db.query(Property).filter(
-            Property.agencia_id == agencia_id,
+        angariacoes_anterior = ang_base.filter(
             func.date(Property.created_at) >= inicio_anterior,
             func.date(Property.created_at) <= fim_anterior,
         ).count()
         var_angariacoes = cls._calcular_variacao_percentual(float(angariacoes_atual), float(angariacoes_anterior))
 
         # 5. Propostas
-        propostas_atual = db.query(PipelineDeal).filter(
-            PipelineDeal.agencia_id == agencia_id,
+        deal_base = db.query(PipelineDeal).filter(PipelineDeal.agencia_id == agencia_id)
+        if consultor_id:
+            deal_base = deal_base.filter(PipelineDeal.consultor_id == consultor_id)
+        propostas_atual = deal_base.filter(
             PipelineDeal.fase.in_(["Proposta", "Negociacao", "CPCV", "Escritura", "Ganho"]),
             func.date(PipelineDeal.created_at) >= inicio_atual,
             func.date(PipelineDeal.created_at) <= fim_atual,
         ).count()
-        propostas_anterior = db.query(PipelineDeal).filter(
-            PipelineDeal.agencia_id == agencia_id,
+        propostas_anterior = deal_base.filter(
             PipelineDeal.fase.in_(["Proposta", "Negociacao", "CPCV", "Escritura", "Ganho"]),
             func.date(PipelineDeal.created_at) >= inicio_anterior,
             func.date(PipelineDeal.created_at) <= fim_anterior,
@@ -196,14 +217,12 @@ class CommercialService:
         var_propostas = cls._calcular_variacao_percentual(float(propostas_atual), float(propostas_anterior))
 
         # 6. CPCV
-        cpcv_atual = db.query(PipelineDeal).filter(
-            PipelineDeal.agencia_id == agencia_id,
+        cpcv_atual = deal_base.filter(
             PipelineDeal.fase.in_(["CPCV", "Escritura", "Ganho"]),
             func.date(PipelineDeal.created_at) >= inicio_atual,
             func.date(PipelineDeal.created_at) <= fim_atual,
         ).count()
-        cpcv_anterior = db.query(PipelineDeal).filter(
-            PipelineDeal.agencia_id == agencia_id,
+        cpcv_anterior = deal_base.filter(
             PipelineDeal.fase.in_(["CPCV", "Escritura", "Ganho"]),
             func.date(PipelineDeal.created_at) >= inicio_anterior,
             func.date(PipelineDeal.created_at) <= fim_anterior,
@@ -211,26 +230,31 @@ class CommercialService:
         var_cpcv = cls._calcular_variacao_percentual(float(cpcv_atual), float(cpcv_anterior))
 
         # 7. Escrituras
-        escrituras_atual = db.query(Property).filter(
+        esc_base = db.query(Property).filter(
             Property.agencia_id == agencia_id,
             Property.status == "Vendido",
+        )
+        if consultor_id:
+            esc_base = esc_base.filter(Property.consultor_id == consultor_id)
+        escrituras_atual = esc_base.filter(
             Property.data_escritura >= inicio_atual,
             Property.data_escritura <= fim_atual,
         ).count()
-        escrituras_anterior = db.query(Property).filter(
-            Property.agencia_id == agencia_id,
-            Property.status == "Vendido",
+        escrituras_anterior = esc_base.filter(
             Property.data_escritura >= inicio_anterior,
             Property.data_escritura <= fim_anterior,
         ).count()
         var_escrituras = cls._calcular_variacao_percentual(float(escrituras_atual), float(escrituras_anterior))
 
         # 8. Pipeline Bruto e Ponderado (Negócios ativos)
-        deals_ativos = db.query(PipelineDeal).filter(
+        deals_ativos_q = db.query(PipelineDeal).filter(
             PipelineDeal.agencia_id == agencia_id,
             PipelineDeal.ativo.is_(True),
             PipelineDeal.fase.notin_(["Ganho", "Perdido"]),
-        ).all()
+        )
+        if consultor_id:
+            deals_ativos_q = deals_ativos_q.filter(PipelineDeal.consultor_id == consultor_id)
+        deals_ativos = deals_ativos_q.all()
 
         pipeline_bruto = sum((Decimal(str(d.comissao_estimada)) for d in deals_ativos), Decimal("0.00"))
         pipeline_ponderado = sum(
@@ -286,12 +310,40 @@ class CommercialService:
             total_negocios_ativos=len(deals_ativos),
         )
 
+        # Resumo executivo da equipa (quando em visão de loja)
+        resumo_equipa = None
+        if not consultor_id:
+            perf_resp = cls.get_consultores_performance(db, agencia_id)
+            perf_items = perf_resp.consultores
+            total_consultores = len(perf_items)
+            media_fat = (
+                sum((Decimal(str(p.faturacao_realizada)) for p in perf_items), Decimal("0.00")) / total_consultores
+                if total_consultores > 0
+                else Decimal("0.00")
+            )
+            top_p = max(perf_items, key=lambda x: x.faturacao_realizada, default=None) if perf_items else None
+            total_imoveis_carteira = db.query(Property).filter(Property.agencia_id == agencia_id, Property.status == "Ativo").count()
+
+            resumo_equipa = {
+                "total_consultores_ativos": total_consultores,
+                "media_faturacao_consultor": float(media_fat),
+                "top_performer_nome": top_p.nome if top_p else None,
+                "top_performer_faturacao": float(top_p.faturacao_realizada) if top_p else 0.0,
+                "total_em_ritmo": sum(1 for p in perf_items if p.trajetoria == "verde"),
+                "total_em_atencao": sum(1 for p in perf_items if p.trajetoria == "amarelo"),
+                "total_em_critico": sum(1 for p in perf_items if p.trajetoria == "vermelho"),
+                "total_imoveis_carteira": total_imoveis_carteira,
+            }
+
         return CommercialDashboardResponse(
             filtro=filtro,
             periodo_inicio=inicio_atual,
             periodo_fim=fim_atual,
+            consultor_id=consultor_id,
+            consultor_nome=consultor_nome,
             kpis=kpis,
             deals_destaque=deals_destaque,
+            resumo_equipa=resumo_equipa,
         )
 
     @classmethod

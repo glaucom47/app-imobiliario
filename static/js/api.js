@@ -416,8 +416,11 @@ const Api = {
   /**
    * Métodos do Backoffice (Exclusivos para Perfil Diretor)
    */
-  async getBackofficeKPIs(dias = null) {
-    const query = dias ? `?dias=${dias}` : '';
+  async getBackofficeKPIs(dias = null, consultorId = null) {
+    const params = new URLSearchParams();
+    if (dias) params.append('dias', dias);
+    if (consultorId) params.append('consultor_id', consultorId);
+    const query = params.toString() ? `?${params.toString()}` : '';
     return await this.request(`/backoffice/kpis${query}`);
   },
 
@@ -587,8 +590,12 @@ const Api = {
   // DIREÇÃO COMERCIAL & GESTÃO ATIVA DE EQUIPA (FSD 8)
   // ==========================================
 
-  async getCommercialDashboard(filtro = 'este_mes') {
-    return await this.request(`/backoffice/commercial-dashboard?filtro=${encodeURIComponent(filtro)}`);
+  async getCommercialDashboard(filtro = 'este_mes', consultorId = null) {
+    let url = `/backoffice/commercial-dashboard?filtro=${encodeURIComponent(filtro)}`;
+    if (consultorId) {
+      url += `&consultor_id=${encodeURIComponent(consultorId)}`;
+    }
+    return await this.request(url);
   },
 
   async getSalesFunnel(filtro = 'este_mes', consultorId = null) {

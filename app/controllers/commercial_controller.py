@@ -45,7 +45,7 @@ router = APIRouter(prefix="/backoffice", tags=["Direção Comercial & Gestão de
     "/commercial-dashboard",
     response_model=CommercialDashboardResponse,
     summary="Dashboard da Direção Comercial",
-    description="Retorna KPIs consolidados da agência com cálculo automático de variação percentual vs período homólogo anterior e pipeline bruto/ponderado.",
+    description="Retorna KPIs consolidados da agência ou específicos de um consultor com variações homólogas e pipeline bruto/ponderado.",
 )
 def get_commercial_dashboard(
     filtro: str = Query(
@@ -53,10 +53,16 @@ def get_commercial_dashboard(
         pattern="^(7_dias|30_dias|90_dias|este_mes|mes_anterior|historico)$",
         description="Filtro temporal (7_dias, 30_dias, 90_dias, este_mes, mes_anterior, historico)",
     ),
+    consultor_id: Optional[int] = Query(None, description="Identificador do consultor para visão individual de KPIs"),
     current_user: User = Depends(require_diretor),
     db: Session = Depends(get_db),
 ):
-    return CommercialService.get_dashboard(db, agencia_id=current_user.agencia_id, filtro=filtro)
+    return CommercialService.get_dashboard(
+        db,
+        agencia_id=current_user.agencia_id,
+        filtro=filtro,
+        consultor_id=consultor_id,
+    )
 
 
 # ==========================================

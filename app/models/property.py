@@ -70,6 +70,7 @@ class Property(Base):
     visits = relationship("Visit", back_populates="property", cascade="all, delete-orphan")
     visit_objections = relationship("VisitObjection", back_populates="property", cascade="all, delete-orphan")
     contacts = relationship("Contact", back_populates="property")
+    pipeline_deals = relationship("PipelineDeal", back_populates="property")
 
     def __repr__(self) -> str:
         return f"<Property(id={self.id}, titulo='{self.titulo}', status='{self.status}', preco={self.preco})>"

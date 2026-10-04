@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 04/10/2026 - 14:35
-* **Fase Atual:** Evolução Contínua - RBAC: Gestão de Consultores pela Direção e Isolamento Multi-tenant Estrito
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral da Gestão de Consultores pela Direção Comercial no Backoffice: criação de consultores com injeção automática de `agencia_id`, hash Bcrypt (`rounds=12`), listagem isolada por agência, ativação/desativação ágil via `PATCH .../status` (com bloqueio de login imediato para contas inativas), aba "Equipa Comercial" com tabela responsiva e modais no Backoffice, além de rigoroso bloqueio RBAC contra acesso de consultores a rotas de diretoria ou dados de outros consultores. A suíte automatizada conta com **144 testes com 100% de aprovação**.
+* **Última Atualização:** 04/10/2026 - 14:50
+* **Fase Atual:** Evolução Contínua - Módulo de Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral do backend do Módulo de Direção Comercial (FSD Seção 8): modelos relacionais SQLAlchemy (`Goal`, `PipelineDeal`, `WeeklyMeeting`, `MeetingCommitment`), migração Alembic aplicada, contratos Pydantic v2, serviços de negócio para KPIs consolidados, funil de 7 etapas, pipeline ponderado, semáforo de trajetória individual (🟢🟡🔴) e reuniões semanais com snapshot atômico congelado, além de endpoints REST sob `/api/v1/backoffice/` com controle de acesso estrito (`require_diretor`) e isolamento multi-tenant por agência. A suíte automatizada conta com **144 testes com 100% de aprovação**.
 
 ---
 

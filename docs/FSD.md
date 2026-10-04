@@ -185,3 +185,96 @@ Uma lead de angariação percorre os seguintes estados estritos:
 1. **Minimização:** O Fecho registra apenas os dados estritamente indispensáveis para a qualificação do imóvel anunciado e contato direto.
 2. **Direito de Oposição:** O acionamento da opção "Oposição RGPD" mascara de forma irreversível os dados de contato do particular, remove a lead da visão de prospecção e insere o número de telefone na tabela `leads_blacklist_rgpd` da agência para impedir novas captações futuras.
 3. **Expurgo Automático:** Registros no status "Novo" ou "Descartado" sem qualquer interação há mais de 60 dias são automaticamente anonimizados pela rotina de expurgo da agência.
+
+---
+
+## 8. Módulo de Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP)
+
+### 8.1 Objetivo e Princípio do Módulo
+Capacitar o Diretor de Loja com uma camada de inteligência e gestão sobre os dados operacionais já recolhidos pelo sistema, transformando o Fecho de um registador de visitas num acelerador comercial ativo.
+O módulo responde a duas perguntas centrais de gestão:
+1. *"Estamos na trajetória certa para atingir os objetivos da loja e individuais?"*
+2. *"Em que consultor ou etapa do funil preciso intervir hoje para melhorar os resultados?"*
+
+### 8.2 Modelo de Dados Relacional (PostgreSQL)
+
+1. **`Goal` (Metas Comerciais Individuais):**
+   - `id` (PK, Integer)
+   - `agencia_id` (FK -> Tenant, Integer)
+   - `consultor_id` (FK -> User, Integer)
+   - `ano` (Integer) e `mes` (Integer)
+   - Metas numéricas: `meta_faturacao` (Numeric), `meta_contactos`, `meta_reunioes`, `meta_angariacoes`, `meta_exclusivos`, `meta_visitas`, `meta_propostas`, `meta_cpcv`, `meta_escrituras` (Integer).
+
+2. **`PipelineDeal` (Oportunidades em Carteira e Negociação):**
+   - `id` (PK, Integer)
+   - `agencia_id` (FK -> Tenant, Integer)
+   - `consultor_id` (FK -> User, Integer)
+   - `property_id` (FK -> Property, Integer, Opcional)
+   - `cliente_nome` (String) e `cliente_telefone` (String)
+   - `tipo_negocio` (String: Venda, Angariação, Compra)
+   - `valor_imovel` (Numeric) e `comissao_estimada` (Numeric)
+   - `fase` (String: Lead, Qualificacao, Angariacao, Visita, Proposta, Negociacao, CPCV, Escritura, Ganho, Perdido)
+   - `probabilidade` (Integer: 0 a 100%)
+   - `data_prevista_fecho` (Date)
+   - `proxima_acao` (String) e `data_proxima_acao` (Date)
+   - `ativo` (Boolean, default True).
+
+3. **`WeeklyMeeting` (Sessões de Acompanhamento Semanal):**
+   - `id` (PK, Integer)
+   - `agencia_id` (FK -> Tenant, Integer)
+   - `diretor_id` (FK -> User, Integer)
+   - `consultor_id` (FK -> User, Integer)
+   - `data_reuniao` (DateTime)
+   - `semana_ano` (Integer) e `ano` (Integer)
+   - Snapshot congelado da semana: `contactos_realizados`, `reunioes_realizadas`, `angariacoes_realizadas`, `visitas_realizadas`, `propostas_realizadas`, `cpcv_realizados`, `faturacao_realizada` (Valores automáticos puxados do sistema)
+   - Campos qualitativos humanos:
+     - `dificuldade_principal` (Text)
+     - `negocio_prioritario` (Text)
+     - `diagnostico_diretor` (Text)
+     - `estrategia_definida` (Text)
+     - `apoio_direcao_necessario` (Text).
+
+4. **`MeetingCommitment` (Compromissos Semanais):**
+   - `id` (PK, Integer)
+   - `meeting_id` (FK -> WeeklyMeeting, Integer)
+   - `consultor_id` (FK -> User, Integer)
+   - `descricao_compromisso` (String)
+   - `meta_quantitativa` (String / Integer)
+   - `prazo_data` (Date)
+   - `status` (String: Pendente, Cumprido, Parcial, NaoCumprido)
+   - `percentual_cumprimento` (Integer: 0 a 100%).
+
+### 8.3 Funcionalidades e Especificação da API REST
+
+1. **Dashboard da Direção (`GET /api/v1/backoffice/commercial-dashboard`):**
+   - Filtros: `7_dias`, `30_dias`, `90_dias`, `este_mes`, `mes_anterior`, `historico`;
+   - KPIs consolidados da loja com cálculo automático de variação percentual vs período anterior (`+X%` ou `-X%`);
+   - Pipeline Bruto (soma de todas as comissões potenciais) e Pipeline Ponderado (`comissao × probabilidade`).
+
+2. **Funil Comercial da Loja e Individual (`GET /api/v1/backoffice/sales-funnel`):**
+   - Etapas: `Contactos` → `Reuniões` → `Angariações` → `Visitas` → `Propostas` → `CPCV` → `Escrituras`;
+   - Cálculo automático das taxas de conversão (`etapa_seguinte / etapa_anterior * 100`);
+   - Visualização por Loja consolidada ou filtrada por Consultor individual.
+
+3. **Tabela de Performance & Semáforo (`GET /api/v1/backoffice/consultores-performance`):**
+   - Listagem dos consultores com: Nome, Meta Mensal, Faturação Realizada, % Cumprimento, Pipeline Ativo e Trajetória;
+   - **Semáforo Visual de Trajetória:**
+     - 🟢 **Verde:** Consultor dentro ou acima da meta/ritmo;
+     - 🟡 **Amarelo:** Consultor com desvio que exige atenção;
+     - 🔴 **Vermelho:** Consultor significativamente abaixo da meta ou sem atividade recente.
+
+4. **Ficha Individual do Consultor (`GET /api/v1/backoffice/consultor/{id}/performance`):**
+   - Bloco 1: Objetivos e projeção final do mês;
+   - Bloco 2: Atividade detalhada do período;
+   - Bloco 3: Funil de conversão individual;
+   - Bloco 4: Gráfico evolutivo histórico (últimas 4 semanas / 3 meses).
+
+5. **Reunião Semanal Automatizada:**
+   - `POST /api/v1/backoffice/meetings/start`: Inicializa a reunião puxando automaticamente os dados de visitas, transcrições e compromissos anteriores daquele consultor;
+   - `POST /api/v1/backoffice/meetings/save`: Grava a reunião, congela o snapshot da semana e cadastra os novos compromissos para a semana seguinte;
+   - `GET /api/v1/backoffice/consultor/{id}/meetings`: Histórico cronológico de reuniões para avaliar a evolução do profissional ao longo do tempo.
+
+### 8.4 Diretrizes de Experiência do Utilizador (UX)
+- Alinhado rigorosamente aos tokens visuais do `docs/DESIGN.md` (*Editorial PropTech Luxury*);
+- Regra dos 30 Segundos: O Diretor deve abrir o ecrã e entender a saúde da agência e quem necessita de apoio em menos de meio minuto;
+- Interatividade em 1 Toque: Indicadores são clicáveis e abrem a lista detalhada correspondente.

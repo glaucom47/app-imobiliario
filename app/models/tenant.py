@@ -33,6 +33,9 @@ class Tenant(Base):
     contacts = relationship("Contact", back_populates="tenant", cascade="all, delete-orphan")
     settings = relationship("Settings", back_populates="tenant", uselist=False, cascade="all, delete-orphan")
     logs = relationship("Log", back_populates="tenant", cascade="all, delete-orphan")
+    goals = relationship("Goal", back_populates="tenant", cascade="all, delete-orphan")
+    pipeline_deals = relationship("PipelineDeal", back_populates="tenant", cascade="all, delete-orphan")
+    weekly_meetings = relationship("WeeklyMeeting", back_populates="tenant", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Tenant(id={self.id}, nome='{self.nome}', slug='{self.slug}')>"

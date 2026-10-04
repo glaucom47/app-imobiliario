@@ -29,6 +29,11 @@ class User(Base):
     properties = relationship("Property", back_populates="consultor")
     visits = relationship("Visit", back_populates="consultor")
     contacts = relationship("Contact", back_populates="consultor")
+    goals = relationship("Goal", back_populates="consultor", cascade="all, delete-orphan")
+    pipeline_deals = relationship("PipelineDeal", back_populates="consultor")
+    directed_meetings = relationship("WeeklyMeeting", foreign_keys="[WeeklyMeeting.diretor_id]", back_populates="diretor")
+    attended_meetings = relationship("WeeklyMeeting", foreign_keys="[WeeklyMeeting.consultor_id]", back_populates="consultor", cascade="all, delete-orphan")
+    meeting_commitments = relationship("MeetingCommitment", back_populates="consultor", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email='{self.email}', role='{self.role}', agencia_id={self.agencia_id})>"

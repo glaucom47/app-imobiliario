@@ -12,6 +12,12 @@ from app.models.contact import Contact
 from app.models.settings import Settings
 from app.models.log import Log
 from app.models.lead import LeadAngariacao, LeadBlacklist
+from app.models.commercial import (
+    Goal,
+    PipelineDeal,
+    WeeklyMeeting,
+    MeetingCommitment,
+)
 
 __all__ = [
     "Base",
@@ -26,4 +32,8 @@ __all__ = [
     "Log",
     "LeadAngariacao",
     "LeadBlacklist",
+    "Goal",
+    "PipelineDeal",
+    "WeeklyMeeting",
+    "MeetingCommitment",
 ]

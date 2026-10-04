@@ -13,6 +13,7 @@ from config.config import settings
 from app.controllers import (
     auth_controller,
     backoffice_controller,
+    commercial_controller,
     contacts_controller,
     leads_controller,
     properties_controller,
@@ -70,6 +71,7 @@ app.include_router(visits_controller.router, prefix=settings.API_V1_STR)
 app.include_router(scripts_controller.router, prefix=settings.API_V1_STR)
 app.include_router(contacts_controller.router, prefix=settings.API_V1_STR)
 app.include_router(backoffice_controller.router, prefix=settings.API_V1_STR)
+app.include_router(commercial_controller.router, prefix=settings.API_V1_STR)
 app.include_router(leads_controller.router, prefix=settings.API_V1_STR)
 
 # Montagem dos arquivos estáticos do frontend/PWA

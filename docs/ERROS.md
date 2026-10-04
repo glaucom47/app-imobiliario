@@ -229,7 +229,10 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 - **Causa:** O middleware de proteção contra força bruta (`RateLimitMiddleware`) mantém uma janela deslizante em memória com limite de 10 tentativas por minuto para o escopo `login`. Como o `TestClient` compartilha o mesmo IP de origem (`testclient` / `127.0.0.1`), a execução consecutiva e rápida de dezenas de testes de autenticação esgotou o limite da janela.
 - **Solução aplicada:** Invocou-se `rate_limiter.reset()` dentro do fixture de cliente de teste (`client`), garantindo que cada teste unitário inicie com a janela deslizante de rate limiting limpa e isolada.
 - **Como evitar no futuro:** Em suítes de testes automatizados com Starlette/FastAPI TestClient que testam rotas protegidas por rate limiting, sempre invocar a rotina de reset de rate limiter no ciclo de vida da fixture (`setup`/`teardown`).
+### 2026-10-04 - Modal de criação de consultores invisível devido a tag div não fechada no modal de RGPD anterior
 
-
-
+- **Sintoma:** Ao clicar no botão "+ Novo Consultor" na aba Equipa Comercial do Backoffice, o modal não aparecia no ecrã.
+- **Causa:** O overlay anterior `#modal-rgpd-lead` possuía uma tag de fechamento `</div>` ausente (fechava o card interno mas não o overlay externo). Como consequência, o `#modal-create-consultor` e modais subsequentes foram renderizados como filhos do `#modal-rgpd-lead` que possuía `display: none;`. Ao tentar exibir o modal filho com `display: flex;`, a visibilidade permanecia suprimida pelo elemento pai oculto.
+- **Solução aplicada:** Adicionou-se o `</div>` de fechamento do overlay em `static/backoffice.html` e validou-se o balanceamento estrito de tags `<div>` via script automatizado (0 unclosed divs).
+- **Como evitar no futuro:** Sempre validar o balanceamento sintático de tags HTML ao criar novos overlays e modais para evitar aprisionamento hierárquico no DOM.
 

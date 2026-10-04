@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 04/10/2026 - 14:50
-* **Fase Atual:** Evolução Contínua - Módulo de Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral do backend do Módulo de Direção Comercial (FSD Seção 8): modelos relacionais SQLAlchemy (`Goal`, `PipelineDeal`, `WeeklyMeeting`, `MeetingCommitment`), migração Alembic aplicada, contratos Pydantic v2, serviços de negócio para KPIs consolidados, funil de 7 etapas, pipeline ponderado, semáforo de trajetória individual (🟢🟡🔴) e reuniões semanais com snapshot atômico congelado, além de endpoints REST sob `/api/v1/backoffice/` com controle de acesso estrito (`require_diretor`) e isolamento multi-tenant por agência. A suíte automatizada conta com **144 testes com 100% de aprovação**.
+* **Última Atualização:** 04/10/2026 - 15:25
+* **Fase Atual:** Evolução Contínua - Módulo de Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP Completo: Backend & Frontend)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend) do Módulo de Direção Comercial (FSD Seção 8): modelos relacionais SQLAlchemy (`Goal`, `PipelineDeal`, `WeeklyMeeting`, `MeetingCommitment`), migração Alembic aplicada, contratos Pydantic v2, serviços de negócio para KPIs consolidados, funil de 7 etapas, pipeline ponderado, semáforo de trajetória individual (🟢🟡🔴) e reuniões semanais com snapshot atômico congelado, além de endpoints REST sob `/api/v1/backoffice/` com controle de acesso estrito (`require_diretor`) e isolamento multi-tenant por agência. No Frontend do Backoffice (`static/backoffice.html`), foi integrada a aba "Direção Comercial", cards com variação homóloga, funil interativo com seletor de consultores, tabela com semáforo e 4 modais completos (Ficha Individual de 4 blocos, Sessão Semanal Automatizada, Gestão de Metas Mensais e Registo de Negócios no Pipeline). A suíte automatizada conta com **145 testes com 100% de aprovação**.
 
 ---
 
@@ -80,7 +80,9 @@
   - Camada de serviço de negócio implementada em `app/services/commercial_service.py` (filtros temporais, variações homólogas, funil de 7 etapas, pipeline ponderado, semáforo de trajetória);
   - Camada de reuniões semanais implementada em `app/services/meeting_service.py` (start com snapshot em tempo real e notas de visitas, gravação congelada e compromissos);
   - Endpoints REST da API implementados em `app/controllers/commercial_controller.py` e montados no ASGI com isolamento multi-tenant e RBAC `require_diretor`;
-  - 19 testes unitários e de integração dedicados em `tests/test_commercial_models.py` e `tests/test_commercial_api.py`.
+  - Frontend completo integrado no Backoffice Web (`static/backoffice.html`): aba "Direção Comercial", cards com variação homóloga, funil de 7 etapas interativo, tabela de desempenho da equipa com semáforo visual de trajetória (🟢 🟡 🔴) e 4 modais de gestão (Ficha Individual com 4 blocos analíticos, Sessão Semanal com snapshot congelado e compromissos, Gestão de Metas e Novo Deal no Pipeline);
+  - Service Worker elevado para `fecho-static-v16` com renovação de cache;
+  - 20 testes unitários e de integração dedicados em `tests/test_commercial_models.py` e `tests/test_commercial_api.py`.
 - [x] **Módulo de RBAC: Gestão de Consultores pela Direção e Isolamento Multi-tenant Estrito:**
   - Schemas Pydantic v2 em `app/schemas/report_schema.py`: `ConsultorCreateRequest`, `ConsultorStatusUpdateRequest`, `ConsultorUpdateRequest`, `ConsultorResponse`;
   - Endpoints REST em `app/controllers/backoffice_controller.py` sob `/api/v1/backoffice/consultores`:

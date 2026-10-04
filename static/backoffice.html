@@ -58,6 +58,7 @@
       <!-- Navegação em Abas -->
       <nav class="backoffice-nav-tabs">
         <button class="bo-tab-btn active" data-tab="tab-kpis">Painel & Assiduidade</button>
+        <button class="bo-tab-btn" data-tab="tab-commercial">Direção Comercial</button>
         <button class="bo-tab-btn" data-tab="tab-team">Equipa Comercial</button>
         <button class="bo-tab-btn" data-tab="tab-objections">Objeções por Imóvel</button>
         <button class="bo-tab-btn" data-tab="tab-tags">Catálogo de Objeções</button>
@@ -561,6 +562,168 @@
           </div>
         </section>
       </div>
+
+      <!-- ===================================================================
+           ABA: DIREÇÃO COMERCIAL & GESTÃO ATIVA DE EQUIPA (FSD 8)
+           =================================================================== -->
+      <div id="tab-commercial" class="bo-tab-content" style="display: none;">
+        <!-- Barra Superior de Filtros e Ações Estratégicas -->
+        <div class="bo-filter-bar" style="margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="label-caps" style="color: var(--color-secondary);">Módulo Estratégico</span>
+              <span class="status-pill status-pill-notarized" style="font-size: 11px;">Fase 1 • MVP</span>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin-top: 4px;">Direção Comercial & Aceleração de Resultados</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">
+              Controlo do ritmo de metas, pipeline ponderado, funil de 7 etapas e semáforo de apoio aos consultores.
+            </p>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <!-- Seletor de Período Temporal -->
+            <div class="bo-period-selector" id="commercial-period-selector">
+              <button class="bo-period-btn" data-period="7_dias">7 Dias</button>
+              <button class="bo-period-btn active" data-period="este_mes">Este Mês</button>
+              <button class="bo-period-btn" data-period="mes_anterior">Mês Anterior</button>
+              <button class="bo-period-btn" data-period="90_dias">90 Dias</button>
+              <button class="bo-period-btn" data-period="historico">Todo o Histórico</button>
+            </div>
+
+            <!-- Botões de Ação Decisiva -->
+            <button class="btn-secondary-ghost" style="width: auto; height: 38px; padding: 0 14px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;" id="btn-open-modal-deal">
+              <span>+</span> Novo Negócio / Deal
+            </button>
+            <button class="btn-primary-action" style="width: auto; height: 38px; padding: 0 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;" id="btn-open-modal-goals">
+              <span>🎯</span> Definir Metas
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid de 4 Indicadores Estratégicos com Variação Homóloga -->
+        <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--spacing-margin); margin-bottom: var(--spacing-lg);">
+          <!-- Card 1: Faturação -->
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span class="label-caps" style="color: var(--color-outline);">Faturação da Loja</span>
+              <span id="comm-kpi-faturacao-badge" class="status-pill" style="font-size: 11px;">0%</span>
+            </div>
+            <div class="financial-display" style="margin-top: 8px;" id="comm-kpi-faturacao">0,00 €</div>
+            <div style="margin-top: 6px;">
+              <span class="bo-progress-track">
+                <span class="bo-progress-fill" id="comm-kpi-faturacao-bar" style="width: 0%; background: var(--color-secondary);"></span>
+              </span>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--color-outline); margin-top: 4px;">
+                <span id="comm-kpi-meta-faturacao-label">Meta: 0,00 €</span>
+                <span id="comm-kpi-faturacao-pct" style="font-weight: 600; color: var(--color-primary);">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Pipeline de Comissões -->
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span class="label-caps" style="color: var(--color-outline);">Pipeline Ponderado</span>
+              <span id="comm-kpi-pipeline-badge" class="status-pill" style="font-size: 11px;">0%</span>
+            </div>
+            <div class="financial-display" style="margin-top: 8px; color: var(--color-primary);" id="comm-kpi-pipeline-ponderado">0,00 €</div>
+            <div style="font-size: 12px; color: var(--color-outline); margin-top: 6px; display: flex; justify-content: space-between;">
+              <span>Bruto Potencial: <strong id="comm-kpi-pipeline-bruto" style="color: var(--color-primary);">0,00 €</strong></span>
+              <span id="comm-kpi-pipeline-deals-count" class="label-caps" style="color: var(--color-secondary);">0 negócios</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Visitas Realizadas -->
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span class="label-caps" style="color: var(--color-outline);">Visitas Realizadas</span>
+              <span id="comm-kpi-visitas-badge" class="status-pill" style="font-size: 11px;">0%</span>
+            </div>
+            <div class="financial-display" style="margin-top: 8px;" id="comm-kpi-visitas">0</div>
+            <div style="font-size: 12px; color: var(--color-outline); margin-top: 6px;">
+              <span>Conversão em Propostas: <strong id="comm-kpi-visitas-conversao" style="color: var(--color-notarized);">0%</strong></span>
+            </div>
+          </div>
+
+          <!-- Card 4: Carteira de Angariações -->
+          <div class="card-tier1" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span class="label-caps" style="color: var(--color-outline);">Angariações Ativas</span>
+              <span id="comm-kpi-angariacoes-badge" class="status-pill" style="font-size: 11px;">0%</span>
+            </div>
+            <div class="financial-display" style="margin-top: 8px;" id="comm-kpi-angariacoes">0</div>
+            <div style="font-size: 12px; color: var(--color-outline); margin-top: 6px;">
+              <span>Em Regime Exclusivo: <strong id="comm-kpi-exclusivos" style="color: var(--color-primary);">0</strong></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bloco: Funil Comercial de 7 Etapas -->
+        <section class="card-tier1" style="margin-bottom: var(--spacing-lg);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary);">Conversão Comercial</span>
+              <h3 style="font-size: 17px; font-weight: 700; margin-top: 2px;">Funil de Vendas de 7 Etapas</h3>
+              <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;">Taxas de transição entre cada marco do ciclo imobiliário</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label for="select-funnel-consultor" class="label-caps" style="color: var(--color-outline); font-size: 11px;">Filtrar:</label>
+              <select id="select-funnel-consultor" class="fecho-input" style="height: 38px; width: auto; font-size: 13px; padding: 0 12px;">
+                <option value="">Toda a Loja (Consolidado)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Visualização do Funil com 7 Degraus Elegantes -->
+          <div id="commercial-funnel-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: stretch;">
+            <!-- Preenchido dinamicamente via JS -->
+          </div>
+        </section>
+
+        <!-- Bloco: Tabela de Performance & Semáforo de Intervenção -->
+        <section class="card-tier1">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin); flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span class="label-caps" style="color: var(--color-secondary);">Gestão Ativa de Equipa</span>
+              <h3 style="font-size: 17px; font-weight: 700; margin-top: 2px;">Performance Individual & Semáforo de Trajetória</h3>
+              <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;">
+                Identificação imediata de consultores no ritmo previsto (🟢), com desvio de atenção (🟡) ou em necessidade de apoio urgente (🔴).
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-outline); background: var(--color-surface); padding: 4px 10px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+                <span>🟢 No Ritmo</span>
+                <span>•</span>
+                <span>🟡 Atenção</span>
+                <span>•</span>
+                <span>🔴 Crítico</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bo-table-container">
+            <table class="bo-table">
+              <thead>
+                <tr>
+                  <th>Consultor</th>
+                  <th style="text-align: right;">Meta Mensal</th>
+                  <th style="text-align: right;">Faturação Realizada</th>
+                  <th style="text-align: center;">% Cumprimento</th>
+                  <th style="text-align: right;">Pipeline Ativo</th>
+                  <th style="text-align: center;">Visitas (Mês)</th>
+                  <th style="text-align: center;">Trajetória</th>
+                  <th style="text-align: right;">Ações de Gestão</th>
+                </tr>
+              </thead>
+              <tbody id="commercial-performance-table-body">
+                <tr>
+                  <td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar desempenho da equipa comercial...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -930,6 +1093,359 @@
     </div>
   </div>
 
+  <!-- ===================================================================
+       MODAL 1: FICHA INDIVIDUAL DO CONSULTOR (4 BLOCOS FSD 8.3)
+       =================================================================== -->
+  <div class="auth-overlay" id="modal-consultor-performance" style="display: none;">
+    <div class="auth-card" style="max-width: 760px; max-height: 90vh; overflow-y: auto; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; border-bottom: var(--border-hairline); padding-bottom: 12px;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="label-caps" style="color: var(--color-secondary);">Ficha Individual de Performance</span>
+            <span id="modal-perf-semaforo-badge" class="status-pill">🟢 No Ritmo</span>
+          </div>
+          <h3 style="font-size: 18px; font-weight: 700; margin-top: 4px;" id="modal-perf-consultor-nome">Carregando...</h3>
+          <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;" id="modal-perf-consultor-contacto">telemóvel e email</p>
+        </div>
+        <button type="button" id="btn-close-modal-perf" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+
+      <!-- Bloco 1: Objetivos e Projeção do Mês -->
+      <section style="margin-bottom: 20px;">
+        <span class="label-caps" style="color: var(--color-secondary); display: block; margin-bottom: 8px;">Bloco 1 • Objetivos & Projeção do Mês</span>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;" id="modal-perf-bloco1-grid">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </section>
+
+      <!-- Bloco 2: Atividade do Período -->
+      <section style="margin-bottom: 20px;">
+        <span class="label-caps" style="color: var(--color-secondary); display: block; margin-bottom: 8px;">Bloco 2 • Atividade do Período</span>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;" id="modal-perf-bloco2-grid">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </section>
+
+      <!-- Bloco 3: Funil de Conversão Individual -->
+      <section style="margin-bottom: 20px;">
+        <span class="label-caps" style="color: var(--color-secondary); display: block; margin-bottom: 8px;">Bloco 3 • Funil de Conversão do Consultor</span>
+        <div id="modal-perf-bloco3-funnel" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 6px;">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </section>
+
+      <!-- Bloco 4: Histórico das Últimas 4 Semanas e Reuniões Gravadas -->
+      <section style="margin-bottom: 20px;">
+        <span class="label-caps" style="color: var(--color-secondary); display: block; margin-bottom: 8px;">Bloco 4 • Histórico de Acompanhamento & Reuniões</span>
+        <div id="modal-perf-bloco4-history" style="font-size: 13px; color: var(--color-outline);">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </section>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: var(--border-hairline); padding-top: 14px;">
+        <button type="button" class="btn-secondary-ghost" style="width: auto; height: 40px; padding: 0 16px;" id="btn-cancel-modal-perf">Fechar</button>
+        <button type="button" class="btn-primary-action" style="width: auto; height: 40px; padding: 0 18px;" id="btn-perf-iniciar-reuniao">
+          <span>📋</span> Iniciar Reunião Semanal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL 2: SESSÃO SEMANAL DE ACOMPANHAMENTO (HUMAN-IN-THE-LOOP)
+       =================================================================== -->
+  <div class="auth-overlay" id="modal-weekly-meeting" style="display: none;">
+    <div class="auth-card" style="max-width: 720px; max-height: 90vh; overflow-y: auto; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: var(--border-hairline); padding-bottom: 12px;">
+        <div>
+          <span class="label-caps" style="color: var(--color-secondary);">Acompanhamento Semanal • Direção Comercial</span>
+          <h3 style="font-size: 18px; font-weight: 700; margin-top: 4px;" id="modal-meeting-consultor-title">Reunião de Alinhamento</h3>
+          <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;" id="modal-meeting-period-label">Semana do Ano</p>
+        </div>
+        <button type="button" id="btn-close-modal-meeting" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+
+      <form id="form-weekly-meeting">
+        <input type="hidden" id="input-meeting-consultor-id">
+
+        <!-- 1. Snapshot Automático Congelado (Puxado do Sistema) -->
+        <div style="background: var(--color-surface); border: var(--border-hairline); border-radius: var(--radius-md); padding: 14px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span class="label-caps" style="color: var(--color-primary);">Snapshot Automático do Sistema (Semana Atual)</span>
+            <span class="status-pill status-pill-notarized" style="font-size: 10px;">Auditável</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; text-align: center;">
+            <div style="background: #ffffff; padding: 8px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 10px; color: var(--color-outline); display: block;">Contactos</span>
+              <strong style="font-size: 16px;" id="snap-contactos">0</strong>
+            </div>
+            <div style="background: #ffffff; padding: 8px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 10px; color: var(--color-outline); display: block;">Reuniões</span>
+              <strong style="font-size: 16px;" id="snap-reunioes">0</strong>
+            </div>
+            <div style="background: #ffffff; padding: 8px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 10px; color: var(--color-outline); display: block;">Angariações</span>
+              <strong style="font-size: 16px;" id="snap-angariacoes">0</strong>
+            </div>
+            <div style="background: #ffffff; padding: 8px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 10px; color: var(--color-outline); display: block;">Visitas</span>
+              <strong style="font-size: 16px;" id="snap-visitas">0</strong>
+            </div>
+            <div style="background: #ffffff; padding: 8px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 10px; color: var(--color-outline); display: block;">Propostas</span>
+              <strong style="font-size: 16px;" id="snap-propostas">0</strong>
+            </div>
+            <div style="background: #ffffff; padding: 8px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 10px; color: var(--color-outline); display: block;">CPCV</span>
+              <strong style="font-size: 16px;" id="snap-cpcv">0</strong>
+            </div>
+            <div style="background: #ffffff; padding: 8px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 10px; color: var(--color-outline); display: block;">Faturação</span>
+              <strong style="font-size: 13px; color: var(--color-secondary);" id="snap-faturacao">0 €</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Revisão de Compromissos Anteriores -->
+        <div id="section-previous-commitments" style="margin-bottom: 18px; display: none;">
+          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 6px;">Compromissos da Sessão Anterior</span>
+          <div id="previous-commitments-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+
+        <!-- 3. Campos Qualitativos do Diretor -->
+        <div style="margin-bottom: 18px;">
+          <span class="label-caps" style="color: var(--color-secondary); display: block; margin-bottom: 8px;">Diagnóstico & Estratégia Qualitativa</span>
+
+          <div class="fecho-form-group" style="margin-bottom: 10px;">
+            <label class="fecho-label" for="input-meeting-dificuldade">1. Dificuldade Principal Relatada pelo Consultor</label>
+            <input type="text" id="input-meeting-dificuldade" class="fecho-input" placeholder="ex: Dificuldade em qualificar compradores e contornar objeção de preço">
+          </div>
+
+          <div class="fecho-form-group" style="margin-bottom: 10px;">
+            <label class="fecho-label" for="input-meeting-negocio">2. Negócio Prioritário da Semana</label>
+            <input type="text" id="input-meeting-negocio" class="fecho-input" placeholder="ex: Apartamento T3 nas Avenidas Novas (Proposta em negociação)">
+          </div>
+
+          <div class="fecho-form-group" style="margin-bottom: 10px;">
+            <label class="fecho-label" for="input-meeting-diagnostico">3. Diagnóstico do Diretor</label>
+            <textarea id="input-meeting-diagnostico" class="fecho-input" style="height: 60px; padding: 8px 12px;" placeholder="Avaliação clínica do ritmo e postura do consultor..."></textarea>
+          </div>
+
+          <div class="fecho-form-group" style="margin-bottom: 10px;">
+            <label class="fecho-label" for="input-meeting-estrategia">4. Estratégia Definida em Conjunto</label>
+            <textarea id="input-meeting-estrategia" class="fecho-input" style="height: 60px; padding: 8px 12px;" placeholder="Plano de ação claro para destravar os negócios desta semana..."></textarea>
+          </div>
+
+          <div class="fecho-form-group" style="margin-bottom: 10px;">
+            <label class="fecho-label" for="input-meeting-apoio">5. Apoio da Direção Necessário</label>
+            <input type="text" id="input-meeting-apoio" class="fecho-input" placeholder="ex: Diretor acompanhar reunião de fecho na próxima 5ª feira">
+          </div>
+        </div>
+
+        <!-- 4. Novos Compromissos para a Próxima Semana -->
+        <div style="margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span class="label-caps" style="color: var(--color-primary);">Novos Compromissos para a Próxima Semana</span>
+            <button type="button" class="btn-secondary-ghost" style="width: auto; height: 30px; padding: 0 10px; font-size: 11px;" id="btn-add-commitment-row">
+              + Adicionar Compromisso
+            </button>
+          </div>
+          <div id="new-commitments-container" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Linhas dinâmicas -->
+          </div>
+        </div>
+
+        <div id="modal-meeting-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; background: #fff5f5; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid #fed7d7;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: var(--border-hairline); padding-top: 14px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-meeting">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-meeting">
+            Guardar Sessão & Congelar Snapshot
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL 3: DEFINIÇÃO DE METAS COMERCIAIS (FSD 8.2)
+       =================================================================== -->
+  <div class="auth-overlay" id="modal-commercial-goals" style="display: none;">
+    <div class="auth-card" style="max-width: 520px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: var(--border-hairline); padding-bottom: 10px;">
+        <div>
+          <span class="label-caps" style="color: var(--color-secondary);">Planeamento Estratégico</span>
+          <h3 style="font-size: 17px; font-weight: 700; margin-top: 2px;">Definir Metas Mensais</h3>
+          <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;">Atribua metas financeiras e de atividade por consultor</p>
+        </div>
+        <button type="button" id="btn-close-modal-goals" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+
+      <form id="form-commercial-goals">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="select-goals-consultor">Consultor *</label>
+            <select id="select-goals-consultor" class="fecho-input" required style="height: 44px;"></select>
+          </div>
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-goals-ano">Ano *</label>
+            <input type="number" id="input-goals-ano" class="fecho-input" required min="2024" max="2030" style="height: 44px;">
+          </div>
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-goals-mes">Mês *</label>
+            <input type="number" id="input-goals-mes" class="fecho-input" required min="1" max="12" style="height: 44px;">
+          </div>
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-goals-faturacao">Meta de Faturação (€) *</label>
+          <input type="number" id="input-goals-faturacao" class="fecho-input" placeholder="ex: 15000" min="0" step="100" required>
+        </div>
+
+        <span class="label-caps" style="color: var(--color-outline); display: block; margin: 12px 0 8px;">Metas de Atividade Mensal</span>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px;">
+          <div>
+            <label class="fecho-label" style="font-size: 11px;" for="input-goals-contactos">Contactos Telefónicos</label>
+            <input type="number" id="input-goals-contactos" class="fecho-input" min="0" value="0">
+          </div>
+          <div>
+            <label class="fecho-label" style="font-size: 11px;" for="input-goals-reunioes">Reuniões / Qualificações</label>
+            <input type="number" id="input-goals-reunioes" class="fecho-input" min="0" value="0">
+          </div>
+          <div>
+            <label class="fecho-label" style="font-size: 11px;" for="input-goals-angariacoes">Angariações em Carteira</label>
+            <input type="number" id="input-goals-angariacoes" class="fecho-input" min="0" value="0">
+          </div>
+          <div>
+            <label class="fecho-label" style="font-size: 11px;" for="input-goals-exclusivos">Contratos Exclusivos</label>
+            <input type="number" id="input-goals-exclusivos" class="fecho-input" min="0" value="0">
+          </div>
+          <div>
+            <label class="fecho-label" style="font-size: 11px;" for="input-goals-visitas">Visitas a Imóveis</label>
+            <input type="number" id="input-goals-visitas" class="fecho-input" min="0" value="0">
+          </div>
+          <div>
+            <label class="fecho-label" style="font-size: 11px;" for="input-goals-propostas">Propostas Recebidas</label>
+            <input type="number" id="input-goals-propostas" class="fecho-input" min="0" value="0">
+          </div>
+          <div>
+            <label class="fecho-label" style="font-size: 11px;" for="input-goals-cpcv">Contratos CPCV</label>
+            <input type="number" id="input-goals-cpcv" class="fecho-input" min="0" value="0">
+          </div>
+          <div>
+            <label class="fecho-label" style="font-size: 11px;" for="input-goals-escrituras">Escrituras Finais</label>
+            <input type="number" id="input-goals-escrituras" class="fecho-input" min="0" value="0">
+          </div>
+        </div>
+
+        <div id="modal-goals-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; background: #fff5f5; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid #fed7d7;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-goals">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-goals">Guardar Metas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL 4: NOVA OPORTUNIDADE / NEGÓCIO NO PIPELINE (FSD 8.2)
+       =================================================================== -->
+  <div class="auth-overlay" id="modal-pipeline-deal" style="display: none;">
+    <div class="auth-card" style="max-width: 540px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: var(--border-hairline); padding-bottom: 10px;">
+        <div>
+          <span class="label-caps" style="color: var(--color-secondary);">Funil de Vendas</span>
+          <h3 style="font-size: 17px; font-weight: 700; margin-top: 2px;">Novo Negócio no Pipeline</h3>
+          <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;">Registe uma oportunidade de venda, angariação ou compra</p>
+        </div>
+        <button type="button" id="btn-close-modal-deal" style="background: none; border: none; font-size: 22px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+
+      <form id="form-pipeline-deal">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="select-deal-consultor">Consultor *</label>
+            <select id="select-deal-consultor" class="fecho-input" required style="height: 44px;"></select>
+          </div>
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="select-deal-tipo">Tipo de Negócio *</label>
+            <select id="select-deal-tipo" class="fecho-input" required style="height: 44px;">
+              <option value="Venda" selected>Venda</option>
+              <option value="Angariação">Angariação</option>
+              <option value="Compra">Compra</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-deal-cliente-nome">Nome do Cliente *</label>
+            <input type="text" id="input-deal-cliente-nome" class="fecho-input" placeholder="ex: Gonçalo Ribeiro" required>
+          </div>
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-deal-cliente-tel">Telemóvel</label>
+            <input type="tel" id="input-deal-cliente-tel" class="fecho-input" placeholder="ex: 912 345 678">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-deal-valor-imovel">Valor do Imóvel (€) *</label>
+            <input type="number" id="input-deal-valor-imovel" class="fecho-input" placeholder="ex: 350000" min="0" step="1000" required>
+          </div>
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-deal-comissao">Comissão Estimada (€) *</label>
+            <input type="number" id="input-deal-comissao" class="fecho-input" placeholder="ex: 17500" min="0" step="100" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="select-deal-fase">Fase do Funil *</label>
+            <select id="select-deal-fase" class="fecho-input" required style="height: 44px;">
+              <option value="Lead">Lead</option>
+              <option value="Qualificacao">Qualificação</option>
+              <option value="Angariacao">Angariação</option>
+              <option value="Visita">Visita</option>
+              <option value="Proposta" selected>Proposta</option>
+              <option value="Negociacao">Negociação</option>
+              <option value="CPCV">CPCV</option>
+              <option value="Escritura">Escritura</option>
+            </select>
+          </div>
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-deal-probabilidade">Probabilidade (%) *</label>
+            <input type="number" id="input-deal-probabilidade" class="fecho-input" value="50" min="0" max="100" required>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-deal-data-fecho">Data Prevista de Fecho</label>
+            <input type="date" id="input-deal-data-fecho" class="fecho-input">
+          </div>
+          <div class="fecho-form-group" style="margin-bottom: 0;">
+            <label class="fecho-label" for="input-deal-data-acao">Data da Próxima Ação</label>
+            <input type="date" id="input-deal-data-acao" class="fecho-input">
+          </div>
+        </div>
+
+        <div class="fecho-form-group" style="margin-bottom: 14px;">
+          <label class="fecho-label" for="input-deal-proxima-acao">Próxima Ação Decisiva</label>
+          <input type="text" id="input-deal-proxima-acao" class="fecho-input" placeholder="ex: Apresentar contraproposta presencialmente com o proprietário">
+        </div>
+
+        <div id="modal-deal-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; background: #fff5f5; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid #fed7d7;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-deal">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-deal">Registar Negócio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="/static/js/api.js"></script>
   <script>
     let currentAnalyticsData = null;
@@ -1033,6 +1549,7 @@
         });
 
         if (tabId === 'tab-kpis') loadKPIs(selectedKpiDays);
+        if (tabId === 'tab-commercial') loadCommercialDashboard();
         if (tabId === 'tab-team') loadTeamConsultores();
         if (tabId === 'tab-objections') loadObjectionsAnalytics();
         if (tabId === 'tab-tags') loadTags();
@@ -2029,6 +2546,705 @@
           } finally {
             btnSubmit.disabled = false;
             btnSubmit.textContent = 'Guardar Alterações';
+          }
+        });
+      }
+
+      // ===================================================================
+      // MÓDULO DE DIREÇÃO COMERCIAL & GESTÃO ATIVA DE EQUIPA (FSD 8)
+      // ===================================================================
+
+      let currentCommercialFilter = 'este_mes';
+      let commercialTeamConsultores = [];
+
+      // Seleção de Período Temporal
+      const commPeriodBtns = document.querySelectorAll('#commercial-period-selector .bo-period-btn');
+      commPeriodBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          commPeriodBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentCommercialFilter = btn.dataset.period;
+          loadCommercialDashboard();
+        });
+      });
+
+      // Seletor de Consultor no Funil de Vendas
+      const selectFunnelCons = document.getElementById('select-funnel-consultor');
+      if (selectFunnelCons) {
+        selectFunnelCons.addEventListener('change', () => {
+          const consId = selectFunnelCons.value ? Number(selectFunnelCons.value) : null;
+          loadSalesFunnel(consId);
+        });
+      }
+
+      function formatVariationBadge(elem, pct) {
+        if (!elem) return;
+        if (pct === null || pct === undefined) {
+          elem.textContent = 'Sem dados';
+          elem.className = 'status-pill';
+          elem.style.color = 'var(--color-outline)';
+          elem.style.background = 'var(--color-surface)';
+          return;
+        }
+        const num = Number(pct);
+        if (num > 0) {
+          elem.textContent = `+${num.toFixed(1)}% vs anterior`;
+          elem.className = 'status-pill status-pill-notarized';
+          elem.style.color = 'var(--color-notarized)';
+          elem.style.background = '#e8f5e9';
+        } else if (num < 0) {
+          elem.textContent = `${num.toFixed(1)}% vs anterior`;
+          elem.className = 'status-pill';
+          elem.style.color = 'var(--color-error)';
+          elem.style.background = '#fee2e2';
+        } else {
+          elem.textContent = `0.0% vs anterior`;
+          elem.className = 'status-pill';
+          elem.style.color = 'var(--color-outline)';
+          elem.style.background = 'var(--color-surface)';
+        }
+      }
+
+      function getSemaforoPill(trajetoria) {
+        if (trajetoria === 'NoRitmo') {
+          return '<span class="status-pill" style="background: #e8f5e9; color: #1b4332; font-weight: 600;">🟢 No Ritmo</span>';
+        } else if (trajetoria === 'Atencao') {
+          return '<span class="status-pill" style="background: #fef3c7; color: #b45309; font-weight: 600;">🟡 Atenção</span>';
+        } else {
+          return '<span class="status-pill" style="background: #fee2e2; color: #991b1b; font-weight: 600;">🔴 Crítico</span>';
+        }
+      }
+
+      async function loadCommercialDashboard() {
+        try {
+          // 1. Carregar Consultores para os seletores (se ainda não carregados)
+          if (commercialTeamConsultores.length === 0) {
+            try {
+              const resTeam = await Api.getBackofficeConsultores();
+              commercialTeamConsultores = resTeam.consultores || [];
+              populateCommercialConsultoresSelects();
+            } catch (e) {
+              console.warn('Erro ao carregar lista de consultores para direção comercial:', e);
+            }
+          }
+
+          // 2. Chamar endpoint consolidado
+          const data = await Api.getCommercialDashboard(currentCommercialFilter);
+          const kpis = data.kpis;
+
+          // Card 1: Faturação
+          const faturacaoElem = document.getElementById('comm-kpi-faturacao');
+          if (faturacaoElem) faturacaoElem.textContent = formatPrice(kpis.faturacao_realizada);
+          const metaFatLabel = document.getElementById('comm-kpi-meta-faturacao-label');
+          if (metaFatLabel) metaFatLabel.textContent = `Meta: ${formatPrice(kpis.meta_global_faturacao)}`;
+          const fatPctElem = document.getElementById('comm-kpi-faturacao-pct');
+          if (fatPctElem) fatPctElem.textContent = `${kpis.percentual_cumprimento_faturacao}%`;
+          const fatBar = document.getElementById('comm-kpi-faturacao-bar');
+          if (fatBar) fatBar.style.width = `${Math.min(kpis.percentual_cumprimento_faturacao, 100)}%`;
+          formatVariationBadge(document.getElementById('comm-kpi-faturacao-badge'), kpis.variacao_homologa_faturacao);
+
+          // Card 2: Pipeline
+          const pipePondElem = document.getElementById('comm-kpi-pipeline-ponderado');
+          if (pipePondElem) pipePondElem.textContent = formatPrice(kpis.pipeline_ponderado);
+          const pipeBrutoElem = document.getElementById('comm-kpi-pipeline-bruto');
+          if (pipeBrutoElem) pipeBrutoElem.textContent = formatPrice(kpis.pipeline_bruto);
+          const dealsCountElem = document.getElementById('comm-kpi-pipeline-deals-count');
+          if (dealsCountElem) dealsCountElem.textContent = `${kpis.total_negocios_ativos} negócios`;
+          formatVariationBadge(document.getElementById('comm-kpi-pipeline-badge'), kpis.variacao_homologa_pipeline);
+
+          // Card 3: Visitas
+          const visitasElem = document.getElementById('comm-kpi-visitas');
+          if (visitasElem) visitasElem.textContent = kpis.visitas_realizadas;
+          const visitasConvElem = document.getElementById('comm-kpi-visitas-conversao');
+          if (visitasConvElem) visitasConvElem.textContent = `${kpis.taxa_conversao_visitas_propostas}%`;
+          formatVariationBadge(document.getElementById('comm-kpi-visitas-badge'), kpis.variacao_homologa_visitas);
+
+          // Card 4: Angariações
+          const angElem = document.getElementById('comm-kpi-angariacoes');
+          if (angElem) angElem.textContent = kpis.angariacoes_ativas;
+          const exclusivElem = document.getElementById('comm-kpi-exclusivos');
+          if (exclusivElem) exclusivElem.textContent = `${kpis.angariacoes_exclusivas} exclusivos`;
+          formatVariationBadge(document.getElementById('comm-kpi-angariacoes-badge'), kpis.variacao_homologa_angariacoes);
+
+          // Carregar sub-componentes
+          const selectedConsId = selectFunnelCons && selectFunnelCons.value ? Number(selectFunnelCons.value) : null;
+          await loadSalesFunnel(selectedConsId);
+          await loadConsultoresPerformance();
+        } catch (err) {
+          console.error('Erro ao carregar Dashboard Comercial:', err);
+        }
+      }
+
+      function populateCommercialConsultoresSelects() {
+        const selectFunnel = document.getElementById('select-funnel-consultor');
+        const selectGoals = document.getElementById('select-goals-consultor');
+        const selectDeal = document.getElementById('select-deal-consultor');
+
+        const activeConsultores = commercialTeamConsultores.filter(c => c.ativo);
+
+        if (selectFunnel) {
+          const currentVal = selectFunnel.value;
+          selectFunnel.innerHTML = '<option value="">Toda a Loja (Consolidado)</option>';
+          activeConsultores.forEach(c => {
+            selectFunnel.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}</option>`;
+          });
+          selectFunnel.value = currentVal;
+        }
+
+        if (selectGoals) {
+          selectGoals.innerHTML = '<option value="" disabled selected>Selecione um consultor</option>';
+          activeConsultores.forEach(c => {
+            selectGoals.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}</option>`;
+          });
+        }
+
+        if (selectDeal) {
+          selectDeal.innerHTML = '<option value="" disabled selected>Selecione o consultor responsável</option>';
+          activeConsultores.forEach(c => {
+            selectDeal.innerHTML += `<option value="${c.id}">${escapeHtml(c.nome)}</option>`;
+          });
+        }
+      }
+
+      async function loadSalesFunnel(consultorId = null) {
+        const container = document.getElementById('commercial-funnel-container');
+        if (!container) return;
+
+        try {
+          const data = await Api.getSalesFunnel(currentCommercialFilter, consultorId);
+          const etapas = data.etapas || [];
+
+          if (etapas.length === 0) {
+            container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--color-outline); padding: 20px;">Sem atividade registada neste período.</div>';
+            return;
+          }
+
+          let html = '';
+          const icons = {
+            'Contactos': '📞',
+            'Reuniões': '🤝',
+            'Angariações': '📋',
+            'Visitas': '🏠',
+            'Propostas': '✍️',
+            'CPCV': '📑',
+            'Escrituras': '🔑'
+          };
+
+          etapas.forEach((etapa, idx) => {
+            const icon = icons[etapa.fase] || '🔹';
+            const hasNext = idx < etapas.length - 1;
+            const convText = hasNext && etapa.taxa_conversao !== null ? `→ ${etapa.taxa_conversao}% conv.` : (idx === etapas.length - 1 ? '🎯 Meta Final' : '');
+
+            html += `
+              <div style="background: var(--color-surface); border: var(--border-hairline); border-radius: var(--radius-md); padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; text-align: center; position: relative;">
+                <div>
+                  <span style="font-size: 18px; display: block; margin-bottom: 4px;">${icon}</span>
+                  <strong style="font-size: 13px; color: var(--color-primary); display: block;">${escapeHtml(etapa.fase)}</strong>
+                  <div style="font-size: 20px; font-weight: 700; color: var(--color-primary); margin: 6px 0 2px;">${etapa.quantidade}</div>
+                  ${etapa.valor_total ? `<span style="font-size: 11px; color: var(--color-secondary); font-weight: 600; display: block;">${formatPrice(etapa.valor_total)}</span>` : '<span style="font-size: 11px; color: var(--color-outline); display: block;">volume</span>'}
+                </div>
+                <div style="margin-top: 10px; border-top: 1px dashed var(--color-hairline); padding-top: 6px;">
+                  <span style="font-size: 10px; font-weight: 600; color: ${hasNext ? 'var(--color-notarized)' : 'var(--color-secondary)'};">
+                    ${convText}
+                  </span>
+                </div>
+              </div>
+            `;
+          });
+
+          container.innerHTML = html;
+        } catch (err) {
+          console.error('Erro ao carregar Funil Comercial:', err);
+          container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--color-error); padding: 16px;">Falha ao carregar funil: ${escapeHtml(err.message)}</div>`;
+        }
+      }
+
+      async function loadConsultoresPerformance() {
+        const tbody = document.getElementById('commercial-performance-table-body');
+        if (!tbody) return;
+
+        try {
+          const data = await Api.getConsultoresPerformance();
+          const items = data.performance || [];
+
+          if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">Nenhum consultor com dados no período.</td></tr>';
+            return;
+          }
+
+          let html = '';
+          items.forEach(item => {
+            const semaforoPill = getSemaforoPill(item.trajetoria);
+            const pct = Math.min(item.percentual_cumprimento, 100);
+
+            html += `
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: var(--radius-full); background: var(--color-surface); font-weight: 700; font-size: 12px; color: var(--color-primary);">
+                      ${escapeHtml(item.consultor_nome.charAt(0).toUpperCase())}
+                    </span>
+                    <div>
+                      <strong style="color: var(--color-primary); font-size: 13px;">${escapeHtml(item.consultor_nome)}</strong>
+                      <div style="font-size: 11px; color: var(--color-outline);">${escapeHtml(item.consultor_telemovel || 'Sem telemóvel')}</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="text-align: right; font-weight: 500; font-size: 13px;">${formatPrice(item.meta_faturacao)}</td>
+                <td style="text-align: right; font-weight: 600; font-size: 13px; color: var(--color-primary);">${formatPrice(item.faturacao_realizada)}</td>
+                <td style="text-align: center;">
+                  <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <span style="font-size: 12px; font-weight: 600;">${item.percentual_cumprimento}%</span>
+                    <span class="bo-progress-track" style="width: 50px;">
+                      <span class="bo-progress-fill" style="width: ${pct}%; background: var(--color-secondary);"></span>
+                    </span>
+                  </div>
+                </td>
+                <td style="text-align: right; font-weight: 600; font-size: 13px; color: var(--color-secondary);">${formatPrice(item.pipeline_ativo)}</td>
+                <td style="text-align: center; font-size: 13px; font-weight: 600;">${item.visitas_mes}</td>
+                <td style="text-align: center;">${semaforoPill}</td>
+                <td style="text-align: right;">
+                  <div style="display: inline-flex; gap: 6px;">
+                    <button type="button" class="btn-secondary-ghost" style="width: auto; height: 32px; padding: 0 10px; font-size: 11px;" onclick="window.openConsultorPerformanceModal(${item.consultor_id})" title="Ver Ficha Individual de 4 Blocos">
+                      Ficha
+                    </button>
+                    <button type="button" class="btn-primary-action" style="width: auto; height: 32px; padding: 0 10px; font-size: 11px;" onclick="window.openWeeklyMeetingModal(${item.consultor_id})" title="Iniciar Sessão Semanal com Snapshot">
+                      Reunião
+                    </button>
+                    <button type="button" class="btn-secondary-ghost" style="width: auto; height: 32px; padding: 0 8px; font-size: 11px;" onclick="window.openCommercialGoalsModal(${item.consultor_id})" title="Configurar Metas">
+                      🎯
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+
+          tbody.innerHTML = html;
+        } catch (err) {
+          console.error('Erro ao carregar performance dos consultores:', err);
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--color-error); padding: 24px;">Falha ao carregar dados: ${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      // ===================================================================
+      // MODAL 1: FICHA INDIVIDUAL DO CONSULTOR (4 BLOCOS FSD 8.3)
+      // ===================================================================
+
+      const modalPerf = document.getElementById('modal-consultor-performance');
+      const btnClosePerf = document.getElementById('btn-close-modal-perf');
+      const btnCancelPerf = document.getElementById('btn-cancel-modal-perf');
+      const btnPerfIniciarReuniao = document.getElementById('btn-perf-iniciar-reuniao');
+      let currentPerfConsultorId = null;
+
+      if (btnClosePerf) btnClosePerf.addEventListener('click', () => { modalPerf.style.display = 'none'; });
+      if (btnCancelPerf) btnCancelPerf.addEventListener('click', () => { modalPerf.style.display = 'none'; });
+      if (btnPerfIniciarReuniao) {
+        btnPerfIniciarReuniao.addEventListener('click', () => {
+          if (currentPerfConsultorId) {
+            modalPerf.style.display = 'none';
+            window.openWeeklyMeetingModal(currentPerfConsultorId);
+          }
+        });
+      }
+
+      window.openConsultorPerformanceModal = async function(consultorId) {
+        currentPerfConsultorId = consultorId;
+        const consultor = commercialTeamConsultores.find(c => c.id === consultorId);
+
+        document.getElementById('modal-perf-consultor-nome').textContent = consultor ? consultor.nome : `Consultor #${consultorId}`;
+        document.getElementById('modal-perf-consultor-contacto').textContent = consultor ? `${consultor.email} • ${consultor.telemovel || 'Sem telemóvel'}` : '';
+
+        modalPerf.style.display = 'flex';
+
+        try {
+          const perf = await Api.getConsultorIndividualPerformance(consultorId);
+
+          // Badge Semáforo
+          const badgeElem = document.getElementById('modal-perf-semaforo-badge');
+          if (badgeElem) {
+            badgeElem.innerHTML = getSemaforoPill(perf.semaforo.trajetoria);
+          }
+
+          // Bloco 1: Objetivos & Projeção
+          const b1 = perf.bloco1_objetivos;
+          document.getElementById('modal-perf-bloco1-grid').innerHTML = `
+            <div style="background: var(--color-surface); padding: 10px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 11px; color: var(--color-outline); display: block;">Faturação Realizada</span>
+              <strong style="font-size: 15px; color: var(--color-primary);">${formatPrice(b1.faturacao_realizada)}</strong>
+              <div style="font-size: 10px; color: var(--color-outline); margin-top: 2px;">Meta: ${formatPrice(b1.meta_faturacao)} (${b1.percentual_cumprimento}%)</div>
+            </div>
+            <div style="background: var(--color-surface); padding: 10px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 11px; color: var(--color-outline); display: block;">Projeção do Mês</span>
+              <strong style="font-size: 15px; color: var(--color-secondary);">${formatPrice(b1.projecao_final_mes)}</strong>
+              <div style="font-size: 10px; color: var(--color-outline); margin-top: 2px;">Ritmo atual projetado</div>
+            </div>
+            <div style="background: var(--color-surface); padding: 10px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 11px; color: var(--color-outline); display: block;">Angariações</span>
+              <strong style="font-size: 15px;">${b1.angariacoes_realizadas} / ${b1.meta_angariacoes}</strong>
+              <div style="font-size: 10px; color: var(--color-outline); margin-top: 2px;">Carteira ativa</div>
+            </div>
+            <div style="background: var(--color-surface); padding: 10px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 11px; color: var(--color-outline); display: block;">Visitas / CPCV</span>
+              <strong style="font-size: 15px;">${b1.visitas_realizadas} vis. • ${b1.cpcv_realizados} cpcv</strong>
+              <div style="font-size: 10px; color: var(--color-outline); margin-top: 2px;">Meta: ${b1.meta_visitas} vis. / ${b1.meta_cpcv} cpcv</div>
+            </div>
+          `;
+
+          // Bloco 2: Atividade
+          const b2 = perf.bloco2_atividade;
+          document.getElementById('modal-perf-bloco2-grid').innerHTML = `
+            <div style="background: var(--color-surface); padding: 10px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 11px; color: var(--color-outline); display: block;">Visitas Realizadas</span>
+              <strong style="font-size: 15px;">${b2.visitas_total}</strong>
+              <div style="font-size: 10px; color: var(--color-outline); margin-top: 2px;">${b2.visitas_com_feedback} com notas de voz</div>
+            </div>
+            <div style="background: var(--color-surface); padding: 10px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 11px; color: var(--color-outline); display: block;">Taxa de Adesão</span>
+              <strong style="font-size: 15px; color: var(--color-notarized);">${b2.taxa_adesao_feedback}%</strong>
+              <div style="font-size: 10px; color: var(--color-outline); margin-top: 2px;">Feedback aos clientes</div>
+            </div>
+            <div style="background: var(--color-surface); padding: 10px; border-radius: var(--radius-sm); border: var(--border-hairline);">
+              <span style="font-size: 11px; color: var(--color-outline); display: block;">Prestação de Contas</span>
+              <strong style="font-size: 15px;">${b2.taxa_prestacao_contas}%</strong>
+              <div style="font-size: 10px; color: var(--color-outline); margin-top: 2px;">Enviadas ao proprietário</div>
+            </div>
+          `;
+
+          // Bloco 3: Funil Individual
+          const b3 = perf.bloco3_funil || [];
+          let funnelHtml = '';
+          b3.forEach(etapa => {
+            funnelHtml += `
+              <div style="background: var(--color-surface); border: var(--border-hairline); border-radius: var(--radius-sm); padding: 8px; text-align: center;">
+                <span style="font-size: 10px; color: var(--color-outline); display: block;">${escapeHtml(etapa.fase)}</span>
+                <strong style="font-size: 14px; display: block; margin: 2px 0;">${etapa.quantidade}</strong>
+                ${etapa.taxa_conversao !== null ? `<span style="font-size: 9px; color: var(--color-notarized); font-weight: 600;">${etapa.taxa_conversao}% conv.</span>` : ''}
+              </div>
+            `;
+          });
+          document.getElementById('modal-perf-bloco3-funnel').innerHTML = funnelHtml;
+
+          // Bloco 4: Histórico
+          const b4 = perf.bloco4_historico || [];
+          if (b4.length === 0) {
+            document.getElementById('modal-perf-bloco4-history').innerHTML = '<p style="margin: 0; font-style: italic;">Nenhuma sessão de acompanhamento gravada para este consultor.</p>';
+          } else {
+            let histHtml = '<div style="display: flex; flex-direction: column; gap: 8px;">';
+            b4.forEach(sessao => {
+              histHtml += `
+                <div style="background: var(--color-surface); border: var(--border-hairline); border-radius: var(--radius-sm); padding: 10px;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 12px; color: var(--color-primary); margin-bottom: 4px;">
+                    <span>Semana ${sessao.semana}/${sessao.ano} • ${escapeHtml(sessao.data ? new Date(sessao.data).toLocaleDateString('pt-PT') : '')}</span>
+                    <span style="color: var(--color-secondary);">Faturação na Sessão: ${formatPrice(sessao.faturacao_realizada)}</span>
+                  </div>
+                  <div style="font-size: 12px; color: var(--color-on-surface-variant); line-height: 1.4;">
+                    ${sessao.diagnostico ? `<strong>Diagnóstico:</strong> ${escapeHtml(sessao.diagnostico)}<br>` : ''}
+                    ${sessao.estrategia ? `<strong>Estratégia:</strong> ${escapeHtml(sessao.estrategia)}` : ''}
+                  </div>
+                </div>
+              `;
+            });
+            histHtml += '</div>';
+            document.getElementById('modal-perf-bloco4-history').innerHTML = histHtml;
+          }
+        } catch (err) {
+          console.error('Erro ao abrir ficha do consultor:', err);
+        }
+      };
+
+      // ===================================================================
+      // MODAL 2: SESSÃO SEMANAL DE ACOMPANHAMENTO
+      // ===================================================================
+
+      const modalMeeting = document.getElementById('modal-weekly-meeting');
+      const btnCloseMeeting = document.getElementById('btn-close-modal-meeting');
+      const btnCancelMeeting = document.getElementById('btn-cancel-modal-meeting');
+      const formMeeting = document.getElementById('form-weekly-meeting');
+      const btnAddCommitment = document.getElementById('btn-add-commitment-row');
+      const containerNewCommitments = document.getElementById('new-commitments-container');
+      const errMeeting = document.getElementById('modal-meeting-error');
+
+      if (btnCloseMeeting) btnCloseMeeting.addEventListener('click', () => { modalMeeting.style.display = 'none'; });
+      if (btnCancelMeeting) btnCancelMeeting.addEventListener('click', () => { modalMeeting.style.display = 'none'; });
+
+      window.openWeeklyMeetingModal = async function(consultorId) {
+        errMeeting.style.display = 'none';
+        containerNewCommitments.innerHTML = '';
+        formMeeting.reset();
+
+        document.getElementById('input-meeting-consultor-id').value = consultorId;
+        const consultor = commercialTeamConsultores.find(c => c.id === consultorId);
+        document.getElementById('modal-meeting-consultor-title').textContent = `Reunião: ${consultor ? consultor.nome : '#' + consultorId}`;
+
+        modalMeeting.style.display = 'flex';
+
+        try {
+          const res = await Api.startWeeklyMeeting(consultorId);
+
+          document.getElementById('modal-meeting-period-label').textContent = `Semana ${res.semana_ano} de ${res.ano} • Snapshot em Tempo Real`;
+
+          // Preencher Snapshot
+          const snap = res.snapshot_calculado;
+          document.getElementById('snap-contactos').textContent = snap.contactos_realizados;
+          document.getElementById('snap-reunioes').textContent = snap.reunioes_realizadas;
+          document.getElementById('snap-angariacoes').textContent = snap.angariacoes_realizadas;
+          document.getElementById('snap-visitas').textContent = snap.visitas_realizadas;
+          document.getElementById('snap-propostas').textContent = snap.propostas_realizadas;
+          document.getElementById('snap-cpcv').textContent = snap.cpcv_realizados;
+          document.getElementById('snap-faturacao').textContent = formatPrice(snap.faturacao_realizada);
+
+          // Revisão de compromissos anteriores
+          const prevSec = document.getElementById('section-previous-commitments');
+          const prevList = document.getElementById('previous-commitments-list');
+          if (res.compromissos_anteriores && res.compromissos_anteriores.length > 0) {
+            prevSec.style.display = 'block';
+            let prevHtml = '';
+            res.compromissos_anteriores.forEach(c => {
+              prevHtml += `
+                <div style="background: #ffffff; border: var(--border-hairline); border-radius: var(--radius-sm); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+                  <div>
+                    <strong>${escapeHtml(c.descricao_compromisso)}</strong>
+                    ${c.meta_quantitativa ? ` (${escapeHtml(c.meta_quantitativa)})` : ''}
+                    <span style="color: var(--color-outline); margin-left: 6px;">Prazo: ${escapeHtml(c.prazo_data || 'S/ prazo')}</span>
+                  </div>
+                  <span class="status-pill ${c.status === 'Cumprido' ? 'status-pill-notarized' : ''}">${escapeHtml(c.status)}</span>
+                </div>
+              `;
+            });
+            prevList.innerHTML = prevHtml;
+          } else {
+            prevSec.style.display = 'none';
+          }
+
+          // Adicionar uma linha padrão de compromisso
+          addCommitmentRow();
+        } catch (err) {
+          errMeeting.textContent = err.message || 'Erro ao inicializar sessão semanal.';
+          errMeeting.style.display = 'block';
+        }
+      };
+
+      function addCommitmentRow() {
+        const row = document.createElement('div');
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '2fr 1fr 1fr auto';
+        row.style.gap = '6px';
+        row.style.alignItems = 'center';
+
+        const today = new Date();
+        const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+        row.innerHTML = `
+          <input type="text" class="fecho-input comm-new-desc" placeholder="ex: Angariar 1 imóvel em exclusivo" style="height: 36px; font-size: 12px;" required>
+          <input type="text" class="fecho-input comm-new-meta" placeholder="Meta: 1 novo contrato" style="height: 36px; font-size: 12px;">
+          <input type="date" class="fecho-input comm-new-prazo" value="${nextWeek}" style="height: 36px; font-size: 12px;">
+          <button type="button" style="background: none; border: none; font-size: 18px; color: var(--color-error); cursor: pointer; padding: 0 4px;" title="Remover">&times;</button>
+        `;
+
+        row.querySelector('button').addEventListener('click', () => row.remove());
+        containerNewCommitments.appendChild(row);
+      }
+
+      if (btnAddCommitment) {
+        btnAddCommitment.addEventListener('click', addCommitmentRow);
+      }
+
+      if (formMeeting) {
+        formMeeting.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          errMeeting.style.display = 'none';
+          const btnSubmit = document.getElementById('btn-submit-meeting');
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'A gravar sessão...';
+
+          try {
+            const consultorId = Number(document.getElementById('input-meeting-consultor-id').value);
+
+            // Coletar novos compromissos
+            const rows = containerNewCommitments.querySelectorAll('div');
+            const novosCompromissos = [];
+            rows.forEach(r => {
+              const descInput = r.querySelector('.comm-new-desc');
+              const metaInput = r.querySelector('.comm-new-meta');
+              const prazoInput = r.querySelector('.comm-new-prazo');
+              if (descInput && descInput.value.trim()) {
+                novosCompromissos.push({
+                  descricao_compromisso: descInput.value.trim(),
+                  meta_quantitativa: metaInput && metaInput.value.trim() ? metaInput.value.trim() : null,
+                  prazo_data: prazoInput && prazoInput.value ? prazoInput.value : null,
+                });
+              }
+            });
+
+            const payload = {
+              consultor_id: consultorId,
+              dificuldade_principal: document.getElementById('input-meeting-dificuldade').value.trim() || null,
+              negocio_prioritario: document.getElementById('input-meeting-negocio').value.trim() || null,
+              diagnostico_diretor: document.getElementById('input-meeting-diagnostico').value.trim() || null,
+              estrategia_definida: document.getElementById('input-meeting-estrategia').value.trim() || null,
+              apoio_direcao_necessario: document.getElementById('input-meeting-apoio').value.trim() || null,
+              novos_compromissos: novosCompromissos,
+            };
+
+            await Api.saveWeeklyMeeting(payload);
+            modalMeeting.style.display = 'none';
+            loadCommercialDashboard();
+          } catch (err) {
+            errMeeting.textContent = err.message || 'Erro ao gravar sessão semanal.';
+            errMeeting.style.display = 'block';
+          } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Guardar Sessão & Congelar Snapshot';
+          }
+        });
+      }
+
+      // ===================================================================
+      // MODAL 3: DEFINIÇÃO DE METAS COMERCIAIS
+      // ===================================================================
+
+      const modalGoals = document.getElementById('modal-commercial-goals');
+      const btnOpenGoals = document.getElementById('btn-open-modal-goals');
+      const btnCloseGoals = document.getElementById('btn-close-modal-goals');
+      const btnCancelGoals = document.getElementById('btn-cancel-modal-goals');
+      const formGoals = document.getElementById('form-commercial-goals');
+      const errGoals = document.getElementById('modal-goals-error');
+
+      if (btnOpenGoals) {
+        btnOpenGoals.addEventListener('click', () => {
+          window.openCommercialGoalsModal();
+        });
+      }
+      if (btnCloseGoals) btnCloseGoals.addEventListener('click', () => { modalGoals.style.display = 'none'; });
+      if (btnCancelGoals) btnCancelGoals.addEventListener('click', () => { modalGoals.style.display = 'none'; });
+
+      window.openCommercialGoalsModal = async function(consultorId = null) {
+        errGoals.style.display = 'none';
+        formGoals.reset();
+
+        const now = new Date();
+        document.getElementById('input-goals-ano').value = now.getFullYear();
+        document.getElementById('input-goals-mes').value = now.getMonth() + 1;
+
+        populateCommercialConsultoresSelects();
+
+        if (consultorId) {
+          document.getElementById('select-goals-consultor').value = consultorId;
+          // Tentar buscar meta existente para pré-preencher
+          try {
+            const goals = await Api.getCommercialGoals(now.getFullYear(), now.getMonth() + 1, consultorId);
+            if (goals && goals.length > 0) {
+              const g = goals[0];
+              document.getElementById('input-goals-faturacao').value = g.meta_faturacao || 0;
+              document.getElementById('input-goals-contactos').value = g.meta_contactos || 0;
+              document.getElementById('input-goals-reunioes').value = g.meta_reunioes || 0;
+              document.getElementById('input-goals-angariacoes').value = g.meta_angariacoes || 0;
+              document.getElementById('input-goals-exclusivos').value = g.meta_exclusivos || 0;
+              document.getElementById('input-goals-visitas').value = g.meta_visitas || 0;
+              document.getElementById('input-goals-propostas').value = g.meta_propostas || 0;
+              document.getElementById('input-goals-cpcv').value = g.meta_cpcv || 0;
+              document.getElementById('input-goals-escrituras').value = g.meta_escrituras || 0;
+            }
+          } catch (e) {
+            console.warn('Sem meta prévia encontrada');
+          }
+        }
+
+        modalGoals.style.display = 'flex';
+      };
+
+      if (formGoals) {
+        formGoals.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          errGoals.style.display = 'none';
+          const btnSubmit = document.getElementById('btn-submit-goals');
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'A guardar metas...';
+
+          try {
+            const payload = {
+              consultor_id: Number(document.getElementById('select-goals-consultor').value),
+              ano: Number(document.getElementById('input-goals-ano').value),
+              mes: Number(document.getElementById('input-goals-mes').value),
+              meta_faturacao: Number(document.getElementById('input-goals-faturacao').value),
+              meta_contactos: Number(document.getElementById('input-goals-contactos').value) || 0,
+              meta_reunioes: Number(document.getElementById('input-goals-reunioes').value) || 0,
+              meta_angariacoes: Number(document.getElementById('input-goals-angariacoes').value) || 0,
+              meta_exclusivos: Number(document.getElementById('input-goals-exclusivos').value) || 0,
+              meta_visitas: Number(document.getElementById('input-goals-visitas').value) || 0,
+              meta_propostas: Number(document.getElementById('input-goals-propostas').value) || 0,
+              meta_cpcv: Number(document.getElementById('input-goals-cpcv').value) || 0,
+              meta_escrituras: Number(document.getElementById('input-goals-escrituras').value) || 0,
+            };
+
+            await Api.setCommercialGoal(payload);
+            modalGoals.style.display = 'none';
+            loadCommercialDashboard();
+          } catch (err) {
+            errGoals.textContent = err.message || 'Erro ao guardar metas comerciais.';
+            errGoals.style.display = 'block';
+          } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Guardar Metas';
+          }
+        });
+      }
+
+      // ===================================================================
+      // MODAL 4: NOVA OPORTUNIDADE / DEAL NO PIPELINE
+      // ===================================================================
+
+      const modalDeal = document.getElementById('modal-pipeline-deal');
+      const btnOpenDeal = document.getElementById('btn-open-modal-deal');
+      const btnCloseDeal = document.getElementById('btn-close-modal-deal');
+      const btnCancelDeal = document.getElementById('btn-cancel-modal-deal');
+      const formDeal = document.getElementById('form-pipeline-deal');
+      const errDeal = document.getElementById('modal-deal-error');
+
+      if (btnOpenDeal) {
+        btnOpenDeal.addEventListener('click', () => {
+          errDeal.style.display = 'none';
+          formDeal.reset();
+          populateCommercialConsultoresSelects();
+          modalDeal.style.display = 'flex';
+        });
+      }
+      if (btnCloseDeal) btnCloseDeal.addEventListener('click', () => { modalDeal.style.display = 'none'; });
+      if (btnCancelDeal) btnCancelDeal.addEventListener('click', () => { modalDeal.style.display = 'none'; });
+
+      if (formDeal) {
+        formDeal.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          errDeal.style.display = 'none';
+          const btnSubmit = document.getElementById('btn-submit-deal');
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'A registar negócio...';
+
+          try {
+            const payload = {
+              consultor_id: Number(document.getElementById('select-deal-consultor').value),
+              tipo_negocio: document.getElementById('select-deal-tipo').value,
+              cliente_nome: document.getElementById('input-deal-cliente-nome').value.trim(),
+              cliente_telefone: document.getElementById('input-deal-cliente-tel').value.trim() || null,
+              valor_imovel: Number(document.getElementById('input-deal-valor-imovel').value),
+              comissao_estimada: Number(document.getElementById('input-deal-comissao').value),
+              fase: document.getElementById('select-deal-fase').value,
+              probabilidade: Number(document.getElementById('input-deal-probabilidade').value),
+              data_prevista_fecho: document.getElementById('input-deal-data-fecho').value || null,
+              proxima_acao: document.getElementById('input-deal-proxima-acao').value.trim() || null,
+              data_proxima_acao: document.getElementById('input-deal-data-acao').value || null,
+            };
+
+            await Api.createPipelineDeal(payload);
+            modalDeal.style.display = 'none';
+            loadCommercialDashboard();
+          } catch (err) {
+            errDeal.textContent = err.message || 'Erro ao criar negócio no pipeline.';
+            errDeal.style.display = 'block';
+          } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Registar Negócio';
           }
         });
       }

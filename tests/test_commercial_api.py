@@ -430,3 +430,28 @@ def test_multitenant_isolation_commercial(client, auth_headers):
     consultor_a_id = auth_headers["consultor_a_id"]
     resp_b_consultor = client.get(f"/api/v1/backoffice/consultor/{consultor_a_id}/performance", headers=auth_headers["diretora_b"])
     assert resp_b_consultor.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_commercial_backoffice_frontend_integration(client):
+    """Valida se o HTML do Backoffice contém a aba, o funil e os modais da Direção Comercial."""
+    resp = client.get("/backoffice")
+    assert resp.status_code == status.HTTP_200_OK
+    html = resp.text
+
+    # Aba de navegação e container
+    assert 'data-tab="tab-commercial"' in html
+    assert 'id="tab-commercial"' in html
+    assert "Direção Comercial" in html
+
+    # KPIs e Funil
+    assert 'id="comm-kpi-faturacao"' in html
+    assert 'id="comm-kpi-pipeline-ponderado"' in html
+    assert 'id="commercial-funnel-container"' in html
+    assert 'id="commercial-performance-table-body"' in html
+
+    # Modais de gestão
+    assert 'id="modal-consultor-performance"' in html
+    assert 'id="modal-weekly-meeting"' in html
+    assert 'id="modal-commercial-goals"' in html
+    assert 'id="modal-pipeline-deal"' in html
+

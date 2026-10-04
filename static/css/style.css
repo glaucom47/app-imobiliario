@@ -2447,3 +2447,411 @@ body.sunlight-mode .btn-primary-action {
   }
 }
 
+/* ==========================================================================
+   MÓDULO: ESTUDO DE MERCADO COMPARATIVO (ACM) & RELATÓRIO EXECUTIVO (2 PÁGINAS)
+   ========================================================================== */
+
+/* Passos do Formulário de Captura ACM */
+.acm-steps-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding-bottom: 12px;
+}
+
+.acm-step-pill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 4px;
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.acm-step-pill.active {
+  background: var(--color-surface-container-lowest);
+  border-color: var(--color-secondary);
+  box-shadow: var(--shadow-ambient);
+}
+
+.acm-step-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.acm-step-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+/* Caixa de Upload e Pré-visualização */
+.acm-upload-dropzone {
+  border: 2px dashed rgba(197, 168, 128, 0.45);
+  border-radius: var(--radius-md);
+  padding: 20px 16px;
+  text-align: center;
+  background: rgba(251, 251, 251, 0.7);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.acm-upload-dropzone:hover {
+  border-color: var(--color-secondary);
+  background: rgba(254, 222, 178, 0.12);
+}
+
+.acm-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.acm-photo-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-outline-variant);
+  background: #eee;
+}
+
+.acm-photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.acm-photo-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, 0.75);
+  color: #fff;
+  border: none;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Área de Gravação de Áudio do Consultor no ACM */
+.acm-voice-box {
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+}
+
+.acm-voice-timer {
+  font-family: var(--font-family-base);
+  font-feature-settings: "tnum" on;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-tertiary);
+  margin-bottom: 8px;
+}
+
+.acm-voice-btn-record {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid rgba(197, 168, 128, 0.35);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.acm-voice-btn-record.recording {
+  background: var(--color-error);
+  border-color: #ffdad6;
+  animation: pulse-ring 1.5s infinite;
+}
+
+/* Relatório Executivo de 2 Páginas - Padrão Editorial PropTech */
+.acm-report-sheet {
+  background: #ffffff;
+  color: #111111;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-ambient);
+  margin-bottom: 24px;
+  border: 1px solid var(--color-outline-variant);
+  overflow: hidden;
+}
+
+.acm-report-page {
+  padding: 24px;
+  background: #ffffff;
+}
+
+.acm-report-page:not(:last-child) {
+  border-bottom: 8px solid var(--color-surface-container);
+}
+
+.acm-header-ribbon {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #111111;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.acm-header-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #111111;
+  line-height: 1.2;
+}
+
+.acm-header-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.acm-data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.acm-data-card {
+  background: var(--color-surface-container-low);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-secondary);
+}
+
+.acm-data-card span {
+  display: block;
+  font-size: 10px;
+  color: var(--color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.acm-data-card strong {
+  display: block;
+  font-size: 14px;
+  color: #111111;
+  font-feature-settings: "tnum" on;
+}
+
+/* Preço Recomendado em Grande Destaque Numérico */
+.acm-hero-price-box {
+  background: linear-gradient(135deg, #111111 0%, #1d1d1d 100%);
+  color: #ffffff;
+  padding: 24px 20px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  margin: 16px 0;
+  border: 1px solid var(--color-secondary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.acm-hero-price-val {
+  font-family: var(--font-family-base);
+  font-size: 38px;
+  font-weight: 700;
+  font-feature-settings: "tnum" on;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  display: block;
+  line-height: 1.1;
+}
+
+.acm-hero-price-m2 {
+  font-size: 14px;
+  color: var(--color-secondary-fixed);
+  font-feature-settings: "tnum" on;
+  margin-top: 4px;
+  display: block;
+}
+
+/* As 3 Faixas de Comercialização */
+.acm-faixas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.acm-faixa-card {
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+}
+
+.acm-faixa-card.recommended {
+  border-color: var(--color-secondary);
+  background: rgba(254, 222, 178, 0.15);
+}
+
+.acm-faixa-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-outline);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.acm-faixa-card.recommended .acm-faixa-label {
+  color: var(--color-secondary);
+}
+
+.acm-faixa-val {
+  font-size: 14px;
+  font-weight: 700;
+  font-feature-settings: "tnum" on;
+  color: #111111;
+  display: block;
+}
+
+/* Quadro de Comparação e Convergência Tripla (Fecho x Casafari x Alfredo AI) */
+.acm-benchmarking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 14px 0;
+}
+
+.acm-benchmarking-table th {
+  background: #f1f1f1;
+  color: #111;
+  font-weight: 600;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.acm-benchmarking-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  font-feature-settings: "tnum" on;
+}
+
+.acm-convergence-bar-bg {
+  background: #e2e2e2;
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.acm-convergence-bar-fill {
+  background: linear-gradient(90deg, #725b38, #b8935d);
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s ease;
+}
+
+/* Cartão do Consultor */
+.acm-consultant-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--color-surface-container-low);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline-variant);
+  margin-top: 16px;
+}
+
+/* REGRAS DE IMPRESSÃO A4 (2 PÁGINAS PERFEITAS) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  body, .app-shell, .fecho-modal-overlay {
+    background: #ffffff !important;
+    color: #111111 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .app-header,
+  .app-bottom-nav,
+  .actions-grid,
+  .hero-prop-card,
+  #modal-install-prompt,
+  .drawer-header,
+  .acm-report-actions,
+  .drawer-close-btn {
+    display: none !important;
+  }
+
+  .fecho-modal-overlay {
+    position: static !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .fecho-drawer-sheet {
+    position: static !important;
+    transform: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .acm-report-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+  }
+
+  .acm-report-page {
+    padding: 0 !important;
+    min-height: 270mm;
+    box-sizing: border-box;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .acm-report-page:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+    border-bottom: none !important;
+  }
+}
+
+

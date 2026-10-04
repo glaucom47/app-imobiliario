@@ -209,4 +209,19 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
   5. Suíte de 108 testes automatizados validada com 100% de aprovação.
 - **Como evitar no futuro:** Sempre verificar processos prévios em execução na porta 8000 (`Get-NetTCPConnection -LocalPort 8000`) antes de inicializar o servidor em ambientes Windows locais; certificar-se de utilizar `--reload` durante o desenvolvimento para que alterações de código sejam refletidas automaticamente sem manter instâncias zumbis.
 
+### 2026-10-04 - HTTP 422 ao requisitar endpoint literal /concelhos-ine devido à precedência de rota dinâmica /{property_id}
+
+- **Sintoma:** Ao testar o endpoint `GET /api/v1/properties/concelhos-ine`, o FastAPI retornava status HTTP 422 Unprocessable Content em vez de 200 OK.
+- **Causa:** O APIRouter continha a rota dinâmica `@router.get("/{property_id}")` declarada antes da rota literal `@router.get("/concelhos-ine")`. Como o parâmetro de caminho `{property_id}` é tipado como inteiro (`int`), o FastAPI tentava converter a string `"concelhos-ine"` em inteiro, falhando na validação de tipos antes de avaliar a rota subsequente.
+- **Solução aplicada:** Moveu-se a declaração das rotas literais e estáticas (`/concelhos-ine` e `/market-study`) para antes das rotas dinâmicas de parâmetros (`/{property_id}`).
+- **Como evitar no futuro:** Em roteadores FastAPI/Starlette, sempre declarar rotas estáticas ou literais antes de rotas com parâmetros de caminho (`path parameters`) para evitar sombreamento e erros de coerção de tipos.
+
+### 2026-10-04 - Falha no parsing de concelho na Caderneta Predial contendo prefixos de códigos da Autoridade Tributária
+
+- **Sintoma:** O parser de Caderneta Predial retornava `None` para o concelho ao processar documentos reais contendo o código oficial da repartição de finanças (ex.: `CONCELHO: 05 - CASCAIS`).
+- **Causa:** A expressão regular esperava apenas caracteres alfabéticos imediatamente após o identificador `CONCELHO:`, falhando quando a Autoridade Tributária emite o documento com o código de 2 a 4 dígitos seguido de hífen (ex.: `05 - CASCAIS`).
+- **Solução aplicada:** Atualizou-se o padrão regex para tolerar opcionalmente dígitos seguidos de hífen ou meia-risca (`(?:\d+\s*[-–]\s*)?`) antes da captura do nome do município e flexibilizou-se o delimitador de encerramento de linha.
+- **Como evitar no futuro:** Documentos emitidos pela Administração Pública em Portugal frequentemente usam códigos numéricos de identificação territorial combinados com os nomes por extenso; as expressões regulares de extração documental devem sempre prever e tolerar esses prefixos codificados.
+
+
 

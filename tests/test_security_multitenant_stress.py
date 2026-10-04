@@ -575,9 +575,10 @@ def test_pwa_manifest_and_service_worker_served(client):
     sw_resp = client.get("/static/sw.js")
     assert sw_resp.status_code == status.HTTP_200_OK
     sw_text = sw_resp.text
-    assert "fecho-static-v13" in sw_text
+    assert "fecho-static-v14" in sw_text
     assert "/static/js/calculator.js" in sw_text
     assert "/static/js/teleprompter.js" in sw_text
+    assert "/static/js/market_study.js" in sw_text
 
     # 3. Shells PWA e Backoffice
     shell_resp = client.get("/")

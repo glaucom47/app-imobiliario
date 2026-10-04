@@ -69,3 +69,9 @@ desktop.ini
 
 # Capturas de tela e mockups locais na raiz
 Captura de ecrã*.png
+
+# Subpastas aninhadas de clonagem
+app-imobiliario/
+
+# Arquivos de documentos locais
+docs/*.pdf

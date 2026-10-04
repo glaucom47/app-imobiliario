@@ -4,7 +4,7 @@
  * para motores client-side (Calculadora IMT/Selo e Teleprompter).
  */
 
-const CACHE_NAME = 'fecho-static-v13';
+const CACHE_NAME = 'fecho-static-v14';
 const ASSETS_TO_CACHE = [
   '/',
   '/backoffice',
@@ -16,6 +16,7 @@ const ASSETS_TO_CACHE = [
   '/static/js/calculator.js',
   '/static/js/teleprompter.js',
   '/static/js/audio_recorder.js',
+  '/static/js/market_study.js',
   '/static/img/screen.png',
   '/static/img/logo.png',
   '/static/img/hero/villa_exterior.jpg',

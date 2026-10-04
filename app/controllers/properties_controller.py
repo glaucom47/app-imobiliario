@@ -24,7 +24,10 @@ from app.schemas.property_schema import (
     PropertyTransitionStatus,
     PropertyUpdate,
 )
+from app.schemas.market_study_schema import MarketStudyRequest, MarketStudyResponse
 from app.services.property_service import PropertyService
+from app.services.market_study_service import MarketStudyService
+from app.services.ine_data import INEService
 
 router = APIRouter(prefix="/properties", tags=["Imóveis & Carteira"])
 
@@ -102,6 +105,37 @@ async def create_property(
         current_user=current_user,
     )
     return _format_property_response(created_prop)
+
+
+@router.get("/concelhos-ine", summary="Lista nacional de concelhos e medianas INE")
+async def get_concelhos_ine(
+    current_user: User = Depends(require_consultor),
+):
+    """
+    Retorna a lista dos 308 Concelhos de Portugal com seus respectivos
+    Distritos, Regiões Fiscais e Preços Medianos de Venda (€/m²) do INE.
+    """
+    return INEService.get_all_concelhos()
+
+
+@router.post("/market-study", response_model=MarketStudyResponse, summary="Gerar Estudo de Mercado Inteligente (ACM)")
+async def generate_market_study(
+    request: MarketStudyRequest,
+    current_user: User = Depends(require_consultor),
+):
+    """
+    Gera Estudo de Mercado Comparativo (ACM) em menos de 1 minuto, integrando:
+    1. Leitura e extração de dados da Caderneta Predial Urbana;
+    2. Análise visual de acabamentos por fotos dos cómodos;
+    3. Relato oral do consultor (até 30s) para calibragem ponderada (-20% a +25%);
+    4. Estatísticas oficiais do INE dos 308 concelhos;
+    5. Benchmarking e auditoria de convergência com Casafari e Alfredo AI.
+    """
+    result = await MarketStudyService.generate_market_study(
+        request=request,
+        current_user=current_user,
+    )
+    return result
 
 
 @router.get("/{property_id}", response_model=PropertyResponse, summary="Obter detalhes do imóvel")
@@ -185,3 +219,4 @@ async def delete_property(
         current_user=current_user,
     )
     return None
+

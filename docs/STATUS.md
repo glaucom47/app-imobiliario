@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 30/09/2026 - 03:05
-* **Fase Atual:** Modo Manutenção e Evolução Contínua (Galeria 6 Fotos Villa Cascais, Padrão Ouro Acetinado & SW v13)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O **Card do Imóvel em Foco** (`#hero-image-area`) conta com **6 fotografias de altíssimo luxo do mesmo imóvel em Cascais** (Fachada crepuscular e piscina reflexiva, Living open space pé-direito duplo com vista mar, Terraço infinito com sunken fire pit, Master Suite com varanda oceânica, Cozinha Gourmet com ilha de mármore e adega climatizada, e Master Bathroom Spa com banheira oval freestanding). Foi implementado o padrão proprietário **Fecho Gold Icons** (`.luxury-gold-icon` e `.luxury-gold-inline`) com microícones vetoriais em tom ouro acetinado nobre (`#b8935d`), eliminando completamente os emoticons comuns/foleiros da interface no banner matinal, no card em foco, na grade de 6 botões de ação, no rodapé e nos modais/gavetas. O Service Worker foi elevado para `fecho-static-v13` com pré-cache offline completo. A suíte automatizada conta com **108 testes com 100% de aprovação**.
+* **Última Atualização:** 04/10/2026 - 12:20
+* **Fase Atual:** Modo Manutenção e Evolução Contínua (Módulo Nacional de Estudo de Mercado - ACM com IA, Benchmarking Casafari & Alfredo AI, Padrão A4 2 Páginas & SW v14)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com o novo módulo nacional de **Estudo de Mercado Comparativo (ACM)**, cobrindo os 18 Distritos, 2 Regiões Autónomas e os 308 Concelhos de Portugal com base nas medianas oficiais do INE (€/m²), leitura inteligente por foto/OCR da Caderneta Predial Urbana (Autoridade Tributária), análise visual dos cómodos e calibragem semântica de áudio nativo de 30s do consultor (-20% a +25%). Inclui quadro de auditoria e benchmarking triplo com os dois líderes do mercado imobiliário em Portugal (**Casafari** e **Alfredo AI**) apurando o Índice de Convergência das avaliações. O Relatório Executivo de 2 Páginas conta com diagramação A4 de luxo (`@media print`), disparo em 1 toque para o WhatsApp do proprietário e integração direta para simular o valor na Calculadora de IMT/Selo. O Service Worker foi elevado para `fecho-static-v14`. A suíte automatizada conta com **116 testes com 100% de aprovação**.
 
 ---
 
@@ -20,7 +20,8 @@
 | **Fase 8** | Pós-Venda, Esfera de Influência e Notificações de Aniversário | Concluída |
 | **Fase 9** | Backoffice Web da Agência, Métricas e Exportação CSV | Concluída |
 | **Fase 10** | Auditoria de Segurança, Testes E2E e Polimento Final | Concluída |
-| **Módulo Novo** | Captação e Angariação de Imóveis (Fontes Abertas: e-leiloes.pt e OLX FSBO) | Concluído |
+| **Módulo Novo 1** | Captação e Angariação de Imóveis (Fontes Abertas: e-leiloes.pt e OLX FSBO) | Concluído |
+| **Módulo Novo 2** | Estudo de Mercado Inteligente (ACM: INE 308 Concelhos, Caderneta, Voz, Casafari e Alfredo) | Concluído |
 | **Documentação Final** | Manuais de Manutenção, FSD Atualizado e Modo Manutenção | Concluída |
 
 ---
@@ -59,8 +60,17 @@
   - Governança RGPD com bloqueio por telefone em blacklist e mascaramento de dados;
   - Nova aba no Backoffice da Diretora com KPIs, filtros e modais com `escapeHtml`;
   - 7 novos testes automatizados dedicados cobrindo isolamento multi-tenant, conversão, auditoria e RGPD.
+- [x] **Módulo de Estudo de Mercado Comparativo (ACM) com Leitura de Caderneta, Voz e Casafari/Alfredo:**
+  - Base territorial dos 308 Concelhos de Portugal e 18 Distritos/Ilhas com medianas oficiais do INE (€/m²);
+  - Parser inteligente e resiliente da Caderneta Predial Urbana emitida pela Autoridade Tributária;
+  - Captura e análise multimodal de fotos reais dos cómodos com miniaturas;
+  - Gravação de áudio nativa de até 30s do consultor com calibragem semântica ponderada (-20% a +25%);
+  - Cálculo das 3 faixas estratégicas: Venda Rápida (45 dias), Preço Recomendado de Mercado e Preço Teto de Teste;
+  - Conectores e matriz de benchmarking triplo com Casafari e Alfredo AI apurando o Índice de Convergência;
+  - Relatório Executivo de 2 Páginas com diagramação A4 de luxo (`@media print`), disparo WhatsApp e link para Calculadora de IMT/Selo;
+  - Service Worker elevado para `fecho-static-v14` com pré-cache offline completo de todos os novos recursos.
 - [x] **Validação Técnica e Suíte de Testes:**
-  - 108 testes automatizados executados e 100% aprovados (`pytest -v`);
+  - 116 testes automatizados executados e 100% aprovados (`pytest -v`);
   - Zero falhas de sintaxe em scripts frontend (`node -c static/js/*.js`);
   - Guardrails de produção e proteção de isolamento multi-tenant validados.
 

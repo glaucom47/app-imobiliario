@@ -58,6 +58,7 @@
       <!-- Navegação em Abas -->
       <nav class="backoffice-nav-tabs">
         <button class="bo-tab-btn active" data-tab="tab-kpis">Painel & Assiduidade</button>
+        <button class="bo-tab-btn" data-tab="tab-team">Equipa Comercial</button>
         <button class="bo-tab-btn" data-tab="tab-objections">Objeções por Imóvel</button>
         <button class="bo-tab-btn" data-tab="tab-tags">Catálogo de Objeções</button>
         <button class="bo-tab-btn" data-tab="tab-settings">Parâmetros Financeiros</button>
@@ -514,6 +515,52 @@
           </div>
         </section>
       </div>
+
+      <!-- ===================================================================
+           ABA: EQUIPA COMERCIAL (GESTÃO DE CONSULTORES E RBAC)
+           =================================================================== -->
+      <div id="tab-team" class="bo-tab-content" style="display: none;">
+        <!-- Barra de Ações do Topo -->
+        <div class="bo-filter-bar" style="margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Equipa Comercial da Agência</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">Adicione consultores, ative/desative acessos e controle credenciais da sua loja</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button class="btn-primary-action" style="width: auto; height: 38px; padding: 0 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;" id="btn-open-modal-consultor">
+              <span>+</span> Novo Consultor
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela de Consultores -->
+        <section class="card-tier1">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-margin); flex-wrap: wrap; gap: 8px;">
+            <h3 style="font-size: 16px; font-weight: 600;">Consultores Registados</h3>
+            <span class="label-caps" style="color: var(--color-secondary);" id="team-consultores-count">A carregar...</span>
+          </div>
+
+          <div class="bo-table-container">
+            <table class="bo-table">
+              <thead>
+                <tr>
+                  <th>Consultor</th>
+                  <th>E-mail Profissional</th>
+                  <th>Telemóvel</th>
+                  <th style="text-align: center;">Estado</th>
+                  <th>Data de Entrada</th>
+                  <th style="text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="team-consultores-table-body">
+                <tr>
+                  <td colspan="6" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar equipa comercial...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 
@@ -795,6 +842,92 @@
         </div>
       </form>
     </div>
+  <!-- Modal para Criar Novo Consultor -->
+  <div class="auth-overlay" id="modal-create-consultor" style="display: none;">
+    <div class="auth-card" style="max-width: 480px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Novo Consultor</h3>
+          <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;">Adicione um consultor à agência com credenciais de acesso</p>
+        </div>
+        <button type="button" id="btn-close-modal-consultor" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+
+      <form id="form-create-consultor">
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-new-consultor-nome">Nome Completo *</label>
+          <input type="text" id="input-new-consultor-nome" class="fecho-input" placeholder="ex: Diogo Fernandes" required minlength="2" maxlength="255">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-new-consultor-email">E-mail Profissional *</label>
+          <input type="email" id="input-new-consultor-email" class="fecho-input" placeholder="ex: diogo.fernandes@fecho.pt" required autocomplete="username">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-new-consultor-telemovel">Telemóvel (opcional)</label>
+          <input type="tel" id="input-new-consultor-telemovel" class="fecho-input" placeholder="ex: 912 345 678">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-new-consultor-password">Palavra-passe Inicial *</label>
+          <input type="password" id="input-new-consultor-password" class="fecho-input" placeholder="Mínimo 6 carateres" required minlength="6" autocomplete="new-password">
+          <small style="color: var(--color-outline); font-size: 11px; display: block; margin-top: 4px;">Hash seguro via Bcrypt irreversível (rounds=12).</small>
+        </div>
+
+        <div id="modal-consultor-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 14px; background: #fff5f5; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid #fed7d7;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-consultor">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-consultor">Criar Consultor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para Editar Consultor -->
+  <div class="auth-overlay" id="modal-edit-consultor" style="display: none;">
+    <div class="auth-card" style="max-width: 480px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Editar Consultor</h3>
+          <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;">Atualizar dados ou redefinir palavra-passe</p>
+        </div>
+        <button type="button" id="btn-close-modal-edit-consultor" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+
+      <form id="form-edit-consultor">
+        <input type="hidden" id="input-edit-consultor-id">
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-edit-consultor-nome">Nome Completo *</label>
+          <input type="text" id="input-edit-consultor-nome" class="fecho-input" required minlength="2" maxlength="255">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-edit-consultor-email">E-mail Profissional (Inalterável)</label>
+          <input type="email" id="input-edit-consultor-email" class="fecho-input" disabled style="background-color: var(--color-surface-dim); cursor: not-allowed;">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-edit-consultor-telemovel">Telemóvel</label>
+          <input type="tel" id="input-edit-consultor-telemovel" class="fecho-input" placeholder="ex: 912 345 678">
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-edit-consultor-password">Nova Palavra-passe (opcional)</label>
+          <input type="password" id="input-edit-consultor-password" class="fecho-input" placeholder="Deixar em branco para manter a atual" minlength="6" autocomplete="new-password">
+          <small style="color: var(--color-outline); font-size: 11px; display: block; margin-top: 4px;">Preencha apenas se pretender alterar a palavra-passe deste consultor.</small>
+        </div>
+
+        <div id="modal-edit-consultor-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 14px; background: #fff5f5; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid #fed7d7;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-edit-consultor">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px;" id="btn-submit-edit-consultor">Guardar Alterações</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script src="/static/js/api.js"></script>
@@ -900,6 +1033,7 @@
         });
 
         if (tabId === 'tab-kpis') loadKPIs(selectedKpiDays);
+        if (tabId === 'tab-team') loadTeamConsultores();
         if (tabId === 'tab-objections') loadObjectionsAnalytics();
         if (tabId === 'tab-tags') loadTags();
         if (tabId === 'tab-settings') loadSettings();
@@ -1708,6 +1842,196 @@
           btnSub.textContent = 'Bloquear Telemóvel';
         }
       });
+
+      // =====================================================================
+      // GESTÃO DE EQUIPA COMERCIAL (CONSULTORES E RBAC)
+      // =====================================================================
+      let teamConsultoresData = [];
+
+      async function loadTeamConsultores() {
+        const tbody = document.getElementById('team-consultores-table-body');
+        const countLabel = document.getElementById('team-consultores-count');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar consultores da agência...</td></tr>';
+
+        try {
+          const consultores = await Api.getBackofficeConsultores();
+          teamConsultoresData = consultores;
+
+          const ativosCount = consultores.filter(c => c.ativo).length;
+          countLabel.textContent = `${consultores.length} consultor(es) • ${ativosCount} ativo(s)`;
+
+          if (consultores.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-outline); padding: 24px;">Nenhum consultor registado na sua agência. Clique em "+ Novo Consultor" para adicionar.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = consultores.map(c => {
+            const dataRegisto = c.created_at ? new Date(c.created_at).toLocaleDateString('pt-PT') : 'Sem registo';
+            const statusPill = c.ativo
+              ? '<span class="status-pill status-pill-notarized" style="display: inline-flex; align-items: center; gap: 4px;">● Ativo</span>'
+              : '<span class="status-pill" style="display: inline-flex; align-items: center; gap: 4px; background: #f3f3f3; color: var(--color-outline); border: 1px solid var(--color-outline-variant);">○ Inativo</span>';
+
+            const toggleBtnText = c.ativo ? 'Desativar' : 'Ativar';
+            const toggleBtnStyle = c.ativo
+              ? 'border-color: var(--color-error); color: var(--color-error);'
+              : 'border-color: #1B4332; color: #1B4332;';
+
+            return `
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--color-surface-dim); font-weight: 700; font-size: 13px; color: var(--color-primary);">
+                      ${escapeHtml(c.nome.charAt(0).toUpperCase())}
+                    </span>
+                    <strong style="color: var(--color-primary);">${escapeHtml(c.nome)}</strong>
+                  </div>
+                </td>
+                <td style="color: var(--color-outline); font-size: 13px;">${escapeHtml(c.email)}</td>
+                <td style="font-size: 13px;">${c.telemovel ? escapeHtml(c.telemovel) : '<span style="color: var(--color-outline); font-style: italic;">Não indicado</span>'}</td>
+                <td style="text-align: center;">${statusPill}</td>
+                <td style="color: var(--color-outline); font-size: 12px;">${dataRegisto}</td>
+                <td style="text-align: right;">
+                  <div style="display: inline-flex; gap: 6px; justify-content: flex-end;">
+                    <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 32px; padding: 0 10px; font-size: 11px;" onclick="openEditConsultorModal(${c.id})">
+                      Editar
+                    </button>
+                    <button class="status-pill" style="background: #ffffff; cursor: pointer; height: 32px; padding: 0 10px; font-size: 11px; font-weight: 600; ${toggleBtnStyle}" onclick="handleToggleConsultorStatus(${c.id}, ${c.ativo})">
+                      ${toggleBtnText}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        } catch (err) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--color-error); padding: 24px;">Erro ao carregar consultores: ${escapeHtml(err.message)}</td></tr>`;
+        }
+      }
+
+      window.handleToggleConsultorStatus = async function(consultorId, currentStatus) {
+        const actionText = currentStatus ? 'desativar' : 'ativar';
+        if (!confirm(`Tem a certeza de que pretende ${actionText} o acesso deste consultor?`)) return;
+
+        try {
+          await Api.updateBackofficeConsultorStatus(consultorId, { ativo: !currentStatus });
+          loadTeamConsultores();
+        } catch (err) {
+          alert('Erro ao atualizar estado do consultor: ' + err.message);
+        }
+      };
+
+      // Modal Criar Consultor
+      const modalCreateConsultor = document.getElementById('modal-create-consultor');
+      const btnOpenCreateConsultor = document.getElementById('btn-open-modal-consultor');
+      const btnCloseCreateConsultor = document.getElementById('btn-close-modal-consultor');
+      const btnCancelCreateConsultor = document.getElementById('btn-cancel-modal-consultor');
+      const formCreateConsultor = document.getElementById('form-create-consultor');
+      const errCreateConsultor = document.getElementById('modal-consultor-error');
+
+      if (btnOpenCreateConsultor) {
+        btnOpenCreateConsultor.addEventListener('click', () => {
+          formCreateConsultor.reset();
+          errCreateConsultor.style.display = 'none';
+          modalCreateConsultor.style.display = 'flex';
+          document.getElementById('input-new-consultor-nome').focus();
+        });
+      }
+
+      if (btnCloseCreateConsultor) {
+        btnCloseCreateConsultor.addEventListener('click', () => { modalCreateConsultor.style.display = 'none'; });
+      }
+      if (btnCancelCreateConsultor) {
+        btnCancelCreateConsultor.addEventListener('click', () => { modalCreateConsultor.style.display = 'none'; });
+      }
+
+      if (formCreateConsultor) {
+        formCreateConsultor.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          errCreateConsultor.style.display = 'none';
+          const btnSubmit = document.getElementById('btn-submit-consultor');
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'A criar...';
+
+          try {
+            const payload = {
+              nome: document.getElementById('input-new-consultor-nome').value.trim(),
+              email: document.getElementById('input-new-consultor-email').value.trim(),
+              telemovel: document.getElementById('input-new-consultor-telemovel').value.trim() || null,
+              password: document.getElementById('input-new-consultor-password').value,
+            };
+
+            await Api.createBackofficeConsultor(payload);
+            modalCreateConsultor.style.display = 'none';
+            formCreateConsultor.reset();
+            loadTeamConsultores();
+          } catch (err) {
+            errCreateConsultor.textContent = err.message || 'Erro ao criar consultor.';
+            errCreateConsultor.style.display = 'block';
+          } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Criar Consultor';
+          }
+        });
+      }
+
+      // Modal Editar Consultor
+      const modalEditConsultor = document.getElementById('modal-edit-consultor');
+      const btnCloseEditConsultor = document.getElementById('btn-close-modal-edit-consultor');
+      const btnCancelEditConsultor = document.getElementById('btn-cancel-modal-edit-consultor');
+      const formEditConsultor = document.getElementById('form-edit-consultor');
+      const errEditConsultor = document.getElementById('modal-edit-consultor-error');
+
+      window.openEditConsultorModal = function(consultorId) {
+        const consultor = teamConsultoresData.find(c => c.id === consultorId);
+        if (!consultor) return;
+
+        document.getElementById('input-edit-consultor-id').value = consultor.id;
+        document.getElementById('input-edit-consultor-nome').value = consultor.nome;
+        document.getElementById('input-edit-consultor-email').value = consultor.email;
+        document.getElementById('input-edit-consultor-telemovel').value = consultor.telemovel || '';
+        document.getElementById('input-edit-consultor-password').value = '';
+        errEditConsultor.style.display = 'none';
+        modalEditConsultor.style.display = 'flex';
+      };
+
+      if (btnCloseEditConsultor) {
+        btnCloseEditConsultor.addEventListener('click', () => { modalEditConsultor.style.display = 'none'; });
+      }
+      if (btnCancelEditConsultor) {
+        btnCancelEditConsultor.addEventListener('click', () => { modalEditConsultor.style.display = 'none'; });
+      }
+
+      if (formEditConsultor) {
+        formEditConsultor.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          errEditConsultor.style.display = 'none';
+          const consultorId = document.getElementById('input-edit-consultor-id').value;
+          const btnSubmit = document.getElementById('btn-submit-edit-consultor');
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = 'A guardar...';
+
+          try {
+            const payload = {
+              nome: document.getElementById('input-edit-consultor-nome').value.trim(),
+              telemovel: document.getElementById('input-edit-consultor-telemovel').value.trim() || null,
+            };
+            const pass = document.getElementById('input-edit-consultor-password').value;
+            if (pass && pass.trim()) {
+              payload.password = pass;
+            }
+
+            await Api.updateBackofficeConsultor(consultorId, payload);
+            modalEditConsultor.style.display = 'none';
+            loadTeamConsultores();
+          } catch (err) {
+            errEditConsultor.textContent = err.message || 'Erro ao atualizar consultor.';
+            errEditConsultor.style.display = 'block';
+          } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Guardar Alterações';
+          }
+        });
+      }
 
       function formatPrice(val) {
         if (!val) return '0,00 €';

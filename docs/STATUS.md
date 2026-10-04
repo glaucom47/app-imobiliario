@@ -1,8 +1,8 @@
 # STATUS DO PROJETO - FECHO (fecho.pt)
 
-* **Última Atualização:** 04/10/2026 - 12:20
-* **Fase Atual:** Modo Manutenção e Evolução Contínua (Módulo Nacional de Estudo de Mercado - ACM com IA, Benchmarking Casafari & Alfredo AI, Padrão A4 2 Páginas & SW v14)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com o novo módulo nacional de **Estudo de Mercado Comparativo (ACM)**, cobrindo os 18 Distritos, 2 Regiões Autónomas e os 308 Concelhos de Portugal com base nas medianas oficiais do INE (€/m²), leitura inteligente por foto/OCR da Caderneta Predial Urbana (Autoridade Tributária), análise visual dos cómodos e calibragem semântica de áudio nativo de 30s do consultor (-20% a +25%). Inclui quadro de auditoria e benchmarking triplo com os dois líderes do mercado imobiliário em Portugal (**Casafari** e **Alfredo AI**) apurando o Índice de Convergência das avaliações. O Relatório Executivo de 2 Páginas conta com diagramação A4 de luxo (`@media print`), disparo em 1 toque para o WhatsApp do proprietário e integração direta para simular o valor na Calculadora de IMT/Selo. O Service Worker foi elevado para `fecho-static-v14`. A suíte automatizada conta com **116 testes com 100% de aprovação**.
+* **Última Atualização:** 04/10/2026 - 14:35
+* **Fase Atual:** Evolução Contínua - RBAC: Gestão de Consultores pela Direção e Isolamento Multi-tenant Estrito
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral da Gestão de Consultores pela Direção Comercial no Backoffice: criação de consultores com injeção automática de `agencia_id`, hash Bcrypt (`rounds=12`), listagem isolada por agência, ativação/desativação ágil via `PATCH .../status` (com bloqueio de login imediato para contas inativas), aba "Equipa Comercial" com tabela responsiva e modais no Backoffice, além de rigoroso bloqueio RBAC contra acesso de consultores a rotas de diretoria ou dados de outros consultores. A suíte automatizada conta com **144 testes com 100% de aprovação**.
 
 ---
 
@@ -22,6 +22,8 @@
 | **Fase 10** | Auditoria de Segurança, Testes E2E e Polimento Final | Concluída |
 | **Módulo Novo 1** | Captação e Angariação de Imóveis (Fontes Abertas: e-leiloes.pt e OLX FSBO) | Concluído |
 | **Módulo Novo 2** | Estudo de Mercado Inteligente (ACM: INE 308 Concelhos, Caderneta, Voz, Casafari e Alfredo) | Concluído |
+| **Módulo Comercial**| Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP: Backend Completo) | Concluído |
+| **Módulo RBAC** | Gestão de Consultores pela Direção, Ativação/Desativação e Isolamento Estrito | Concluído |
 | **Documentação Final** | Manuais de Manutenção, FSD Atualizado e Modo Manutenção | Concluída |
 
 ---
@@ -69,22 +71,46 @@
   - Conectores e matriz de benchmarking triplo com Casafari e Alfredo AI apurando o Índice de Convergência;
   - Relatório Executivo de 2 Páginas com diagramação A4 de luxo (`@media print`), disparo WhatsApp e link para Calculadora de IMT/Selo;
   - Service Worker elevado para `fecho-static-v14` com pré-cache offline completo de todos os novos recursos.
+- [x] **Módulo de Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP):**
+  - Seção 8 do `docs/FSD.md` incorporada com especificação completa em Português Europeu;
+  - Entidades SQLAlchemy criadas em `app/models/commercial.py`: `Goal`, `PipelineDeal`, `WeeklyMeeting` e `MeetingCommitment`;
+  - Relações em cascata e foreign keys adicionadas em `Tenant`, `User` e `Property`;
+  - Migração Alembic versionada gerada (`2295ed8b2647_cria_modulo_direcao_comercial_mvp.py`) e aplicada ao banco de dados;
+  - Schemas Pydantic v2 estruturados em `app/schemas/commercial_schema.py` com validações rigorosas;
+  - Camada de serviço de negócio implementada em `app/services/commercial_service.py` (filtros temporais, variações homólogas, funil de 7 etapas, pipeline ponderado, semáforo de trajetória);
+  - Camada de reuniões semanais implementada em `app/services/meeting_service.py` (start com snapshot em tempo real e notas de visitas, gravação congelada e compromissos);
+  - Endpoints REST da API implementados em `app/controllers/commercial_controller.py` e montados no ASGI com isolamento multi-tenant e RBAC `require_diretor`;
+  - 19 testes unitários e de integração dedicados em `tests/test_commercial_models.py` e `tests/test_commercial_api.py`.
+- [x] **Módulo de RBAC: Gestão de Consultores pela Direção e Isolamento Multi-tenant Estrito:**
+  - Schemas Pydantic v2 em `app/schemas/report_schema.py`: `ConsultorCreateRequest`, `ConsultorStatusUpdateRequest`, `ConsultorUpdateRequest`, `ConsultorResponse`;
+  - Endpoints REST em `app/controllers/backoffice_controller.py` sob `/api/v1/backoffice/consultores`:
+    - `POST /consultores`: Criação de novo consultor pela direção com injeção automática de `current_user.agencia_id`, validação de e-mail e hash Bcrypt (`rounds=12`);
+    - `GET /consultores`: Listagem dos consultores pertencentes unicamente à agência do diretor logado;
+    - `PATCH /consultores/{id}/status`: Ativação e desativação com bloqueio de login imediato para contas inativas e bloqueio de auto-desativação do diretor;
+    - `PUT /consultores/{id}`: Edição de dados cadastrais e redefinição opcional de senha com Bcrypt (`rounds=12`);
+  - Proteção e Isolamento Multi-tenant estritos: consultor de outra agência retorna HTTP 404; consultores são proibidos de aceder a dados de outros consultores e rotas de diretoria (HTTP 403 Forbidden);
+  - Frontend no Backoffice (`static/backoffice.html` e `static/js/api.js`):
+    - Nova aba "Equipa Comercial" na barra de navegação;
+    - Tabela moderna com colunas de consultor, e-mail, telemóvel, pílula de status (Ativo/Inativo), data de registo e ações táteis;
+    - Modal ágil `+ Novo Consultor` (Nome, E-mail, Telemóvel e Palavra-passe) e modal de edição;
+    - Sanitização universal contra XSS via `escapeHtml(...)`;
+  - Service Worker elevado para `fecho-static-v15` com cache invalidado;
+  - 9 novos testes unitários e de integração dedicados em `tests/test_backoffice_consultores.py`.
 - [x] **Validação Técnica e Suíte de Testes:**
-  - 116 testes automatizados executados e 100% aprovados (`pytest -v`);
+  - 144 testes automatizados executados e 100% aprovados (`pytest -v`);
   - Zero falhas de sintaxe em scripts frontend (`node -c static/js/*.js`);
-  - Guardrails de produção e proteção de isolamento multi-tenant validados.
+  - Guardrails de produção, rate limiting e proteção de isolamento multi-tenant validados.
 
 ---
 
 ## 3. Pendências
 
 * **Nenhuma pendência técnica, funcional ou de documentação.**
-* Todas as 10 fases do FSD e do PLANO foram concluídas e testadas.
-* A documentação de manutenção e operação do sistema está completa e pronta para uso.
+* A Gestão de Consultores pela Direção, com isolamento multi-tenant estrito e controle de acessos RBAC, encontra-se 100% implementada, testada e auditada.
 
 ---
 
 ## 4. Próximo Passo Recomendado
 
-* O sistema **Fecho** (`fecho.pt`) encontra-se concluído, seguro, auditado e totalmente documentado.
-* **Próximo passo:** Caso o usuário deseje colocar a aplicação no ar, abrir um chat novo e executar o prompt do passo 7 (ou seguir o guia operacional de publicação em `docs/DEPLOY.md`).
+* Prosseguir para a interface web de utilizador no Backoffice (`static/backoffice.html`), adicionando a nova aba e painel visual de "Direção Comercial" com os KPIs da agência, funil de vendas interativo, tabela de performance com semáforo visual e modal para reuniões semanais automatizadas, conforme tokens do `docs/DESIGN.md`.
+

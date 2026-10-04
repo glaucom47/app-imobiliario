@@ -455,6 +455,31 @@ const Api = {
     });
   },
 
+  async getBackofficeConsultores() {
+    return await this.request('/backoffice/consultores');
+  },
+
+  async createBackofficeConsultor(consultorData) {
+    return await this.request('/backoffice/consultores', {
+      method: 'POST',
+      body: JSON.stringify(consultorData),
+    });
+  },
+
+  async updateBackofficeConsultorStatus(consultorId, statusData) {
+    return await this.request(`/backoffice/consultores/${consultorId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(statusData),
+    });
+  },
+
+  async updateBackofficeConsultor(consultorId, consultorData) {
+    return await this.request(`/backoffice/consultores/${consultorId}`, {
+      method: 'PUT',
+      body: JSON.stringify(consultorData),
+    });
+  },
+
   async downloadExportCsv(tipo, propertyId = null) {
     let url = `${this.baseUrl}/backoffice/export/csv?tipo=${encodeURIComponent(tipo)}`;
     if (propertyId) {
@@ -555,6 +580,100 @@ const Api = {
     return await this.request(`/leads/${id}/oposicao-rgpd`, {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  },
+
+  // ==========================================
+  // DIREÇÃO COMERCIAL & GESTÃO ATIVA DE EQUIPA (FSD 8)
+  // ==========================================
+
+  async getCommercialDashboard(filtro = 'este_mes') {
+    return await this.request(`/backoffice/commercial-dashboard?filtro=${encodeURIComponent(filtro)}`);
+  },
+
+  async getSalesFunnel(filtro = 'este_mes', consultorId = null) {
+    let url = `/backoffice/sales-funnel?filtro=${encodeURIComponent(filtro)}`;
+    if (consultorId) {
+      url += `&consultor_id=${encodeURIComponent(consultorId)}`;
+    }
+    return await this.request(url);
+  },
+
+  async getConsultoresPerformance(ano = null, mes = null) {
+    const params = new URLSearchParams();
+    if (ano) params.append('ano', ano);
+    if (mes) params.append('mes', mes);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return await this.request(`/backoffice/consultores-performance${qs}`);
+  },
+
+  async getConsultorIndividualPerformance(consultorId, ano = null, mes = null) {
+    const params = new URLSearchParams();
+    if (ano) params.append('ano', ano);
+    if (mes) params.append('mes', mes);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return await this.request(`/backoffice/consultor/${consultorId}/performance${qs}`);
+  },
+
+  async startWeeklyMeeting(consultorId) {
+    return await this.request(`/backoffice/meetings/start?consultor_id=${encodeURIComponent(consultorId)}`, {
+      method: 'POST',
+    });
+  },
+
+  async saveWeeklyMeeting(meetingData) {
+    return await this.request('/backoffice/meetings/save', {
+      method: 'POST',
+      body: JSON.stringify(meetingData),
+    });
+  },
+
+  async getConsultorMeetings(consultorId) {
+    return await this.request(`/backoffice/consultor/${consultorId}/meetings`);
+  },
+
+  async getCommercialGoals(ano = null, mes = null, consultorId = null) {
+    const params = new URLSearchParams();
+    if (ano) params.append('ano', ano);
+    if (mes) params.append('mes', mes);
+    if (consultorId) params.append('consultor_id', consultorId);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return await this.request(`/backoffice/goals${qs}`);
+  },
+
+  async setCommercialGoal(goalData) {
+    return await this.request('/backoffice/goals', {
+      method: 'POST',
+      body: JSON.stringify(goalData),
+    });
+  },
+
+  async getPipelineDeals(consultorId = null, fase = null, ativoApenas = true) {
+    const params = new URLSearchParams();
+    if (consultorId) params.append('consultor_id', consultorId);
+    if (fase) params.append('fase', fase);
+    if (ativoApenas !== null) params.append('ativo_apenas', ativoApenas);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return await this.request(`/backoffice/pipeline${qs}`);
+  },
+
+  async createPipelineDeal(dealData) {
+    return await this.request('/backoffice/pipeline', {
+      method: 'POST',
+      body: JSON.stringify(dealData),
+    });
+  },
+
+  async updatePipelineDeal(dealId, dealData) {
+    return await this.request(`/backoffice/pipeline/${dealId}`, {
+      method: 'PUT',
+      body: JSON.stringify(dealData),
+    });
+  },
+
+  async deletePipelineDeal(dealId) {
+    return await this.request(`/backoffice/pipeline/${dealId}`, {
+      method: 'DELETE',
     });
   },
 

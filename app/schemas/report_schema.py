@@ -5,7 +5,7 @@ Validação estrita de tipagem, controle de acesso e isolamento multi-tenant.
 """
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ConsultorAssiduidade(BaseModel):
@@ -123,3 +123,48 @@ class AgencySettingsUpdate(BaseModel):
     prazo_max_financiamento_anos: Optional[int] = Field(None, ge=1, le=50)
     percentual_financiamento_max: Optional[float] = Field(None, ge=10.0, le=100.0)
     hora_notificacao_aniversario: Optional[str] = Field(None, pattern=r"^\d{2}:\d{2}$")
+
+
+class ConsultorCreateRequest(BaseModel):
+    """Payload para criação de novo consultor pela Direção Comercial."""
+    nome: str = Field(..., min_length=2, max_length=255, description="Nome completo do consultor")
+    email: str = Field(..., description="E-mail profissional do consultor")
+    telemovel: Optional[str] = Field(None, max_length=50, description="Contacto telefónico do consultor")
+    password: str = Field(..., min_length=6, max_length=128, description="Palavra-passe inicial de acesso (mínimo 6 carateres)")
+
+    @field_validator("email")
+    @classmethod
+    def validate_email_format(cls, v: str) -> str:
+        import re
+        email = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+            raise ValueError("Formato de e-mail inválido.")
+        return email
+
+
+class ConsultorStatusUpdateRequest(BaseModel):
+    """Payload para ativação ou desativação do acesso do consultor."""
+    ativo: bool = Field(..., description="Estado de ativação da conta (True = Ativo, False = Inativo)")
+
+
+class ConsultorUpdateRequest(BaseModel):
+    """Payload para edição dos dados cadastrais do consultor pela Direção."""
+    nome: Optional[str] = Field(None, min_length=2, max_length=255)
+    telemovel: Optional[str] = Field(None, max_length=50)
+    password: Optional[str] = Field(None, min_length=6, max_length=128, description="Nova palavra-passe opcional")
+
+
+class ConsultorResponse(BaseModel):
+    """Dados cadastrais e estado do consultor na agência."""
+    id: int
+    agencia_id: int
+    nome: str
+    email: str
+    role: str
+    telemovel: Optional[str] = None
+    ativo: bool
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)
+

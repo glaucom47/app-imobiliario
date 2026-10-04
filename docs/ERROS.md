@@ -223,5 +223,13 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 - **Solução aplicada:** Atualizou-se o padrão regex para tolerar opcionalmente dígitos seguidos de hífen ou meia-risca (`(?:\d+\s*[-–]\s*)?`) antes da captura do nome do município e flexibilizou-se o delimitador de encerramento de linha.
 - **Como evitar no futuro:** Documentos emitidos pela Administração Pública em Portugal frequentemente usam códigos numéricos de identificação territorial combinados com os nomes por extenso; as expressões regulares de extração documental devem sempre prever e tolerar esses prefixos codificados.
 
+### 2026-10-04 - HTTP 429 Too Many Requests em testes contínuos ao acumular requisições de login no RateLimiter
+
+- **Sintoma:** Ao executar a suíte completa de testes contendo mais de 140 testes, asserções de login falharam com `HTTP 429 Too Many Requests` em vez de `200 OK` ou `401 Unauthorized`.
+- **Causa:** O middleware de proteção contra força bruta (`RateLimitMiddleware`) mantém uma janela deslizante em memória com limite de 10 tentativas por minuto para o escopo `login`. Como o `TestClient` compartilha o mesmo IP de origem (`testclient` / `127.0.0.1`), a execução consecutiva e rápida de dezenas de testes de autenticação esgotou o limite da janela.
+- **Solução aplicada:** Invocou-se `rate_limiter.reset()` dentro do fixture de cliente de teste (`client`), garantindo que cada teste unitário inicie com a janela deslizante de rate limiting limpa e isolada.
+- **Como evitar no futuro:** Em suítes de testes automatizados com Starlette/FastAPI TestClient que testam rotas protegidas por rate limiting, sempre invocar a rotina de reset de rate limiter no ciclo de vida da fixture (`setup`/`teardown`).
+
+
 
 

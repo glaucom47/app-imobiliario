@@ -25,6 +25,10 @@ from app.schemas.report_schema import (
     AgencySettingsResponse,
     AgencySettingsUpdate,
     ConsultorAssiduidade,
+    ConsultorCreateRequest,
+    ConsultorResponse,
+    ConsultorStatusUpdateRequest,
+    ConsultorUpdateRequest,
     KPIsSummaryResponse,
     ObjectionAnalyticsItem,
     PropertyObjectionAnalyticsResponse,
@@ -33,6 +37,7 @@ from app.schemas.report_schema import (
     TagResponse,
     TagUpdate,
 )
+from app.services.auth_service import hash_password
 from app.services.export_service import ExportService
 
 router = APIRouter(prefix="/backoffice", tags=["Backoffice Web & Métricas"])
@@ -506,3 +511,143 @@ def export_csv_report(
             "Content-Type": "text/csv; charset=utf-8",
         },
     )
+
+
+# =====================================================================
+# GESTÃO DE CONSULTORES PELA DIREÇÃO (RBAC E MULTI-TENANT ESTRITO)
+# =====================================================================
+
+@router.get("/consultores", response_model=List[ConsultorResponse])
+def list_consultores(
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    """
+    Lista todos os consultores associados à agência do diretor autenticado.
+    Garante isolamento multi-tenant estrito por agencia_id e restrição RBAC.
+    """
+    consultores = (
+        db.query(User)
+        .filter(
+            User.agencia_id == current_user.agencia_id,
+            User.role == "consultor",
+        )
+        .order_by(User.nome.asc())
+        .all()
+    )
+    return consultores
+
+
+@router.post("/consultores", response_model=ConsultorResponse, status_code=status.HTTP_201_CREATED)
+def create_consultor(
+    consultor_in: ConsultorCreateRequest,
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    """
+    Cria um novo consultor na agência do diretor autenticado.
+    Injeta automaticamente o agencia_id do diretor logado e gera senha com Bcrypt rounds=12.
+    """
+    clean_email = consultor_in.email.strip().lower()
+
+    # Verifica se já existe utilizador com este e-mail
+    existing = db.query(User).filter(func.lower(User.email) == clean_email).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Já existe um utilizador registado com este endereço de e-mail.",
+        )
+
+    novo_consultor = User(
+        agencia_id=current_user.agencia_id,
+        nome=consultor_in.nome.strip(),
+        email=clean_email,
+        password_hash=hash_password(consultor_in.password),
+        role="consultor",
+        telemovel=consultor_in.telemovel.strip() if consultor_in.telemovel else None,
+        ativo=True,
+    )
+    db.add(novo_consultor)
+    db.commit()
+    db.refresh(novo_consultor)
+    return novo_consultor
+
+
+@router.patch("/consultores/{consultor_id}/status", response_model=ConsultorResponse)
+def update_consultor_status(
+    consultor_id: int,
+    status_in: ConsultorStatusUpdateRequest,
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    """
+    Ativa ou desativa o acesso de um consultor da agência.
+    Isolamento multi-tenant estrito: impede alteração de consultores de outras agências (HTTP 404).
+    """
+    consultor = (
+        db.query(User)
+        .filter(
+            User.id == consultor_id,
+            User.agencia_id == current_user.agencia_id,
+            User.role == "consultor",
+        )
+        .first()
+    )
+
+    if not consultor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Consultor não encontrado na sua agência.",
+        )
+
+    if consultor.id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Não é permitido alterar o status da própria conta da direção.",
+        )
+
+    consultor.ativo = status_in.ativo
+    db.commit()
+    db.refresh(consultor)
+    return consultor
+
+
+@router.put("/consultores/{consultor_id}", response_model=ConsultorResponse)
+def update_consultor(
+    consultor_id: int,
+    consultor_in: ConsultorUpdateRequest,
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    """
+    Atualiza dados cadastrais de um consultor da agência (Nome, Telemóvel e opcionalmente Palavra-passe).
+    """
+    consultor = (
+        db.query(User)
+        .filter(
+            User.id == consultor_id,
+            User.agencia_id == current_user.agencia_id,
+            User.role == "consultor",
+        )
+        .first()
+    )
+
+    if not consultor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Consultor não encontrado na sua agência.",
+        )
+
+    if consultor_in.nome is not None:
+        consultor.nome = consultor_in.nome.strip()
+
+    if consultor_in.telemovel is not None:
+        consultor.telemovel = consultor_in.telemovel.strip() if consultor_in.telemovel.strip() else None
+
+    if consultor_in.password:
+        consultor.password_hash = hash_password(consultor_in.password)
+
+    db.commit()
+    db.refresh(consultor)
+    return consultor
+

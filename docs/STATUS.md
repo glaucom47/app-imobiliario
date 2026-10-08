@@ -104,8 +104,10 @@
     - Sanitização universal contra XSS via `escapeHtml(...)`;
   - Service Worker elevado para `fecho-static-v15` com cache invalidado;
   - 9 novos testes unitários e de integração dedicados em `tests/test_backoffice_consultores.py`.
+- [x] **`docs/PLANO_COMERCIAL.md` criado:**
+  - Plano comercial executivo, precificação SaaS (Tiers Solo, Agência e Franquia), análise de custos reais (Render, Gemini API, Whisper), matriz de funcionalidades por plano, pitch de vendas com cálculo irrefutável de ROI (600%) e estratégia de lançamento/trial de 14 dias para Portugal.
 - [x] **Validação Técnica e Suíte de Testes:**
-  - 144 testes automatizados executados e 100% aprovados (`pytest -v`);
+  - 157 testes automatizados executados e 100% aprovados (`pytest -v`);
   - Zero falhas de sintaxe em scripts frontend (`node -c static/js/*.js`);
   - Guardrails de produção, rate limiting e proteção de isolamento multi-tenant validados.
 

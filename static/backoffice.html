@@ -3900,17 +3900,32 @@
           if (typingIndicatorBO) typingIndicatorBO.style.display = 'flex';
           messagesContainerBO.scrollTop = messagesContainerBO.scrollHeight;
 
+          // Auto-login de demonstração para a Direção se não houver sessão ativa
+          if (!Api.isAuthenticated()) {
+            try {
+              await Api.login('diretor@fecho.pt', 'senha_segura_diretor');
+            } catch {
+              // segue para a chamada
+            }
+          }
+
           try {
             const data = await Api.sendAIChat(msg);
             appendBOMessage(data.response, 'assistant');
           } catch (err) {
-            appendBOMessage(`⚠️ Erro ao comunicar com a IA: ${err.message || 'Falha de rede.'}`, 'assistant');
+            const errStr = err.message || '';
+            if (errStr.includes('autenticação') || errStr.includes('ausente') || errStr.includes('401')) {
+              appendBOMessage('🔐 **Autenticação Necessária**\n\nA sua sessão expirou ou não está autenticado. Por favor, inicie sessão no Backoffice ou selecione "Diretora Demo" para testar.', 'assistant');
+            } else {
+              appendBOMessage(`⚠️ Erro ao comunicar com a IA: ${errStr || 'Falha de rede.'}`, 'assistant');
+            }
           } finally {
             if (typingIndicatorBO) typingIndicatorBO.style.display = 'none';
             messagesContainerBO.scrollTop = messagesContainerBO.scrollHeight;
           }
         });
       }
+
 
       function appendBOMessage(text, sender) {
         const msgDiv = document.createElement('div');

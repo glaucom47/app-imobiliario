@@ -3377,17 +3377,32 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (aiChatTypingIndicator) aiChatTypingIndicator.style.display = 'flex';
       if (aiChatMessagesContainer) aiChatMessagesContainer.scrollTop = aiChatMessagesContainer.scrollHeight;
 
+      // Auto-login demo se não estiver autenticado
+      if (!Api.isAuthenticated()) {
+        try {
+          await Api.login('consultor@fecho.pt', 'senha_segura_consultor');
+        } catch {
+          // segue para a chamada
+        }
+      }
+
       try {
         const responseData = await Api.sendAIChat(message, activeAIContext);
         appendAIMessage(responseData.response, 'assistant');
       } catch (error) {
-        appendAIMessage(`⚠️ Erro ao obter resposta da IA: ${error.message || 'Falha de ligação.'}`, 'assistant');
+        const errStr = error.message || '';
+        if (errStr.includes('autenticação') || errStr.includes('ausente') || errStr.includes('401')) {
+          appendAIMessage('🔐 **Autenticação Necessária**\n\nA sua sessão expirou ou não está autenticado. Por favor, faça login no MeuFecho para conversar com a IA.', 'assistant');
+        } else {
+          appendAIMessage(`⚠️ Erro ao obter resposta da IA: ${errStr || 'Falha de ligação.'}`, 'assistant');
+        }
       } finally {
         if (aiChatTypingIndicator) aiChatTypingIndicator.style.display = 'none';
         if (aiChatMessagesContainer) aiChatMessagesContainer.scrollTop = aiChatMessagesContainer.scrollHeight;
       }
     });
   }
+
 
   function appendAIMessage(text, sender) {
     if (!aiChatMessagesContainer) return;

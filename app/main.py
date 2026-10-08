@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from config.config import settings
 from app.controllers import (
+    ai_controller,
     auth_controller,
     backoffice_controller,
     commercial_controller,
@@ -74,6 +75,8 @@ app.include_router(backoffice_controller.router, prefix=settings.API_V1_STR)
 app.include_router(commercial_controller.router, prefix=settings.API_V1_STR)
 app.include_router(commercial_controller.consultor_router, prefix=settings.API_V1_STR)
 app.include_router(leads_controller.router, prefix=settings.API_V1_STR)
+app.include_router(ai_controller.router, prefix=settings.API_V1_STR)
+
 
 # Montagem dos arquivos estáticos do frontend/PWA
 if os.path.exists(settings.STATIC_DIR):

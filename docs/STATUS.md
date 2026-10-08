@@ -1,18 +1,12 @@
-# STATUS DO PROJETO - FECHO (fecho.pt)
+# STATUS DO PROJETO - FECHO (meufecho.pt)
 
-* **Última Atualização:** 04/10/2026 - 19:15
-* **Fase Atual:** Evolução Contínua - Meta Global da Loja, Desdobramento Orientado Top-Down e Metas Projetadas vs Atingidas
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend) da arquitetura de metas globais e individuais:
-  1. **Meta Global da Loja & Desdobramento Top-Down (`StoreGoal` e Migração Alembic `c119662148b6`):** Tabela persistente com isolamento multi-tenant por agência, permitindo ao Diretor definir o teto orçamentário mensal da loja, acompanhando em tempo real quanto já foi distribuído à equipa e o saldo livre a desdobrar;
-  2. **Diferenciação Rigorosa de Métricas:**
-     - *Meta Projetada:* Planeamento financeiro atribuído (Loja e Consultor);
-     - *Faturação Atingida:* Comissões efetivamente concretizadas em escrituras celebradas;
-     - *Gap Faltante:* Défice para bater a meta (`max(0, meta - atingido)`);
-     - *Forecast / Projeção Estimada:* Faturação atingida somada ao pipeline ponderado de negócios abertos;
-     - *Peso na Loja (%):* Participação relativa da meta do consultor em relação à meta global da agência;
-  3. **Reatividade Instantânea no Backoffice (`static/backoffice.html`):** Faixa executiva de desdobramento da loja, tabela de 11 colunas na Equipa Comercial e sincronização em tempo real das abas de Direção Comercial e Equipa ao gravar metas no modal sem necessidade de refresh manual (F5);
-  4. **PWA do Consultor (`static/index.html` e `static/js/app.js`):** Visualização e edição de metas próprias do consultor com cálculo em tempo real do gap faltante;
-  5. **Suíte de Testes Automatizados:** Suíte com **152 testes automatizados e 100% de aprovação (`pytest -v`)**. Service Worker elevado para `fecho-static-v19`.
+* **Última Atualização:** 08/10/2026 - 22:15
+* **Fase Atual:** Assistente Virtual Imobiliário Inteligente (Google Gemini API - `google-genai`)
+* **Status Geral:** Concluído, Documentado, Auditado e Operacional no `meufecho.pt`. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend PWA / Backoffice):
+  1. **Backend FastAPI & SDK `google-genai` (`app/services/gemini_service.py`):** Serviço desacoplado integrado à API do Gemini (`gemini-1.5-flash`), com fallback automático e resiliente para modo Mock/Simulador local quando sem chave configurada ou em testes;
+  2. **Endpoint REST Protegido (`POST /api/v1/ai/chat`):** Validação Pydantic v2 com `AIChatRequest` e `AIChatResponse`, exigindo autenticação JWT e respeitando isolamento multi-tenant (`agencia_id`);
+  3. **Interface PWA Móvel & Backoffice Web (`static/index.html` e `static/backoffice.html`):** Gaveta/modal tátil `#drawer-ai-chat` com balões de conversa, indicador de digitação ("A pensar..."), atalhos rápidos de prompts ("✨ Criar Anúncio", "📊 Baixa de Preço", "⚖️ IMT Jovem"), botão "Copiar Resposta" e "Aplicar ao Imóvel";
+  4. **Suíte de Testes Automatizados:** Suíte com **157 testes automatizados e 100% de aprovação (`pytest -v`)**. Service Worker elevado para `fecho-static-v20`.
 
 ---
 
@@ -34,7 +28,9 @@
 | **Módulo Novo 2** | Estudo de Mercado Inteligente (ACM: INE 308 Concelhos, Caderneta, Voz, Casafari e Alfredo) | Concluído |
 | **Módulo Comercial**| Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP: Backend Completo) | Concluído |
 | **Módulo RBAC** | Gestão de Consultores pela Direção, Ativação/Desativação e Isolamento Estrito | Concluído |
+| **Módulo IA Gemini**| Assistente Virtual Imobiliário Inteligente (Google Gemini API & PWA / Backoffice) | Concluído |
 | **Documentação Final** | Manuais de Manutenção, FSD Atualizado e Modo Manutenção | Concluída |
+
 
 ---
 

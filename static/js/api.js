@@ -717,9 +717,24 @@ const Api = {
   },
 
   /**
+   * Envia uma mensagem para o Assistente Virtual Imobiliário (IA Google Gemini).
+   */
+  async sendAIChat(message, context = null, forceMock = false) {
+    return await this.request('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({
+        message,
+        context,
+        force_mock: forceMock
+      }),
+    });
+  },
+
+  /**
    * Encerra a sessão do usuário.
    */
   logout() {
+
     this.setToken(null);
     this.setUser(null);
     this.setSelectedProperty(null);

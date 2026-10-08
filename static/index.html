@@ -165,7 +165,17 @@
           </div>
           <span style="font-size: 11px; background: var(--color-secondary); color: #fff; padding: 3px 8px; border-radius: 6px; font-weight: 700;">Nacional • INE</span>
         </button>
+        <button class="btn-primary-action" id="btn-open-ai-chat" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: linear-gradient(135deg, #111111 0%, #2a2a2a 100%); border: 1px solid var(--color-secondary);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="luxury-gold-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M4 11a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7z"/><circle cx="9" cy="15" r="1"/><circle cx="15" cy="15" r="1"/></svg>
+            </span>
+            <span>Assistente IA MeuFecho</span>
+          </div>
+          <span style="font-size: 11px; background: var(--color-secondary); color: #ffffff; padding: 3px 8px; border-radius: 6px; font-weight: 700;">Gemini IA</span>
+        </button>
         <button class="btn-cobalt-trigger" id="btn-open-voice" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
+
           <div style="display: flex; align-items: center; gap: 12px;">
             <span class="luxury-gold-icon">
               <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
@@ -2039,7 +2049,63 @@
     </div>
   </div>
 
+  <!-- Drawer de Chat Inteligente com IA (Google Gemini) -->
+  <div id="drawer-ai-chat" class="fecho-modal-overlay" aria-hidden="true">
+    <div class="fecho-drawer-sheet fecho-ai-chat-sheet" role="dialog" aria-modal="true" aria-label="Assistente IA MeuFecho">
+      <div class="drawer-header" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: var(--border-hairline);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="ai-avatar-badge">🤖</span>
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; margin: 0;">Assistente IA MeuFecho</h3>
+            <span class="label-caps" style="color: var(--color-secondary); font-size: 10px;">Google Gemini 1.5 Flash</span>
+          </div>
+        </div>
+        <button type="button" class="drawer-close-btn" id="btn-close-ai-chat" aria-label="Fechar">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; flex: 1; overflow: hidden; background: #fbfbfb;">
+        <!-- Banner de Contexto do Imóvel -->
+        <div id="ai-chat-context-banner" class="ai-context-banner" style="display: none;">
+          <span id="ai-context-text">Contexto: Imóvel Selecionado</span>
+          <button type="button" id="btn-clear-ai-context" style="background: none; border: none; color: var(--color-secondary); font-size: 11px; text-decoration: underline; cursor: pointer;">Limpar</button>
+        </div>
+
+        <!-- Conteúdo de Mensagens -->
+        <div class="ai-chat-messages" id="ai-chat-messages-container" style="padding: 16px; flex: 1; overflow-y: auto;">
+          <div class="ai-message ai-message-system">
+            <div class="ai-message-bubble">
+              👋 Olá! Sou o <strong>Assistente Virtual Imobiliário MeuFecho</strong> powered por IA Google Gemini.<br>
+              Como posso apoiar a sua operação imobiliária hoje em Portugal?
+              <div class="ai-quick-prompts" style="margin-top: 10px;">
+                <button type="button" class="btn-quick-prompt" data-prompt="Escrever anúncio exclusivo para este imóvel">✨ Anúncio Exclusivo</button>
+                <button type="button" class="btn-quick-prompt" data-prompt="Argumentos para negociação e baixa de preço com o proprietário">📊 Baixa de Preço</button>
+                <button type="button" class="btn-quick-prompt" data-prompt="Como funciona a isenção de IMT Jovem?">⚖️ Dúvidas IMT / Impostos</button>
+                <button type="button" class="btn-quick-prompt" data-prompt="Criar script de vídeo curto de 30s">🎬 Script de Vídeo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicador de Digitação -->
+        <div id="ai-chat-typing-indicator" class="ai-typing-indicator" style="display: none; padding: 8px 16px; font-size: 12px; color: var(--color-outline);">
+          <span class="text-gold" style="font-weight: 600; margin-right: 6px;">●</span> A pensar com IA Gemini...
+        </div>
+
+        <!-- Form de Envio -->
+        <div style="padding: 12px 16px; background: #ffffff; border-top: var(--border-hairline);">
+          <form id="form-ai-chat-send" style="display: flex; gap: 8px;">
+            <input type="text" id="input-ai-chat-message" class="fecho-input" placeholder="Escreva a sua dúvida ou instrução..." style="flex: 1; height: 44px; font-size: 14px;" autocomplete="off" required>
+            <button type="submit" class="btn-primary-action" id="btn-ai-chat-send" style="width: auto; padding: 0 16px; height: 44px; font-size: 13px;">
+              Enviar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts da Aplicação -->
+
   <script src="/static/js/api.js?v=14"></script>
   <script src="/static/js/calculator.js?v=14"></script>
   <script src="/static/js/teleprompter.js?v=14"></script>

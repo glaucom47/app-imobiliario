@@ -12,7 +12,7 @@ from typing import List
 
 class Settings:
     PROJECT_NAME: str = "Fecho"
-    DOMAIN: str = "fecho.pt"
+    DOMAIN: str = "meufecho.pt"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
 
@@ -45,6 +45,10 @@ class Settings:
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "480"))  # 8 horas
 
+    # Google Gemini API
+    GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")
+    GEMINI_MODEL: str = os.environ.get("GEMINI_MODEL", "gemini-1.5-flash")
+
     # CORS
     # Permite sobrescrever origens por lista separada por vírgula em produção no PaaS
     CORS_ORIGINS: List[str] = (
@@ -53,6 +57,8 @@ class Settings:
         else [
             "http://localhost:8000",
             "http://127.0.0.1:8000",
+            "https://meufecho.pt",
+            "https://www.meufecho.pt",
             "https://fecho.pt",
             "https://www.fecho.pt",
         ]
@@ -60,6 +66,7 @@ class Settings:
 
     # Controle de Rate Limiting (pode ser ativado/desativado via env)
     RATE_LIMIT_ENABLED: bool = os.environ.get("RATE_LIMIT_ENABLED", "true").lower() == "true"
+
 
     # Diretórios do sistema
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

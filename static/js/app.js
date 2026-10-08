@@ -3298,7 +3298,149 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // 13.5 Módulo de Chat Inteligente com IA (Google Gemini)
+  const btnOpenAIChat = document.getElementById('btn-open-ai-chat');
+  const btnCloseAIChat = document.getElementById('btn-close-ai-chat');
+  const drawerAIChat = document.getElementById('drawer-ai-chat');
+  const formAIChatSend = document.getElementById('form-ai-chat-send');
+  const inputAIChatMessage = document.getElementById('input-ai-chat-message');
+  const aiChatMessagesContainer = document.getElementById('ai-chat-messages-container');
+  const aiChatTypingIndicator = document.getElementById('ai-chat-typing-indicator');
+  const aiChatContextBanner = document.getElementById('ai-chat-context-banner');
+  const aiContextText = document.getElementById('ai-context-text');
+  const btnClearAIContext = document.getElementById('btn-clear-ai-context');
+
+  let activeAIContext = null;
+
+  function updateAIContextBanner() {
+    const selectedProp = Api.getSelectedProperty();
+    if (selectedProp) {
+      activeAIContext = {
+        property_id: selectedProp.id,
+        titulo: selectedProp.titulo,
+        preco: selectedProp.preco,
+        tipologia: selectedProp.tipologia,
+        concelho: selectedProp.concelho || selectedProp.morada,
+        regiao_fiscal: selectedProp.regiao_fiscal
+      };
+      if (aiContextText) aiContextText.textContent = `Contexto: ${selectedProp.titulo} (${selectedProp.preco ? selectedProp.preco + ' €' : ''})`;
+      if (aiChatContextBanner) aiChatContextBanner.style.display = 'flex';
+    } else {
+      activeAIContext = null;
+      if (aiChatContextBanner) aiChatContextBanner.style.display = 'none';
+    }
+  }
+
+  if (btnOpenAIChat) {
+    btnOpenAIChat.addEventListener('click', () => {
+      updateAIContextBanner();
+      openDrawer(drawerAIChat);
+      if (inputAIChatMessage) inputAIChatMessage.focus();
+    });
+  }
+
+  if (btnCloseAIChat) {
+    btnCloseAIChat.addEventListener('click', () => {
+      closeDrawer(drawerAIChat);
+    });
+  }
+
+  if (btnClearAIContext) {
+    btnClearAIContext.addEventListener('click', () => {
+      activeAIContext = null;
+      if (aiChatContextBanner) aiChatContextBanner.style.display = 'none';
+    });
+  }
+
+  // Delegate quick prompts clicks
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.classList.contains('btn-quick-prompt') && !e.target.classList.contains('btn-quick-bo')) {
+      const promptText = e.target.getAttribute('data-prompt');
+      if (promptText && inputAIChatMessage) {
+        inputAIChatMessage.value = promptText;
+        if (formAIChatSend) {
+          formAIChatSend.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+      }
+    }
+  });
+
+  if (formAIChatSend) {
+    formAIChatSend.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = inputAIChatMessage.value.trim();
+      if (!message) return;
+
+      appendAIMessage(message, 'user');
+      inputAIChatMessage.value = '';
+
+      if (aiChatTypingIndicator) aiChatTypingIndicator.style.display = 'flex';
+      if (aiChatMessagesContainer) aiChatMessagesContainer.scrollTop = aiChatMessagesContainer.scrollHeight;
+
+      try {
+        const responseData = await Api.sendAIChat(message, activeAIContext);
+        appendAIMessage(responseData.response, 'assistant');
+      } catch (error) {
+        appendAIMessage(`⚠️ Erro ao obter resposta da IA: ${error.message || 'Falha de ligação.'}`, 'assistant');
+      } finally {
+        if (aiChatTypingIndicator) aiChatTypingIndicator.style.display = 'none';
+        if (aiChatMessagesContainer) aiChatMessagesContainer.scrollTop = aiChatMessagesContainer.scrollHeight;
+      }
+    });
+  }
+
+  function appendAIMessage(text, sender) {
+    if (!aiChatMessagesContainer) return;
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `ai-message ai-message-${sender}`;
+
+    const bubbleDiv = document.createElement('div');
+    bubbleDiv.className = 'ai-message-bubble';
+
+    const escaped = escapeHtml(text);
+    const formatted = escaped
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n\n/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+
+    bubbleDiv.innerHTML = formatted;
+
+    if (sender === 'assistant') {
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'ai-message-actions';
+      actionsDiv.innerHTML = `
+        <button type="button" class="btn-ai-action btn-copy-ai">📋 Copiar Resposta</button>
+        <button type="button" class="btn-ai-action btn-apply-ai">🏠 Aplicar ao Imóvel</button>
+      `;
+
+      actionsDiv.querySelector('.btn-copy-ai').addEventListener('click', function() {
+        navigator.clipboard.writeText(text);
+        this.textContent = '✓ Copiado!';
+        setTimeout(() => this.textContent = '📋 Copiar Resposta', 2000);
+      });
+
+      actionsDiv.querySelector('.btn-apply-ai').addEventListener('click', function() {
+        const activeProp = Api.getSelectedProperty();
+        if (activeProp) {
+          alert(`✓ Texto da IA pronto para aplicação no imóvel ${activeProp.titulo}. Foi copiado para a área de transferência!`);
+          navigator.clipboard.writeText(text);
+        } else {
+          alert('Selecione primeiro um imóvel na carteira para aplicar o texto.');
+          handleOpenPortfolio();
+        }
+      });
+
+      bubbleDiv.appendChild(actionsDiv);
+    }
+
+    msgDiv.appendChild(bubbleDiv);
+    aiChatMessagesContainer.appendChild(msgDiv);
+    aiChatMessagesContainer.scrollTop = aiChatMessagesContainer.scrollHeight;
+  }
+
   // 14. Ouvintes de Eventos Globais de Sessão e Imóveis
+
   window.addEventListener('fecho:unauthorized', () => {
     updateAuthUI(null);
   });

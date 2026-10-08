@@ -29,9 +29,14 @@
         </button>
         <span class="status-pill status-pill-notarized" id="agency-name-badge">A carregar agência...</span>
         <span class="status-pill status-pill-secondary" id="director-name-badge">A validar sessão...</span>
+        <button class="status-pill" style="border: 1px solid var(--color-secondary); background: #111111; color: #ffffff; cursor: pointer; height: 36px; padding: 0 14px; font-size: 12px; display: flex; align-items: center; gap: 6px;" id="btn-open-ai-chat-bo" title="Abrir Assistente IA Gemini">
+          <span>🤖</span>
+          <span style="font-weight: 600;">Assistente IA</span>
+        </button>
         <button class="btn-secondary-ghost" style="width: auto; padding: 0 16px; height: 36px; font-size: 13px;" id="btn-shortcut-export">
           Exportar CSV
         </button>
+
         <button class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; height: 36px; padding: 0 14px; font-size: 12px;" id="btn-backoffice-logout" title="Terminar Sessão">
           Sair
         </button>
@@ -3786,5 +3791,170 @@
       }
     });
   </script>
+  <!-- Modal / Drawer de Chat Inteligente com IA (Google Gemini) no Backoffice -->
+  <div id="drawer-ai-chat-bo" class="fecho-modal-overlay" aria-hidden="true" style="display: none;">
+    <div class="fecho-drawer-sheet fecho-ai-chat-sheet" role="dialog" aria-modal="true" aria-label="Assistente IA MeuFecho">
+      <div class="drawer-header" style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: var(--border-hairline);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="ai-avatar-badge">🤖</span>
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; margin: 0;">Assistente IA MeuFecho (Direção)</h3>
+            <span class="label-caps" style="color: var(--color-secondary); font-size: 10px;">Google Gemini 1.5 Flash</span>
+          </div>
+        </div>
+        <button type="button" class="drawer-close-btn" id="btn-close-ai-chat-bo" aria-label="Fechar">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; flex: 1; overflow: hidden; background: #fbfbfb;">
+        <!-- Conteúdo de Mensagens -->
+        <div class="ai-chat-messages" id="ai-chat-messages-container-bo" style="padding: 16px; flex: 1; overflow-y: auto;">
+          <div class="ai-message ai-message-system">
+            <div class="ai-message-bubble">
+              👋 Olá, Diretor(a)! Sou o <strong>Assistente Virtual Imobiliário MeuFecho</strong> powered por IA Google Gemini.<br>
+              Como posso apoiar a gestão da sua equipa comercial e decisões estratégicas da agência hoje?
+              <div class="ai-quick-prompts" style="margin-top: 10px;">
+                <button type="button" class="btn-quick-prompt btn-quick-bo" data-prompt="Estratégias para aumentar a motivação e cumprimento de metas da equipa">🎯 Motivação de Equipa</button>
+                <button type="button" class="btn-quick-prompt btn-quick-bo" data-prompt="Como argumentar baixa de preço com proprietários com base em objeções de visitas?">📊 Gestão de Objeções</button>
+                <button type="button" class="btn-quick-prompt btn-quick-bo" data-prompt="Quais são as regras fiscais e isenções do IMT Jovem em Portugal?">⚖️ Legislação IMT Jovem</button>
+                <button type="button" class="btn-quick-prompt btn-quick-bo" data-prompt="Como otimizar a conversão de leads de angariação em imóveis em exclusivo?">🏢 Captação em Exclusivo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicador de Digitação -->
+        <div id="ai-chat-typing-indicator-bo" class="ai-typing-indicator" style="display: none; padding: 8px 16px; font-size: 12px; color: var(--color-outline);">
+          <span class="text-gold" style="font-weight: 600; margin-right: 6px;">●</span> A pensar com IA Gemini...
+        </div>
+
+        <!-- Form de Envio -->
+        <div style="padding: 12px 16px; background: #ffffff; border-top: var(--border-hairline);">
+          <form id="form-ai-chat-send-bo" style="display: flex; gap: 8px;">
+            <input type="text" id="input-ai-chat-message-bo" class="fecho-input" placeholder="Escreva a sua dúvida estratégica para a IA..." style="flex: 1; height: 44px; font-size: 14px;" autocomplete="off" required>
+            <button type="submit" class="btn-primary-action" id="btn-ai-chat-send-bo" style="width: auto; padding: 0 16px; height: 44px; font-size: 13px;">
+              Enviar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Lógica client-side simples do Chat de IA para a Direção no Backoffice
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnOpenBO = document.getElementById('btn-open-ai-chat-bo');
+      const btnCloseBO = document.getElementById('btn-close-ai-chat-bo');
+      const drawerBO = document.getElementById('drawer-ai-chat-bo');
+      const formSendBO = document.getElementById('form-ai-chat-send-bo');
+      const inputMsgBO = document.getElementById('input-ai-chat-message-bo');
+      const messagesContainerBO = document.getElementById('ai-chat-messages-container-bo');
+      const typingIndicatorBO = document.getElementById('ai-chat-typing-indicator-bo');
+
+      if (btnOpenBO && drawerBO) {
+        btnOpenBO.addEventListener('click', () => {
+          drawerBO.style.display = 'flex';
+          drawerBO.classList.add('active');
+          if (inputMsgBO) inputMsgBO.focus();
+        });
+      }
+
+      if (btnCloseBO && drawerBO) {
+        btnCloseBO.addEventListener('click', () => {
+          drawerBO.style.display = 'none';
+          drawerBO.classList.remove('active');
+        });
+      }
+
+      if (drawerBO) {
+        drawerBO.addEventListener('click', (e) => {
+          if (e.target === drawerBO) {
+            drawerBO.style.display = 'none';
+            drawerBO.classList.remove('active');
+          }
+        });
+      }
+
+      // Quick Prompts no Backoffice
+      document.addEventListener('click', (e) => {
+        if (e.target && e.target.classList.contains('btn-quick-bo')) {
+          const prompt = e.target.getAttribute('data-prompt');
+          if (prompt && inputMsgBO) {
+            inputMsgBO.value = prompt;
+            formSendBO.dispatchEvent(new Event('submit', { cancelable: true }));
+          }
+        }
+      });
+
+      if (formSendBO) {
+        formSendBO.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const msg = inputMsgBO.value.trim();
+          if (!msg) return;
+
+          // Renderiza mensagem do usuário
+          appendBOMessage(msg, 'user');
+          inputMsgBO.value = '';
+
+          // Exibe indicador
+          if (typingIndicatorBO) typingIndicatorBO.style.display = 'flex';
+          messagesContainerBO.scrollTop = messagesContainerBO.scrollHeight;
+
+          try {
+            const data = await Api.sendAIChat(msg);
+            appendBOMessage(data.response, 'assistant');
+          } catch (err) {
+            appendBOMessage(`⚠️ Erro ao comunicar com a IA: ${err.message || 'Falha de rede.'}`, 'assistant');
+          } finally {
+            if (typingIndicatorBO) typingIndicatorBO.style.display = 'none';
+            messagesContainerBO.scrollTop = messagesContainerBO.scrollHeight;
+          }
+        });
+      }
+
+      function appendBOMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `ai-message ai-message-${sender}`;
+
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'ai-message-bubble';
+        
+        // Renderização segura de HTML formatado simples com escape XSS
+        const escaped = escapeHtmlBO(text);
+        const formatted = escaped
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\n\n/g, '<br><br>')
+          .replace(/\n/g, '<br>');
+
+        bubbleDiv.innerHTML = formatted;
+
+        if (sender === 'assistant') {
+          const actionsDiv = document.createElement('div');
+          actionsDiv.className = 'ai-message-actions';
+          actionsDiv.innerHTML = `<button type="button" class="btn-ai-action btn-copy-ai-bo">📋 Copiar Resposta</button>`;
+          
+          actionsDiv.querySelector('.btn-copy-ai-bo').addEventListener('click', function() {
+            navigator.clipboard.writeText(text);
+            this.textContent = '✓ Copiado!';
+            setTimeout(() => this.textContent = '📋 Copiar Resposta', 2000);
+          });
+          
+          bubbleDiv.appendChild(actionsDiv);
+        }
+
+        msgDiv.appendChild(bubbleDiv);
+        messagesContainerBO.appendChild(msgDiv);
+        messagesContainerBO.scrollTop = messagesContainerBO.scrollHeight;
+      }
+
+      function escapeHtmlBO(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+    });
+  </script>
 </body>
 </html>
+

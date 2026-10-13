@@ -246,6 +246,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // 4. Gestão da Sessão e Cabeçalho
+  async function loadTodayVisitsCount() {
+    const chip = document.getElementById('today-visits-chip');
+    if (!chip || !Api.isAuthenticated()) return;
+    try {
+      const res = await Api.request('/visits?limit=100');
+      const hoje = new Date().toDateString();
+      const n = ((res && res.visits) || []).filter((v) => new Date(v.data_visita).toDateString() === hoje).length;
+      chip.textContent = `${n} ${n === 1 ? 'visita' : 'visitas'}`;
+    } catch (e) { /* mantém rótulo padrão */ }
+  }
   function updateAuthUI(user) {
     if (user) {
       if (userBadge) {
@@ -257,6 +267,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (btnLogout) btnLogout.style.display = 'flex';
       const greetName = document.getElementById('home-greeting-name');
       if (greetName) greetName.textContent = user.nome ? `, ${String(user.nome).split(' ')[0]}` : '';
+      const avatar = document.getElementById('home-avatar');
+      if (avatar) {
+        const parts = String(user.nome || '').trim().split(/\s+/);
+        avatar.textContent = ((parts[0] || '')[0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '');
+        avatar.hidden = false;
+      }
+      loadTodayVisitsCount();
       if (authModal) authModal.style.display = 'none';
 
       // Carrega o imóvel em foco ou inicializa carteira
@@ -2075,6 +2092,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!Api.isAuthenticated()) return;
     try {
       const res = await Api.getAnniversaryContacts();
+      const annivChip = document.getElementById('today-anniv-chip');
+      if (annivChip) {
+        const n = (res && res.items) ? res.items.length : 0;
+        annivChip.textContent = `${n} ${n === 1 ? 'aniversário' : 'aniversários'}`;
+      }
       if (res && res.items && res.items.length > 0) {
         if (anniversaryMorningBanner) {
           anniversaryMorningBanner.style.display = 'block';

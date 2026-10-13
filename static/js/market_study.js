@@ -168,8 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
     btnDemoPhotos.addEventListener('click', () => {
       // Injeta fotos reais dos cómodos de Cascais já existentes no sistema
       acmState.photosList = [
-        { name: 'Fachada', base64: '/static/img/hero/villa_sunset.jpg' },
-        { name: 'Living Open Space', base64: '/static/img/hero/villa_living.jpg' },
+        { name: 'Fachada', base64: '/static/img/hero/villa_terrace.jpg' },
+        { name: 'Living Open Space', base64: '/static/img/hero/villa_interior.jpg' },
         { name: 'Cozinha Gourmet', base64: '/static/img/hero/villa_kitchen.jpg' },
         { name: 'Master Bathroom', base64: '/static/img/hero/villa_bathroom.jpg' },
       ];

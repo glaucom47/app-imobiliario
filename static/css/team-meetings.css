@@ -1,0 +1,39 @@
+/* Reunião de Equipa (coletiva) — tokens do DESIGN.md (Editorial PropTech Luxury) */
+.tm-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.tm-toolbar select { height: 44px; border-radius: var(--radius-md); border: 1px solid var(--color-outline-variant); padding: 0 12px; font: inherit; background: var(--color-surface-container-lowest); }
+.tm-card { background: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant); border-radius: var(--radius-lg); padding: 20px; margin-top: 20px; animation: tm-fade .25s ease-out; }
+.tm-card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.tm-card-head h3 { font-size: 16px; font-weight: 600; color: var(--color-primary); margin: 0; }
+.tm-meta { font-size: 12px; color: var(--color-outline); }
+.tm-grid-wrap { overflow-x: auto; }
+.tm-grid { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+.tm-grid th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--color-outline); padding: 8px 6px; text-align: center; white-space: nowrap; border-bottom: 1px solid var(--color-outline-variant); }
+.tm-grid th:first-child, .tm-grid td:first-child { text-align: left; position: sticky; left: 0; background: var(--color-surface-container-lowest); z-index: 1; }
+.tm-grid td { padding: 8px 6px; text-align: center; border-bottom: 1px solid var(--color-surface-container-low); }
+.tm-grid tr:hover td { background: var(--color-surface-container-low); }
+.tm-num { width: 56px; height: 38px; text-align: center; border: 1px solid var(--color-outline-variant); border-radius: 10px; font: inherit; font-variant-numeric: tabular-nums; background: #fff; transition: border-color .15s, box-shadow .15s; }
+.tm-num:focus { outline: none; border-color: var(--color-secondary); box-shadow: 0 0 0 3px var(--color-secondary-container); }
+.tm-note { min-width: 160px; height: 38px; border: 1px solid var(--color-outline-variant); border-radius: 10px; padding: 0 10px; font: inherit; }
+.tm-presenca { min-width: 116px; height: 38px; border-radius: 999px; border: 1px solid transparent; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: transform .1s, background .2s; user-select: none; }
+.tm-presenca:active { transform: scale(.96); }
+.tm-presenca[data-v="Presente"] { background: #e7f4ec; color: #1f6b43; border-color: #b9dfc8; }
+.tm-presenca[data-v="Atraso"] { background: var(--color-secondary-container); color: #5c4523; border-color: #e0c298; }
+.tm-presenca[data-v="Ausente"] { background: var(--color-error-container); color: var(--color-error); border-color: #f3b8b1; }
+.tm-presenca[data-v="AusenciaJustificada"] { background: var(--color-surface-container-low); color: var(--color-outline); border-color: var(--color-outline-variant); }
+.tm-grid input:disabled, .tm-presenca:disabled { opacity: .6; cursor: not-allowed; }
+.tm-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+.tm-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.tm-badge--lock { background: var(--color-surface-container-low); color: var(--color-outline); }
+.tm-badge--open { background: #e7f4ec; color: #1f6b43; }
+.tm-history { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.tm-history li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--color-surface-container-low); border-radius: var(--radius-md); cursor: pointer; transition: border-color .15s, transform .15s; }
+.tm-history li:hover { border-color: var(--color-secondary); transform: translateY(-1px); }
+.tm-assid { display: inline-flex; min-width: 58px; justify-content: center; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tm-assid--verde { background: #e7f4ec; color: #1f6b43; }
+.tm-assid--amarelo { background: var(--color-secondary-container); color: #5c4523; }
+.tm-assid--vermelho { background: var(--color-error-container); color: var(--color-error); }
+.tm-assid--na { background: var(--color-surface-container-low); color: var(--color-outline); }
+.tm-period { display: inline-flex; gap: 4px; background: var(--color-surface-container-low); padding: 4px; border-radius: 999px; }
+.tm-period button { border: 0; background: transparent; padding: 6px 12px; border-radius: 999px; font: inherit; font-size: 12px; font-weight: 600; color: var(--color-outline); cursor: pointer; }
+.tm-period button.active { background: #fff; color: var(--color-primary); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+@keyframes tm-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }

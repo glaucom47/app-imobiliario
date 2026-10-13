@@ -11,8 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos e Design Tokens (Editorial PropTech Luxury) -->
-  <link rel="stylesheet" href="/static/css/design-tokens.css">
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/design-tokens.css?v=15">
+  <link rel="stylesheet" href="/static/css/style.css?v=15">
+  <link rel="stylesheet" href="/static/css/team-meetings.css?v=15">
 </head>
 <body>
   <div class="backoffice-shell" id="backoffice-app">
@@ -65,7 +66,9 @@
         <button class="bo-tab-btn active" data-tab="tab-kpis">Painel & Assiduidade</button>
         <button class="bo-tab-btn" data-tab="tab-commercial">Direção Comercial</button>
         <button class="bo-tab-btn" data-tab="tab-team">Equipa Comercial</button>
+        <button class="bo-tab-btn" data-tab="tab-team-meetings">Reuniões de Equipa</button>
         <button class="bo-tab-btn" data-tab="tab-leads">Captação & Angariação</button>
+        <button class="bo-tab-btn" data-tab="tab-crm-sync">🔄 Sincronização CRM</button>
         <button class="bo-tab-btn" data-tab="tab-objections">Objeções por Imóvel</button>
         <button class="bo-tab-btn" data-tab="tab-tags">Catálogo de Objeções</button>
         <button class="bo-tab-btn" data-tab="tab-settings">Parâmetros Financeiros</button>
@@ -391,6 +394,134 @@
               Descarregar Contactos.csv
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           ABA: REUNIÕES DE EQUIPA (COLETIVA) — PRESENÇA E ATIVIDADE
+           =================================================================== -->
+      <div id="tab-team-meetings" class="bo-tab-content" style="display: none;">
+        <div class="bo-filter-bar">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Reuniões de Equipa</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">
+              Registe a presença de cada consultor e lance a atividade reportada na reunião. Os números alimentam KPIs, funil e performance sem duplicar registos.
+            </p>
+          </div>
+          <div class="tm-toolbar">
+            <label for="tm-tipo" class="visually-hidden">Tipo de reunião</label>
+            <select id="tm-tipo" aria-label="Tipo de reunião">
+              <option value="diaria">Diária</option>
+              <option value="semanal">Semanal</option>
+              <option value="outra">Outra</option>
+            </select>
+            <button type="button" id="tm-btn-start" class="btn-primary-action" style="width: auto; padding: 0 20px; height: 44px;">▶ Iniciar Reunião de Hoje</button>
+          </div>
+        </div>
+
+        <div id="tm-editor"></div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
+          <section class="tm-card" aria-labelledby="tm-hist-title">
+            <div class="tm-card-head"><h3 id="tm-hist-title">Histórico de Reuniões</h3></div>
+            <ul id="tm-history-list" class="tm-history"><li class="tm-meta">A carregar...</li></ul>
+          </section>
+          <section class="tm-card" aria-labelledby="tm-stats-title">
+            <div class="tm-card-head">
+              <div>
+                <h3 id="tm-stats-title">Assiduidade nas Reuniões</h3>
+                <div id="tm-stats-total" class="tm-meta"></div>
+              </div>
+              <div class="tm-period" role="group" aria-label="Período">
+                <button type="button" data-dias="7">7 dias</button>
+                <button type="button" data-dias="30" class="active">30 dias</button>
+                <button type="button" data-dias="90">90 dias</button>
+              </div>
+            </div>
+            <div class="tm-grid-wrap">
+              <table class="tm-grid">
+                <thead><tr><th scope="col">Consultor</th><th scope="col">Pres.</th><th scope="col">Atraso</th><th scope="col">Aus.</th><th scope="col">Just.</th><th scope="col">Assiduidade</th></tr></thead>
+                <tbody id="tm-stats-body"></tbody>
+              </table>
+            </div>
+            <p class="tm-meta" style="margin-top: 10px;">Assiduidade = (Presentes + Atrasos) ÷ (Total − Justificadas). 🟢 ≥ 90% · 🟡 70–89% · 🔴 &lt; 70%</p>
+          </section>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           ABA: SINCRONIZAÇÃO DE CARTEIRA DE IMÓVEIS COM CRMs EXTERNOS
+           =================================================================== -->
+      <div id="tab-crm-sync" class="bo-tab-content" style="display: none;">
+        <div class="bo-filter-bar">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 600;">Sincronização com CRMs Externos (Feeds XML & JSON)</h2>
+            <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">
+              Sincronize automaticamente a carteira de imóveis da agência a partir de eGO Real Estate, Casafari CRM, X-Feed, Kyero e outros integradores.
+            </p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+          <!-- Card de Sincronização por URL Remota / Feed Content -->
+          <section class="card-tier1">
+            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Sincronizar Carteira Remota</h3>
+            <form id="form-crm-sync">
+              <div class="fecho-form-group" style="margin-bottom: 16px;">
+                <label for="crm-feed-url" class="label-caps">URL Remota do Feed (XML ou JSON)</label>
+                <input type="url" id="crm-feed-url" class="fecho-input" placeholder="https://crm.exemplo.com/export_feed.xml" style="height: 44px; font-size: 13px;">
+                <small style="color: var(--color-outline); font-size: 11px; margin-top: 4px; display: block;">
+                  Suporta Feeds XML (eGO, Casafari, X-Feed, Kyero) e APIs REST JSON.
+                </small>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div class="fecho-form-group">
+                  <label for="crm-feed-type" class="label-caps">Tipo de Feed</label>
+                  <select id="crm-feed-type" class="fecho-input" style="height: 44px; font-size: 13px;">
+                    <option value="auto">Deteção Automática</option>
+                    <option value="xml">XML (eGO / Casafari / X-Feed / Kyero)</option>
+                    <option value="json">JSON API</option>
+                  </select>
+                </div>
+                <div class="fecho-form-group">
+                  <label for="crm-default-consultor" class="label-caps">Consultor Padrão</label>
+                  <select id="crm-default-consultor" class="fecho-input" style="height: 44px; font-size: 13px;">
+                    <option value="">Atribuir ao Diretor</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="fecho-form-group" style="margin-bottom: 20px;">
+                <label for="crm-feed-content" class="label-caps">Ou Cole o Conteúdo do Feed (XML / JSON direto)</label>
+                <textarea id="crm-feed-content" class="fecho-input" rows="5" placeholder="<properties><property><id>REF123</id><title>Apartamento T2</title><price>250000</price>...</property></properties>" style="font-family: monospace; font-size: 12px; font-weight: 400; padding: 10px;"></textarea>
+              </div>
+
+              <div id="crm-sync-error" style="color: var(--color-error); font-size: 13px; margin-bottom: 12px; display: none;"></div>
+
+              <button type="submit" class="btn-primary-action" id="btn-submit-crm-sync" style="height: 46px; font-size: 14px; width: 100%;">
+                🔄 Iniciar Sincronização CRM
+              </button>
+            </form>
+          </section>
+
+          <!-- Card de Resultados / Instruções -->
+          <section class="card-tier1">
+            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Resultado da Úlitma Sincronização</h3>
+            <div id="crm-sync-result-box" style="padding: 16px; background: #f9f9f9; border-radius: 8px; border: var(--border-hairline);">
+              <p style="font-size: 13px; color: var(--color-outline); margin: 0;">Ainda não foi executada nenhuma sincronização nesta sessão.</p>
+            </div>
+
+            <div style="margin-top: 24px; padding-top: 16px; border-top: var(--border-hairline);">
+              <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">ℹ️ Plataformas Imobiliárias Suportadas:</h4>
+              <ul style="font-size: 13px; color: var(--color-on-surface-variant); padding-left: 18px; margin: 0; line-height: 1.6;">
+                <li><strong>eGO Real Estate:</strong> Feeds XML de exportação de imóveis em carteira.</li>
+                <li><strong>Casafari CRM:</strong> Feeds XML e endpoints JSON de imóveis angariados.</li>
+                <li><strong>X-Feed / Kyero:</strong> Padrão imobiliário ibérico para portais e agregadores.</li>
+                <li><strong>APIs REST Personalizadas:</strong> Qualquer endpoint JSON contendo array de propriedades.</li>
+              </ul>
+            </div>
+          </section>
         </div>
       </div>
 
@@ -870,12 +1001,13 @@
                   <th style="text-align: right;">Pipeline Ativo</th>
                   <th style="text-align: center;">Visitas (Mês)</th>
                   <th style="text-align: center;">Trajetória</th>
+                  <th style="text-align: center;">Assiduidade Reuniões %</th>
                   <th style="text-align: right;">Ações de Gestão</th>
                 </tr>
               </thead>
               <tbody id="commercial-performance-table-body">
                 <tr>
-                  <td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar desempenho da equipa comercial...</td>
+                  <td colspan="9" style="text-align: center; color: var(--color-outline); padding: 24px;">A carregar desempenho da equipa comercial...</td>
                 </tr>
               </tbody>
             </table>
@@ -1628,7 +1760,8 @@
     </div>
   </div>
 
-  <script src="/static/js/api.js"></script>
+  <script src="/static/js/api.js?v=15"></script>
+  <script src="/static/js/team_meetings.js?v=15"></script>
   <script>
     let currentAnalyticsData = null;
     let selectedKpiDays = 30;
@@ -1730,13 +1863,28 @@
           }
         });
 
-        if (tabId === 'tab-kpis') loadKPIs(selectedKpiDays);
-        if (tabId === 'tab-commercial') loadCommercialDashboard();
-        if (tabId === 'tab-team') loadTeamConsultores();
-        if (tabId === 'tab-objections') loadObjectionsAnalytics();
-        if (tabId === 'tab-tags') loadTags();
-        if (tabId === 'tab-settings') loadSettings();
-        if (tabId === 'tab-leads') loadLeads();
+        const loaders = {
+          'tab-kpis': () => loadKPIs(selectedKpiDays),
+          'tab-commercial': () => loadCommercialDashboard(),
+          'tab-team': () => loadTeamConsultores(),
+          'tab-team-meetings': () => (window.TeamMeetings ? window.TeamMeetings.load() : null),
+          'tab-objections': () => loadObjectionsAnalytics(),
+          'tab-tags': () => loadTags(),
+          'tab-settings': () => loadSettings(),
+          'tab-leads': () => loadLeads(),
+        };
+        if (loaders[tabId]) {
+          // Performance: esqueleto apenas na 1.ª visita da aba; visitas seguintes servem da cache do Api (60 s)
+          const content = document.getElementById(tabId);
+          const firstVisit = content && !content.dataset.loaded;
+          if (firstVisit) content.classList.add('is-loading');
+          Promise.resolve(loaders[tabId]()).catch(() => {}).finally(() => {
+            if (content) {
+              content.classList.remove('is-loading');
+              content.dataset.loaded = '1';
+            }
+          });
+        }
       }
 
       tabButtons.forEach(btn => {
@@ -3185,10 +3333,10 @@
 
         try {
           const data = await Api.getConsultoresPerformance();
-          const items = data.performance || [];
+          const items = data.performance || data.consultores || [];
 
           if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-outline); padding: 24px;">Nenhum consultor com dados no período.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: var(--color-outline); padding: 24px;">Nenhum consultor com dados no período.</td></tr>';
             return;
           }
 
@@ -3196,21 +3344,26 @@
           items.forEach(item => {
             const semaforoPill = getSemaforoPill(item.trajetoria);
             const pct = Math.min(item.percentual_cumprimento, 100);
+            const nomeConsultor = item.consultor_nome || item.nome || '';
+            const telemovel = item.consultor_telemovel || item.telemovel;
+            const metaMensal = item.meta_faturacao ?? item.meta_mensal;
+            const visitasMes = item.visitas_mes ?? item.visitas_realizadas ?? 0;
+            const assidPill = window.TeamMeetings ? window.TeamMeetings.assidPill(item.assiduidade_reunioes_pct) : '—';
 
             html += `
               <tr>
                 <td>
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: var(--radius-full); background: var(--color-surface); font-weight: 700; font-size: 12px; color: var(--color-primary);">
-                      ${escapeHtml(item.consultor_nome.charAt(0).toUpperCase())}
+                      ${escapeHtml(nomeConsultor.charAt(0).toUpperCase())}
                     </span>
                     <div>
-                      <strong style="color: var(--color-primary); font-size: 13px;">${escapeHtml(item.consultor_nome)}</strong>
-                      <div style="font-size: 11px; color: var(--color-outline);">${escapeHtml(item.consultor_telemovel || 'Sem telemóvel')}</div>
+                      <strong style="color: var(--color-primary); font-size: 13px;">${escapeHtml(nomeConsultor)}</strong>
+                      <div style="font-size: 11px; color: var(--color-outline);">${escapeHtml(telemovel || 'Sem telemóvel')}</div>
                     </div>
                   </div>
                 </td>
-                <td style="text-align: right; font-weight: 500; font-size: 13px;">${formatPrice(item.meta_faturacao)}</td>
+                <td style="text-align: right; font-weight: 500; font-size: 13px;">${formatPrice(metaMensal)}</td>
                 <td style="text-align: right; font-weight: 600; font-size: 13px; color: var(--color-primary);">${formatPrice(item.faturacao_realizada)}</td>
                 <td style="text-align: center;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -3221,8 +3374,9 @@
                   </div>
                 </td>
                 <td style="text-align: right; font-weight: 600; font-size: 13px; color: var(--color-secondary);">${formatPrice(item.pipeline_ativo)}</td>
-                <td style="text-align: center; font-size: 13px; font-weight: 600;">${item.visitas_mes}</td>
+                <td style="text-align: center; font-size: 13px; font-weight: 600;">${Number(visitasMes)}</td>
                 <td style="text-align: center;">${semaforoPill}</td>
+                <td style="text-align: center;">${assidPill}</td>
                 <td style="text-align: right;">
                   <div style="display: inline-flex; gap: 6px;">
                     <button type="button" class="btn-secondary-ghost" style="width: auto; height: 32px; padding: 0 10px; font-size: 11px;" onclick="window.openConsultorPerformanceModal(${item.consultor_id})" title="Ver Ficha Individual de 4 Blocos">
@@ -3781,6 +3935,69 @@
           } finally {
             btnSubmit.disabled = false;
             btnSubmit.textContent = 'Registar Negócio';
+          }
+        });
+      }
+
+      // Sincronização CRM
+      const formCRMSync = document.getElementById('form-crm-sync');
+      const errCRMSync = document.getElementById('crm-sync-error');
+      const resultBoxSync = document.getElementById('crm-sync-result-box');
+
+      if (formCRMSync) {
+        formCRMSync.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (errCRMSync) errCRMSync.style.display = 'none';
+          const btnSubmit = document.getElementById('btn-submit-crm-sync');
+          btnSubmit.disabled = true;
+          btnSubmit.textContent = '🔄 A Sincronizar Feed CRM...';
+
+          try {
+            const feedUrl = document.getElementById('crm-feed-url').value.trim();
+            const feedType = document.getElementById('crm-feed-type').value;
+            const feedContent = document.getElementById('crm-feed-content').value.trim();
+            const consultorId = document.getElementById('crm-default-consultor').value ? Number(document.getElementById('crm-default-consultor').value) : null;
+
+            if (!feedUrl && !feedContent) {
+              throw new Error('Preencha a URL remota do feed ou cole o conteúdo bruto XML/JSON.');
+            }
+
+            const payload = {
+              feed_url: feedUrl || null,
+              feed_type: feedType,
+              feed_content: feedContent || null,
+              default_consultor_id: consultorId
+            };
+
+            const res = await Api.syncCRM(payload);
+
+            if (resultBoxSync) {
+              let htmlErros = '';
+              if (res.erros && res.erros.length > 0) {
+                htmlErros = `<div style="margin-top: 8px; color: var(--color-warning); font-size: 12px;">⚠️ Avisos (${res.erros.length}): ${escapeHtml(res.erros.join(', '))}</div>`;
+              }
+
+              resultBoxSync.innerHTML = `
+                <div style="font-weight: 600; color: #15803d; font-size: 14px; margin-bottom: 6px;">
+                  ✅ ${escapeHtml(res.mensagem)}
+                </div>
+                <div style="display: flex; gap: 12px; font-size: 13px; color: var(--color-on-surface); margin-top: 8px;">
+                  <span>➕ Novos: <strong>${res.imoveis_criados}</strong></span>
+                  <span>🔄 Atualizados: <strong>${res.imoveis_atualizados}</strong></span>
+                  <span>⚠️ Ignorados: <strong>${res.imoveis_ignorados}</strong></span>
+                  <span>📊 Total: <strong>${res.total_processados}</strong></span>
+                </div>
+                ${htmlErros}
+              `;
+            }
+          } catch (err) {
+            if (errCRMSync) {
+              errCRMSync.textContent = err.message || 'Erro ao sincronizar feed CRM.';
+              errCRMSync.style.display = 'block';
+            }
+          } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = '🔄 Iniciar Sincronização CRM';
           }
         });
       }

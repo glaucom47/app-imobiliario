@@ -3093,3 +3093,38 @@ body.sunlight-mode .btn-primary-action {
 @keyframes moreUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes moreFade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .more-sheet, .more-sheet-backdrop { animation: none; } }
+
+/* ==========================================================================
+   Performance: esqueletos de carregamento (shimmer) - tokens Editorial PropTech Luxury
+   ========================================================================== */
+.skeleton {
+  display: block;
+  min-height: 1em;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--color-surface, #f9f9f9) 25%, rgba(0, 0, 0, 0.06) 50%, var(--color-surface, #f9f9f9) 75%);
+  background-size: 200% 100%;
+  animation: fecho-shimmer 1.2s ease-in-out infinite;
+}
+.is-loading { position: relative; min-height: 160px; }
+.is-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(249, 249, 249, 0) 0%, rgba(249, 249, 249, 0.75) 50%, rgba(249, 249, 249, 0) 100%);
+  background-size: 200% 100%;
+  animation: fecho-shimmer 1.2s ease-in-out infinite;
+}
+@keyframes fecho-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton, .is-loading::after { animation: none; }
+}
+/* Avatar com iniciais no cabeçalho */
+.home-avatar { width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #111 0%, #2a2a2a 100%); color: #d4b483; border: 1px solid #b8935d; font: 700 13px var(--font-family-base); letter-spacing: .04em; text-transform: uppercase; }
+.home-avatar[hidden] { display: none; }
+.home-avatar:not([hidden]) + #user-badge { display: none; }
+@media (min-width: 768px) { .home-avatar:not([hidden]) + #user-badge { display: inline-flex; } }

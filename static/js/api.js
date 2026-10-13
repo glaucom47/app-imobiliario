@@ -51,11 +51,59 @@ const Api = {
     return user && (user.role === 'consultor' || user.role === 'diretor');
   },
 
+  // Performance: cache em memória de GETs (TTL 60 s) + deduplicação de pedidos idênticos em voo.
+  // Qualquer POST/PUT/PATCH/DELETE bem-sucedido invalida toda a cache (agregados dependem de vários recursos).
+  _cache: new Map(),
+  _inflight: new Map(),
+  CACHE_TTL_MS: 60000,
+
+  invalidateCache(prefix = null) {
+    if (!prefix) { this._cache.clear(); return; }
+    for (const key of this._cache.keys()) {
+      if (key.includes(`|${this.baseUrl}${prefix}`)) this._cache.delete(key);
+    }
+  },
+
+  _clone(data) {
+    if (data === null || typeof data !== 'object') return data;
+    try { return structuredClone(data); } catch (e) { return JSON.parse(JSON.stringify(data)); }
+  },
+
   async request(endpoint, options = {}) {
+    const method = (options.method || 'GET').toUpperCase();
+    const isGet = method === 'GET' && !options.noCache && !options.body;
+    const cacheKey = `${this.getToken() || ''}|${this.baseUrl}${endpoint}`;
+
+    if (!isGet) {
+      const result = await this._doRequest(endpoint, options);
+      this.invalidateCache();
+      return result;
+    }
+
+    const cached = this._cache.get(cacheKey);
+    if (cached && (Date.now() - cached.ts) < this.CACHE_TTL_MS) {
+      return this._clone(cached.data);
+    }
+    if (this._inflight.has(cacheKey)) {
+      return this._clone(await this._inflight.get(cacheKey));
+    }
+    const promise = this._doRequest(endpoint, options);
+    this._inflight.set(cacheKey, promise);
+    try {
+      const data = await promise;
+      this._cache.set(cacheKey, { ts: Date.now(), data });
+      return this._clone(data);
+    } finally {
+      this._inflight.delete(cacheKey);
+    }
+  },
+
+  async _doRequest(endpoint, options = {}) {
+    const { noCache, ...fetchOptions } = options;
     const url = `${this.baseUrl}${endpoint}`;
     const headers = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...fetchOptions.headers,
     };
 
     const token = this.getToken();
@@ -65,7 +113,7 @@ const Api = {
 
     try {
       const response = await fetch(url, {
-        ...options,
+        ...fetchOptions,
         headers,
       });
 
@@ -73,6 +121,7 @@ const Api = {
         // Limpa credencial expirada e notifica
         this.setToken(null);
         this.setUser(null);
+        this.invalidateCache();
         window.dispatchEvent(new CustomEvent('fecho:unauthorized'));
       }
 
@@ -614,6 +663,29 @@ const Api = {
     return await this.request(`/backoffice/consultores-performance${qs}`);
   },
 
+  // Reunião de Equipa (coletiva) e Assiduidade
+  async createTeamMeeting(tipo = 'diaria') {
+    return await this.request('/backoffice/team-meetings', {
+      method: 'POST',
+      body: JSON.stringify({ tipo }),
+    });
+  },
+
+  async listTeamMeetings(limit = 30) {
+    return await this.request(`/backoffice/team-meetings?limit=${encodeURIComponent(limit)}`);
+  },
+
+  async updateTeamMeeting(meetingId, payload) {
+    return await this.request(`/backoffice/team-meetings/${encodeURIComponent(meetingId)}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getAttendanceStats(dias = 30) {
+    return await this.request(`/backoffice/attendance-stats?dias=${encodeURIComponent(dias)}`);
+  },
+
   async getConsultorIndividualPerformance(consultorId, ano = null, mes = null) {
     const params = new URLSearchParams();
     if (ano) params.append('ano', ano);
@@ -727,6 +799,16 @@ const Api = {
         context,
         force_mock: forceMock
       }),
+    });
+  },
+
+  /**
+   * Sincroniza a carteira de imóveis da agência a partir de um Feed XML ou JSON remoto ou enviado em payload.
+   */
+  async syncCRM(payload) {
+    return await this.request('/backoffice/sync-crm', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   },
 

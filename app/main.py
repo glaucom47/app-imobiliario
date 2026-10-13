@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -64,6 +65,9 @@ app.add_middleware(RateLimitMiddleware)
 
 # 4. Limitação de tamanho de payload (proteção de memória / anti-DoS)
 app.add_middleware(PayloadLimitMiddleware)
+
+# 5. Compressão GZip (camada mais externa) para HTML/CSS/JS/JSON acima de 1 KB
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Inclusão dos roteadores da API REST (v1)
 app.include_router(auth_controller.router, prefix=settings.API_V1_STR)

@@ -239,3 +239,9 @@ class MeetingCommitment(Base):
 
     def __repr__(self) -> str:
         return f"<MeetingCommitment(id={self.id}, consultor_id={self.consultor_id}, status='{self.status}')>"
+
+
+# Performance: índices compostos para filtros por agência (espelhados na migração e5a1_indices_performance)
+from sqlalchemy import Index  # noqa: E402
+Index("ix_pipeline_deals_agencia_fase", PipelineDeal.agencia_id, PipelineDeal.fase)
+Index("ix_pipeline_deals_agencia_consultor", PipelineDeal.agencia_id, PipelineDeal.consultor_id)

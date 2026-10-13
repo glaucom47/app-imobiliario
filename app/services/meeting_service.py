@@ -19,6 +19,7 @@ from app.models.objection import ObjectionTag, VisitObjection
 from app.models.property import Property
 from app.models.user import User
 from app.models.visit import Visit
+from app.services.team_meeting_service import TeamMeetingService, consolidar
 from app.schemas.commercial_schema import (
     MeetingCommitmentResponse,
     MeetingSaveRequest,
@@ -92,6 +93,15 @@ class MeetingService:
         # Estimativas de contactos e reuniões
         total_contactos = max(len(deals_semana) * 3, total_visitas * 2, 8 if total_visitas > 0 else 0)
         total_reunioes = max(len(deals_semana), total_visitas, 2 if total_visitas > 0 else 0)
+
+        # Atividade declarada nas Reuniões de Equipa da semana (máximo determinístico, sem duplicação)
+        decl = TeamMeetingService.declared_activity(db, agencia_id, sete_dias_atras.date(), agora.date(), consultor_id)
+        total_visitas = consolidar(total_visitas, decl["visitas"])
+        total_angariacoes = consolidar(total_angariacoes, decl["angariacoes"])
+        total_propostas = consolidar(total_propostas, decl["propostas"])
+        total_cpcv = consolidar(total_cpcv, decl["cpcv"])
+        total_contactos = consolidar(total_contactos, decl["contactos"])
+        total_reunioes = consolidar(total_reunioes, decl["reunioes_angariacao"])
 
         # 5. Compromissos pendentes da reunião anterior
         compromissos_pendentes_db = db.query(MeetingCommitment).filter(
@@ -256,6 +266,17 @@ class MeetingService:
 
         contactos_count = max(len(deals_count) * 3, visitas_count * 2, 8 if visitas_count > 0 else 0)
         reunioes_count = max(len(deals_count), visitas_count, 2 if visitas_count > 0 else 0)
+
+        # Atividade declarada nas Reuniões de Equipa da semana (máximo determinístico, sem duplicação)
+        decl = TeamMeetingService.declared_activity(
+            db, agencia_id, sete_dias.date(), (sete_dias + timedelta(days=7)).date(), payload.consultor_id
+        )
+        visitas_count = consolidar(visitas_count, decl["visitas"])
+        angariacoes_count = consolidar(angariacoes_count, decl["angariacoes"])
+        propostas_count = consolidar(propostas_count, decl["propostas"])
+        cpcv_count = consolidar(cpcv_count, decl["cpcv"])
+        contactos_count = consolidar(contactos_count, decl["contactos"])
+        reunioes_count = consolidar(reunioes_count, decl["reunioes_angariacao"])
 
         # Criar nova reunião semanal
         meeting = WeeklyMeeting(

@@ -62,3 +62,9 @@ class Visit(Base):
 
     def __repr__(self) -> str:
         return f"<Visit(id={self.id}, property_id={self.property_id}, nivel_interesse={self.nivel_interesse})>"
+
+
+# Performance: índices compostos para filtros por agência (espelhados na migração e5a1_indices_performance)
+from sqlalchemy import Index  # noqa: E402
+Index("ix_visits_agencia_data", Visit.agencia_id, Visit.data_visita)
+Index("ix_visits_agencia_consultor", Visit.agencia_id, Visit.consultor_id)

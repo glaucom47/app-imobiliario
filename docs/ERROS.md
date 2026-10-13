@@ -19,6 +19,20 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 
 ## Registros Históricos
 
+### 2026-10-13 - Tabela de performance do Backoffice vazia por divergência de contrato frontend/API
+
+- **Sintoma:** A tabela "Performance da Equipa" (aba Direção Comercial) mostrava sempre "Nenhum consultor com dados no período".
+- **Causa:** O frontend lia `data.performance`, `item.consultor_nome`, `item.meta_faturacao` e `item.visitas_mes`, mas `ConsultoresPerformanceResponse` devolve `consultores`, `nome`, `meta_mensal` e `visitas_realizadas`.
+- **Solução aplicada:** Mapeamento com fallback em `static/backoffice.html` (aceita os dois formatos), na mesma entrega em que foi adicionada a coluna "Assiduidade Reuniões %".
+- **Como evitar no futuro:** Ao consumir um endpoint no frontend, confirmar os nomes dos campos no schema Pydantic (`app/schemas/`) ou no `/docs` do FastAPI.
+
+### 2026-10-13 - ValidationError em NotaVisitaRecente com visita sem nível de interesse
+
+- **Sintoma:** `POST /api/v1/backoffice/meetings/start` devolvia erro 500 (`ValidationError ... NotaVisitaRecente ... int_type`) num teste com uma visita criada sem `nivel_interesse`.
+- **Causa:** `NotaVisitaRecente.nivel_interesse` é `int` obrigatório, mas a coluna `visits.nivel_interesse` aceita nulo.
+- **Solução aplicada:** O teste novo passou a criar a visita com `nivel_interesse`, como faz o fluxo real do PWA. O código de produção não foi alterado.
+- **Como evitar no futuro:** Se surgirem visitas sem nível de interesse (importações, integrações), tornar o campo `Optional[int]` no schema ou aplicar um valor padrão no `meeting_service.py`.
+
 ### 2026-10-04 - NameError 'ConsultoresPerformanceResponse' por omissão acidental em importações do serviço comercial
 
 - **Sintoma:** Ao executar `pytest -v`, 3 testes falharam com `NameError: name 'ConsultoresPerformanceResponse' is not defined` em `app/services/commercial_service.py:669`.

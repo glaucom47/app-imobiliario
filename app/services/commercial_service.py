@@ -13,12 +13,13 @@ from decimal import Decimal
 from typing import List, Optional, Tuple
 from fastapi import HTTPException, status
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.commercial import Goal, PipelineDeal, StoreGoal, WeeklyMeeting
 from app.models.property import Property
 from app.models.user import User
 from app.models.visit import Visit
+from app.services.team_meeting_service import TeamMeetingService, consolidar
 from app.schemas.commercial_schema import (
     BlocoAtividade,
     BlocoObjetivos,
@@ -213,6 +214,10 @@ class CommercialService:
             taxa_cumprimento_faturacao = round(float((faturacao_atingida / meta_projetada) * 100), 1)
         meta_faturacao_total = meta_projetada
 
+        # Atividade declarada nas Reuniões de Equipa (consolidada por máximo, sem duplicação)
+        decl_atual = TeamMeetingService.declared_activity(db, agencia_id, inicio_atual, fim_atual, consultor_id)
+        decl_anterior = TeamMeetingService.declared_activity(db, agencia_id, inicio_anterior, fim_anterior, consultor_id)
+
         # 3. Visitas
         vis_base = db.query(Visit).filter(Visit.agencia_id == agencia_id)
         if consultor_id:
@@ -225,6 +230,8 @@ class CommercialService:
             func.date(Visit.data_visita) >= inicio_anterior,
             func.date(Visit.data_visita) <= fim_anterior,
         ).count()
+        visitas_atual = consolidar(visitas_atual, decl_atual["visitas"])
+        visitas_anterior = consolidar(visitas_anterior, decl_anterior["visitas"])
         var_visitas = cls._calcular_variacao_percentual(float(visitas_atual), float(visitas_anterior))
 
         # 4. Angariações
@@ -239,6 +246,8 @@ class CommercialService:
             func.date(Property.created_at) >= inicio_anterior,
             func.date(Property.created_at) <= fim_anterior,
         ).count()
+        angariacoes_atual = consolidar(angariacoes_atual, decl_atual["angariacoes"])
+        angariacoes_anterior = consolidar(angariacoes_anterior, decl_anterior["angariacoes"])
         var_angariacoes = cls._calcular_variacao_percentual(float(angariacoes_atual), float(angariacoes_anterior))
 
         # 5. Propostas
@@ -255,6 +264,8 @@ class CommercialService:
             func.date(PipelineDeal.created_at) >= inicio_anterior,
             func.date(PipelineDeal.created_at) <= fim_anterior,
         ).count()
+        propostas_atual = consolidar(propostas_atual, decl_atual["propostas"])
+        propostas_anterior = consolidar(propostas_anterior, decl_anterior["propostas"])
         var_propostas = cls._calcular_variacao_percentual(float(propostas_atual), float(propostas_anterior))
 
         # 6. CPCV
@@ -268,6 +279,8 @@ class CommercialService:
             func.date(PipelineDeal.created_at) >= inicio_anterior,
             func.date(PipelineDeal.created_at) <= fim_anterior,
         ).count()
+        cpcv_atual = consolidar(cpcv_atual, decl_atual["cpcv"])
+        cpcv_anterior = consolidar(cpcv_anterior, decl_anterior["cpcv"])
         var_cpcv = cls._calcular_variacao_percentual(float(cpcv_atual), float(cpcv_anterior))
 
         # 7. Escrituras
@@ -285,6 +298,8 @@ class CommercialService:
             Property.data_escritura >= inicio_anterior,
             Property.data_escritura <= fim_anterior,
         ).count()
+        escrituras_atual = consolidar(escrituras_atual, decl_atual["escrituras"])
+        escrituras_anterior = consolidar(escrituras_anterior, decl_anterior["escrituras"])
         var_escrituras = cls._calcular_variacao_percentual(float(escrituras_atual), float(escrituras_anterior))
 
         # 8. Pipeline Bruto e Ponderado (Negócios ativos)
@@ -295,7 +310,9 @@ class CommercialService:
         )
         if consultor_id:
             deals_ativos_q = deals_ativos_q.filter(PipelineDeal.consultor_id == consultor_id)
-        deals_ativos = deals_ativos_q.all()
+        deals_ativos = deals_ativos_q.options(
+            joinedload(PipelineDeal.consultor), joinedload(PipelineDeal.property)
+        ).all()
 
         pipeline_bruto = sum((Decimal(str(d.comissao_estimada)) for d in deals_ativos), Decimal("0.00"))
         pipeline_ponderado = sum(
@@ -474,8 +491,16 @@ class CommercialService:
             func.date(PipelineDeal.created_at) <= fim,
         ).count()
 
-        total_contactos = max(contactos_reunioes, deals_count * 3, total_visitas * 2, 10 if total_visitas > 0 else 0)
-        total_reunioes = max(reunioes_reunioes, deals_count, total_angariacoes * 2, total_visitas)
+        # Atividade declarada nas Reuniões de Equipa (consolidada por máximo, sem duplicação)
+        decl = TeamMeetingService.declared_activity(db, agencia_id, inicio, fim, consultor_id)
+        total_visitas = consolidar(total_visitas, decl["visitas"])
+        total_escrituras = consolidar(total_escrituras, decl["escrituras"])
+        total_cpcv = consolidar(total_cpcv, decl["cpcv"])
+        total_propostas = consolidar(total_propostas, decl["propostas"])
+        total_angariacoes = consolidar(total_angariacoes, decl["angariacoes"])
+
+        total_contactos = max(contactos_reunioes, decl["contactos"], deals_count * 3, total_visitas * 2, 10 if total_visitas > 0 else 0)
+        total_reunioes = max(reunioes_reunioes, decl["reunioes_angariacao"], deals_count, total_angariacoes * 2, total_visitas)
 
         # Ajuste de coerência de funil para não gerar valores inconsistentes
         total_angariacoes = max(total_angariacoes, total_propostas, 1 if total_visitas > 0 else 0)
@@ -524,6 +549,81 @@ class CommercialService:
             taxa_conversao_global=taxa_global,
         )
 
+    @staticmethod
+    def _carregar_lote_mensal(
+        db: Session,
+        agencia_id: int,
+        ano_ref: int,
+        mes_ref: int,
+        inicio_mes: date,
+        fim_mes: date,
+    ) -> dict:
+        """
+        Carrega numa quantidade FIXA de consultas (independente do nº de consultores) os dados mensais
+        de toda a equipa, indexados por consultor_id. Os filtros são idênticos aos usados por consultor,
+        sempre com isolamento por agencia_id.
+        """
+        goals = {
+            g.consultor_id: g
+            for g in db.query(Goal).filter(
+                Goal.agencia_id == agencia_id, Goal.ano == ano_ref, Goal.mes == mes_ref
+            ).all()
+        }
+
+        vendidos: dict = {}
+        for p in db.query(Property).filter(
+            Property.agencia_id == agencia_id,
+            Property.status == "Vendido",
+            Property.data_escritura >= inicio_mes,
+            Property.data_escritura <= fim_mes,
+        ).all():
+            vendidos.setdefault(p.consultor_id, []).append(p)
+
+        deals_ativos: dict = {}
+        for d in db.query(PipelineDeal).filter(
+            PipelineDeal.agencia_id == agencia_id,
+            PipelineDeal.ativo.is_(True),
+            PipelineDeal.fase.notin_(["Ganho", "Perdido"]),
+        ).all():
+            deals_ativos.setdefault(d.consultor_id, []).append(d)
+
+        def _contagem(col_consultor, *filtros) -> dict:
+            return {
+                cid: int(n)
+                for cid, n in db.query(col_consultor, func.count()).filter(*filtros).group_by(col_consultor).all()
+            }
+
+        visitas = _contagem(
+            Visit.consultor_id,
+            Visit.agencia_id == agencia_id,
+            func.date(Visit.data_visita) >= inicio_mes,
+            func.date(Visit.data_visita) <= fim_mes,
+        )
+        propostas = _contagem(
+            PipelineDeal.consultor_id,
+            PipelineDeal.agencia_id == agencia_id,
+            PipelineDeal.fase.in_(["Proposta", "Negociacao", "CPCV", "Escritura", "Ganho"]),
+            func.date(PipelineDeal.created_at) >= inicio_mes,
+            func.date(PipelineDeal.created_at) <= fim_mes,
+        )
+        angariacoes = _contagem(
+            Property.consultor_id,
+            Property.agencia_id == agencia_id,
+            func.date(Property.created_at) >= inicio_mes,
+            func.date(Property.created_at) <= fim_mes,
+        )
+        declarado = TeamMeetingService.declared_activity_by_consultor(db, agencia_id, inicio_mes, fim_mes)
+
+        return {
+            "goals": goals,
+            "vendidos": vendidos,
+            "deals_ativos": deals_ativos,
+            "visitas": visitas,
+            "propostas": propostas,
+            "angariacoes": angariacoes,
+            "declarado": declarado,
+        }
+
     @classmethod
     def get_consultores_performance(
         cls,
@@ -559,26 +659,19 @@ class CommercialService:
         fim_mes = date(ano_ref, mes_ref, total_dias_mes)
 
         items: List[ConsultorPerformanceItem] = []
+        assiduidade_map = TeamMeetingService.attendance_map(db, agencia_id, 30)
+
+        # Performance: dados de toda a equipa obtidos em lote (nº fixo de consultas, sem N+1)
+        lote = cls._carregar_lote_mensal(db, agencia_id, ano_ref, mes_ref, inicio_mes, fim_mes)
 
         for c in consultores:
             # 1. Meta do mês
-            goal = db.query(Goal).filter(
-                Goal.agencia_id == agencia_id,
-                Goal.consultor_id == c.id,
-                Goal.ano == ano_ref,
-                Goal.mes == mes_ref,
-            ).first()
+            goal = lote["goals"].get(c.id)
 
             meta_faturacao = Decimal(str(goal.meta_faturacao)) if goal else Decimal("10000.00")
 
             # 2. Faturação realizada (escrituras do consultor no mês)
-            props_vendidos = db.query(Property).filter(
-                Property.agencia_id == agencia_id,
-                Property.consultor_id == c.id,
-                Property.status == "Vendido",
-                Property.data_escritura >= inicio_mes,
-                Property.data_escritura <= fim_mes,
-            ).all()
+            props_vendidos = lote["vendidos"].get(c.id, [])
             faturacao = sum((Decimal(str(p.preco)) * Decimal("0.05") for p in props_vendidos), Decimal("0.00"))
 
             percentual_cumprimento = 0.0
@@ -594,12 +687,7 @@ class CommercialService:
             )
 
             # 3. Pipeline do consultor
-            deals = db.query(PipelineDeal).filter(
-                PipelineDeal.agencia_id == agencia_id,
-                PipelineDeal.consultor_id == c.id,
-                PipelineDeal.ativo.is_(True),
-                PipelineDeal.fase.notin_(["Ganho", "Perdido"]),
-            ).all()
+            deals = lote["deals_ativos"].get(c.id, [])
 
             pipeline_ativo = sum((Decimal(str(d.comissao_estimada)) for d in deals), Decimal("0.00"))
             pipeline_ponderado = sum(
@@ -608,27 +696,14 @@ class CommercialService:
             )
 
             # 4. Atividades
-            visitas = db.query(Visit).filter(
-                Visit.agencia_id == agencia_id,
-                Visit.consultor_id == c.id,
-                func.date(Visit.data_visita) >= inicio_mes,
-                func.date(Visit.data_visita) <= fim_mes,
-            ).count()
+            visitas = lote["visitas"].get(c.id, 0)
+            propostas = lote["propostas"].get(c.id, 0)
+            angariacoes = lote["angariacoes"].get(c.id, 0)
 
-            propostas = db.query(PipelineDeal).filter(
-                PipelineDeal.agencia_id == agencia_id,
-                PipelineDeal.consultor_id == c.id,
-                PipelineDeal.fase.in_(["Proposta", "Negociacao", "CPCV", "Escritura", "Ganho"]),
-                func.date(PipelineDeal.created_at) >= inicio_mes,
-                func.date(PipelineDeal.created_at) <= fim_mes,
-            ).count()
-
-            angariacoes = db.query(Property).filter(
-                Property.agencia_id == agencia_id,
-                Property.consultor_id == c.id,
-                func.date(Property.created_at) >= inicio_mes,
-                func.date(Property.created_at) <= fim_mes,
-            ).count()
+            decl = lote["declarado"].get(c.id) or TeamMeetingService.empty_activity()
+            visitas = consolidar(visitas, decl["visitas"])
+            propostas = consolidar(propostas, decl["propostas"])
+            angariacoes = consolidar(angariacoes, decl["angariacoes"])
 
             # 5. Algoritmo do Semáforo de Trajetória
             if percentual_cumprimento >= ritmo_esperado or percentual_cumprimento >= 100.0:
@@ -661,6 +736,7 @@ class CommercialService:
                     angariacoes_realizadas=angariacoes,
                     trajetoria=trajetoria,
                     justificacao_trajetoria=justificacao,
+                    assiduidade_reunioes_pct=TeamMeetingService.calcular_pct(assiduidade_map.get(c.id, {})),
                 )
             )
 
@@ -768,9 +844,16 @@ class CommercialService:
         cpcv = sum(1 for d in deals_mes if d.fase in ["CPCV", "Escritura", "Ganho"])
         escrituras = len(props_vendidos)
 
+        decl = TeamMeetingService.declared_activity(db, agencia_id, inicio_mes, fim_mes, consultor_id)
+        visitas = consolidar(visitas, decl["visitas"])
+        angariacoes = consolidar(angariacoes, decl["angariacoes"])
+        propostas = consolidar(propostas, decl["propostas"])
+        cpcv = consolidar(cpcv, decl["cpcv"])
+        escrituras = consolidar(escrituras, decl["escrituras"])
+
         bloco_2 = BlocoAtividade(
-            contactos=max(len(deals_mes) * 3, visitas * 2, 10),
-            reunioes=max(len(deals_mes), visitas, 5),
+            contactos=consolidar(decl["contactos"], len(deals_mes) * 3, visitas * 2, 10),
+            reunioes=consolidar(decl["reunioes_angariacao"], len(deals_mes), visitas, 5),
             angariacoes=angariacoes,
             visitas=visitas,
             propostas=propostas,
@@ -1301,6 +1384,15 @@ class CommercialService:
         propostas_realizadas = sum(1 for d in deals_no_mes if d.fase in ["Proposta", "Negociacao", "CPCV", "Escritura", "Ganho"])
         cpcv_realizados = sum(1 for d in deals_no_mes if d.fase in ["CPCV", "Escritura", "Ganho"])
 
+        # Atividade declarada nas Reuniões de Equipa (consolidada por máximo, sem duplicação)
+        decl = TeamMeetingService.declared_activity(db, agencia_id, inicio_mes, fim_mes, consultor_id)
+        visitas_realizadas = consolidar(visitas_realizadas, decl["visitas"])
+        angariacoes_realizadas = consolidar(angariacoes_realizadas, decl["angariacoes"])
+        exclusivos_realizados = consolidar(exclusivos_realizados, decl["exclusivos"])
+        propostas_realizadas = consolidar(propostas_realizadas, decl["propostas"])
+        cpcv_realizados = consolidar(cpcv_realizados, decl["cpcv"])
+        escrituras_realizadas = consolidar(escrituras_realizadas, decl["escrituras"])
+
         # 5. Contactos e Reuniões (reuniões semanais + leads/deals)
         meetings = db.query(WeeklyMeeting).filter(
             WeeklyMeeting.agencia_id == agencia_id,
@@ -1308,8 +1400,8 @@ class CommercialService:
             func.date(WeeklyMeeting.data_reuniao) >= inicio_mes,
             func.date(WeeklyMeeting.data_reuniao) <= fim_mes,
         ).all()
-        contactos_realizados = max(sum((m.contactos_realizados for m in meetings), 0), len(deals_no_mes) * 3, visitas_realizadas * 2, 5 if visitas_realizadas > 0 else 0)
-        reunioes_realizadas = max(sum((m.reunioes_realizadas for m in meetings), 0), len(deals_no_mes), visitas_realizadas)
+        contactos_realizados = max(sum((m.contactos_realizados for m in meetings), 0), decl["contactos"], len(deals_no_mes) * 3, visitas_realizadas * 2, 5 if visitas_realizadas > 0 else 0)
+        reunioes_realizadas = max(sum((m.reunioes_realizadas for m in meetings), 0), decl["reunioes_angariacao"], len(deals_no_mes), visitas_realizadas)
 
         # 6. Pipeline Ativo e Ponderado
         active_deals = db.query(PipelineDeal).filter(

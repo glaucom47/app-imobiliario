@@ -134,6 +134,16 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             response.headers["Pragma"] = "no-cache"
             response.headers["Expires"] = "0"
 
+        # 9. Performance: cache HTTP de ficheiros estáticos (sem dados sensíveis)
+        elif request.url.path.startswith("/static/"):
+            path = request.url.path
+            if path.endswith(("/sw.js", "/manifest.json")) or path.endswith(".html"):
+                response.headers["Cache-Control"] = "no-cache"
+            elif "v=" in request.url.query:
+                response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+            else:
+                response.headers["Cache-Control"] = "public, max-age=3600"
+
         return response
 
 

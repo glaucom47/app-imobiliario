@@ -27,8 +27,9 @@ def _init_engine():
             pg_engine = create_engine(
                 db_url,
                 pool_pre_ping=True,
-                pool_size=10,
-                max_overflow=20,
+                pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
+                max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "5")),
+                pool_recycle=1800,
                 connect_args={"connect_timeout": 5},
             )
             with pg_engine.connect() as conn:
@@ -105,7 +106,9 @@ def ensure_initialized():
     from app.models.settings import Settings
     from app.models.log import Log
 
-    Base.metadata.create_all(bind=engine)
+    # Performance: em produção o esquema é gerido exclusivamente pelo Alembic (evita introspeção no arranque)
+    if settings.ENVIRONMENT != "production":
+        Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
     try:

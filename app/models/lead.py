@@ -87,3 +87,8 @@ class LeadBlacklist(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     tenant = relationship("Tenant", foreign_keys=[agencia_id])
+
+
+# Performance: índices compostos para filtros por agência (espelhados na migração e5a1_indices_performance)
+from sqlalchemy import Index  # noqa: E402
+Index("ix_leads_angariacao_agencia_created", LeadAngariacao.agencia_id, LeadAngariacao.created_at)

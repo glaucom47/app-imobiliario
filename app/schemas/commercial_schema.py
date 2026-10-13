@@ -264,6 +264,10 @@ class ConsultorPerformanceItem(BaseModel):
     angariacoes_realizadas: int
     trajetoria: TrajetoriaSemaforo = Field(description="🟢 verde: no ritmo ou acima; 🟡 amarelo: atenção; 🔴 vermelho: desvio crítico")
     justificacao_trajetoria: str = Field(description="Explicação sucinta do diagnóstico de trajetória")
+    assiduidade_reunioes_pct: Optional[float] = Field(
+        default=None,
+        description="Assiduidade nas Reuniões de Equipa (30 dias). None quando não houve reuniões aplicáveis.",
+    )
 
 
 class ConsultoresPerformanceResponse(BaseModel):

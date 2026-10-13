@@ -25,6 +25,7 @@ class PropertyBase(BaseModel):
     area_bruta: Optional[Decimal] = Field(None, gt=0, description="Área bruta em m²")
     nome_proprietario: str = Field(..., min_length=2, max_length=255, description="Nome do proprietário para feedback de visitas")
     telefone_proprietario: str = Field(..., min_length=6, max_length=50, description="Contacto telefónico / WhatsApp do proprietário")
+    referencia_externa: Optional[str] = Field(None, max_length=100, description="Referência do imóvel no CRM externo")
 
     @field_validator("regiao_fiscal")
     @classmethod
@@ -53,6 +54,7 @@ class PropertyUpdate(BaseModel):
     area_bruta: Optional[Decimal] = Field(None, gt=0)
     nome_proprietario: Optional[str] = Field(None, min_length=2, max_length=255)
     telefone_proprietario: Optional[str] = Field(None, min_length=6, max_length=50)
+    referencia_externa: Optional[str] = Field(None, max_length=100)
     consultor_id: Optional[int] = None
 
     @field_validator("regiao_fiscal")
@@ -97,6 +99,7 @@ class PropertyResponse(BaseModel):
     agencia_id: int
     consultor_id: int
     consultor_nome: Optional[str] = None
+    referencia_externa: Optional[str] = None
     titulo: str
     descricao: Optional[str] = None
     tipologia: str

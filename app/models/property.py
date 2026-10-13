@@ -39,6 +39,7 @@ class Property(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     agencia_id = Column(Integer, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True)
     consultor_id = Column(Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False, index=True)
+    referencia_externa = Column(String(100), nullable=True, index=True)
 
     titulo = Column(String(255), nullable=False)
     descricao = Column(Text, nullable=True)
@@ -74,3 +75,9 @@ class Property(Base):
 
     def __repr__(self) -> str:
         return f"<Property(id={self.id}, titulo='{self.titulo}', status='{self.status}', preco={self.preco})>"
+
+
+# Performance: índices compostos para filtros por agência (espelhados na migração e5a1_indices_performance)
+from sqlalchemy import Index  # noqa: E402
+Index("ix_properties_agencia_status", Property.agencia_id, Property.status)
+Index("ix_properties_agencia_consultor", Property.agencia_id, Property.consultor_id)

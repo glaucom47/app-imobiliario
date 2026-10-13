@@ -19,6 +19,7 @@ from app.models.commercial import (
     WeeklyMeeting,
     MeetingCommitment,
 )
+from app.models.team_meeting import TeamMeeting, TeamMeetingAttendance
 
 __all__ = [
     "Base",
@@ -38,4 +39,6 @@ __all__ = [
     "PipelineDeal",
     "WeeklyMeeting",
     "MeetingCommitment",
+    "TeamMeeting",
+    "TeamMeetingAttendance",
 ]

@@ -14,7 +14,7 @@ from decimal import Decimal
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from database.connection import get_db
 from app.dependencies import require_diretor
@@ -24,6 +24,7 @@ from app.models.property import Property
 from app.models.settings import Settings
 from app.models.user import User
 from app.models.visit import Visit
+from app.schemas.crm_sync_schema import CRMSyncRequest, CRMSyncResponse
 from app.schemas.report_schema import (
     AgencySettingsResponse,
     AgencySettingsUpdate,
@@ -42,6 +43,7 @@ from app.schemas.report_schema import (
 )
 from app.services.auth_service import hash_password
 from app.services.commercial_service import CommercialService
+from app.services.crm_sync_service import CRMSyncService
 from app.services.export_service import ExportService
 
 router = APIRouter(prefix="/backoffice", tags=["Backoffice Web & Métricas"])
@@ -74,7 +76,10 @@ def get_kpis_summary(
         cutoff = datetime.now(timezone.utc) - timedelta(days=dias)
         visitas_query = visitas_query.filter(Visit.data_visita >= cutoff)
 
-    visitas = visitas_query.all()
+    # Performance: objeções e tags carregadas em lote (sem N+1 por visita)
+    visitas = visitas_query.options(
+        selectinload(Visit.objections).selectinload(VisitObjection.tag)
+    ).all()
     total_visitas = len(visitas)
 
     visitas_com_feedback = sum(
@@ -206,7 +211,9 @@ def get_objections_analytics(
     if selected_property:
         visitas_query = visitas_query.filter(Visit.property_id == selected_property.id)
 
-    visitas = visitas_query.all()
+    visitas = visitas_query.options(
+        selectinload(Visit.objections).selectinload(VisitObjection.tag)
+    ).all()
     total_visitas = len(visitas)
 
     # Contagem de objeções agrupadas
@@ -753,4 +760,23 @@ def update_consultor(
     db.commit()
     db.refresh(consultor)
     return consultor
+
+
+# =====================================================================
+# SINCRONIZAÇÃO DE CARTEIRA COM CRMS EXTERNOS (FEEDS XML / JSON)
+# =====================================================================
+
+@router.post("/sync-crm", response_model=CRMSyncResponse)
+def sync_crm_properties(
+    sync_in: CRMSyncRequest,
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    """
+    Sincroniza a carteira de imóveis da agência a partir de um Feed XML/JSON remoto ou enviado diretamente.
+    Suporta plataformas como eGO Real Estate, Casafari CRM, X-Feed, Kyero, etc.
+    Isolamento estrito multi-tenant por agencia_id e restrição ao Diretor de Loja (require_diretor).
+    """
+    return CRMSyncService.sync_properties(db=db, current_user=current_user, request_data=sync_in)
+
 

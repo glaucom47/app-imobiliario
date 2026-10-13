@@ -37,6 +37,13 @@ from app.schemas.commercial_schema import (
 )
 from app.services.commercial_service import CommercialService
 from app.services.meeting_service import MeetingService
+from app.schemas.team_meeting_schema import (
+    AttendanceStatsResponse,
+    TeamMeetingCreate,
+    TeamMeetingResponse,
+    TeamMeetingUpdate,
+)
+from app.services.team_meeting_service import TeamMeetingService
 
 router = APIRouter(prefix="/backoffice", tags=["Direção Comercial & Gestão de Equipa"])
 consultor_router = APIRouter(prefix="/commercial", tags=["Metas e KPIs do Consultor"])
@@ -428,4 +435,56 @@ def update_my_goals(
         consultor_id=current_user.id,
         payload=payload,
     )
+
+
+# ==========================================
+# Reunião de Equipa (coletiva) e Assiduidade
+# ==========================================
+
+@router.post("/team-meetings", response_model=TeamMeetingResponse, status_code=status.HTTP_201_CREATED,
+             summary="Iniciar Reunião de Equipa (pré-carrega consultores ativos)")
+def create_team_meeting(
+    payload: Optional[TeamMeetingCreate] = Body(None),
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    return TeamMeetingService.create(db, current_user.agencia_id, current_user.id, payload or TeamMeetingCreate())
+
+
+@router.get("/team-meetings", response_model=List[TeamMeetingResponse], summary="Histórico de Reuniões de Equipa")
+def list_team_meetings(
+    limit: int = Query(30, ge=1, le=200),
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    return TeamMeetingService.list(db, current_user.agencia_id, limit)
+
+
+@router.get("/team-meetings/{meeting_id}", response_model=TeamMeetingResponse, summary="Detalhe da Reunião de Equipa")
+def get_team_meeting(
+    meeting_id: int,
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    return TeamMeetingService.get(db, current_user.agencia_id, meeting_id)
+
+
+@router.put("/team-meetings/{meeting_id}", response_model=TeamMeetingResponse,
+            summary="Gravar presença e atividade em lote")
+def update_team_meeting(
+    meeting_id: int,
+    payload: TeamMeetingUpdate,
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    return TeamMeetingService.update(db, current_user.agencia_id, current_user.id, meeting_id, payload)
+
+
+@router.get("/attendance-stats", response_model=AttendanceStatsResponse, summary="Assiduidade nas Reuniões por consultor")
+def get_attendance_stats(
+    dias: int = Query(30, description="Janela em dias: 7, 30 ou 90"),
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    return TeamMeetingService.attendance_stats(db, current_user.agencia_id, dias)
 

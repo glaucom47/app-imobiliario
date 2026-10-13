@@ -39,12 +39,7 @@
           <span id="offline-queue-count">0</span>
           <span>local</span>
         </button>
-        <button id="btn-sunlight-toggle" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: #ffffff; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 4px 8px;" title="Alternar Modo Luz Solar Intensa">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          <span style="font-size: 11px; font-weight: 600;" id="sunlight-label">Luz Solar</span>
-        </button>
         <span class="status-pill status-pill-secondary" id="user-badge">Não autenticado</span>
-        <button id="btn-logout" class="status-pill" style="border: 1px solid var(--color-outline-variant); background: transparent; cursor: pointer; display: none;" title="Terminar Sessão">Sair</button>
       </div>
     </header>
 
@@ -72,6 +67,22 @@
           </div>
           <button type="button" class="btn-card-action btn-card-primary" id="btn-banner-felicitar" style="white-space: nowrap; padding: 6px 12px; font-size: 12px;">
             Felicitar
+          </button>
+        </div>
+      </section>
+
+      <!-- Saudação e Faixa "Hoje" -->
+      <section class="today-strip" aria-label="Resumo do dia">
+        <p class="today-greeting"><span id="home-greeting">Olá</span><span id="home-greeting-name"></span></p>
+        <div class="today-chips">
+          <button type="button" class="today-chip" data-proxy="nav-visitas">
+            <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>Visitas
+          </button>
+          <button type="button" class="today-chip" data-proxy="nav-esfera">
+            <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>Aniversários
+          </button>
+          <button type="button" class="today-chip" data-proxy="btn-open-my-goals">
+            <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span><span id="today-goal-chip">Metas</span>
           </button>
         </div>
       </section>
@@ -154,126 +165,105 @@
         </div>
       </section>
 
-      <!-- Grade de Ações Rápidas de Campo com Calor Arquitetural -->
-      <section class="actions-grid" style="display: flex; flex-direction: column; gap: var(--spacing-space-sm);">
-        <button class="btn-primary-action" id="btn-open-market-study" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: linear-gradient(135deg, #111111 0%, #1e1e1e 100%); border: 1px solid var(--color-secondary); box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-            </span>
-            <span style="font-weight: 600;">Novo Estudo de Mercado (ACM)</span>
-          </div>
-          <span style="font-size: 11px; background: var(--color-secondary); color: #fff; padding: 3px 8px; border-radius: 6px; font-weight: 700;">Nacional • INE</span>
+      <!-- Ação Principal no Terreno -->
+      <section class="home-primary-cta">
+        <button class="btn-cobalt-trigger home-cta-btn" id="btn-open-voice" type="button">
+          <span class="luxury-gold-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          </span>
+          <span>Gravar Feedback de Visita</span>
         </button>
-        <button class="btn-primary-action" id="btn-open-ai-chat" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: linear-gradient(135deg, #111111 0%, #2a2a2a 100%); border: 1px solid var(--color-secondary);">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M4 11a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7z"/><circle cx="9" cy="15" r="1"/><circle cx="15" cy="15" r="1"/></svg>
-            </span>
-            <span>Assistente IA MeuFecho</span>
-          </div>
-          <span style="font-size: 11px; background: var(--color-secondary); color: #ffffff; padding: 3px 8px; border-radius: 6px; font-weight: 700;">Gemini IA</span>
-        </button>
-        <button class="btn-cobalt-trigger" id="btn-open-voice" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
+      </section>
 
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-            </span>
-            <span>Gravar Feedback de Visita (30s)</span>
-          </div>
-          <span style="font-size: 11px; background: rgba(255,255,255,0.25); padding: 3px 8px; border-radius: 6px; font-weight: 700;">Voz & IA</span>
+      <!-- Atalhos Rápidos (3) -->
+      <section class="quick-tile-grid" aria-label="Atalhos rápidos">
+        <button class="quick-tile" id="btn-open-calculator" type="button">
+          <span class="quick-tile-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"/></svg></span>
+          <span class="quick-tile-label">Calculadora</span>
         </button>
-        <button class="btn-primary-action" id="btn-open-calculator" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px; border: 1px solid rgba(197, 168, 128, 0.25);">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"/></svg>
-            </span>
-            <span>Calculadora IMT & Selo</span>
-          </div>
-          <span style="font-size: 11px; color: var(--color-secondary); font-weight: 600;">100% Offline</span>
+        <button class="quick-tile" id="btn-open-ai-chat" type="button">
+          <span class="quick-tile-icon"><svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M4 11a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7z"/><circle cx="9" cy="15" r="1"/><circle cx="15" cy="15" r="1"/></svg></span>
+          <span class="quick-tile-label">Assistente IA</span>
         </button>
-        <button class="btn-secondary-ghost" id="btn-open-teleprompter" type="button" style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
-            </span>
-            <span>Scripts de Vídeo & Teleprompter</span>
-          </div>
-          <span style="font-size: 10px; color: var(--color-outline); font-weight: 700; letter-spacing: 0.06em;">3 BLOCOS</span>
-        </button>
-        <button class="btn-secondary-ghost" id="btn-open-portfolio" type="button" style="border-style: solid; display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
-            </span>
-            <span>Gestão da Carteira de Imóveis</span>
-          </div>
-          <span style="font-size: 11px; color: var(--color-tertiary); font-weight: 600;">Ver Todos</span>
-        </button>
-        <button class="btn-secondary-ghost" id="btn-open-leads" type="button" style="border-style: solid; border-color: rgba(114, 91, 56, 0.5); display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: rgba(254, 222, 178, 0.1);">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            </span>
-            <span>Captação & Angariação na Zona</span>
-          </div>
-          <span style="font-size: 11px; color: var(--color-secondary); font-weight: 700; background: var(--color-secondary-container); padding: 2px 8px; border-radius: 4px;">Leilões & FSBO</span>
-        </button>
-        <button class="btn-secondary-ghost" id="btn-open-contacts" type="button" style="border-style: solid; border-color: rgba(197, 168, 128, 0.4); display: flex; justify-content: space-between; align-items: center; padding: 0 16px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </span>
-            <span>Esfera de Influência & Pós-Venda</span>
-          </div>
-          <span style="font-size: 11px; color: #78603e; font-weight: 600;">09:00</span>
-        </button>
-        <button class="btn-secondary-ghost" id="btn-open-my-goals" type="button" style="border-style: solid; border-color: rgba(114, 91, 56, 0.5); display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background: rgba(254, 222, 178, 0.12);">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span class="luxury-gold-icon">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            </span>
-            <span>As Minhas Metas & KPIs</span>
-          </div>
-          <span id="home-my-goals-badge" style="font-size: 11px; color: var(--color-secondary); font-weight: 700; background: var(--color-secondary-container); padding: 2px 8px; border-radius: 4px;">🎯 Metas</span>
+        <button class="quick-tile" id="btn-open-market-study" type="button">
+          <span class="quick-tile-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>
+          <span class="quick-tile-label">Estudo ACM</span>
         </button>
       </section>
     </main>
 
-    <!-- Rodapé de Navegação Rápida com Safe Area e Microícones de Linha Refinada -->
+    <!-- Barra Inferior: Início · Carteira · Visita · Clientes · Menu -->
     <nav class="app-bottom-nav" id="app-bottom-nav">
-      <button type="button" class="nav-tab-item" id="nav-visitas" title="Visitas">
-        <span class="nav-tab-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-        </span>
-        <span class="nav-tab-label">Visitas</span>
+      <button type="button" class="nav-tab-item active" id="nav-home" title="Início">
+        <span class="nav-tab-icon"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg></span>
+        <span class="nav-tab-label">Início</span>
       </button>
       <button type="button" class="nav-tab-item" id="nav-carteira" title="Carteira">
-        <span class="nav-tab-icon">
-          <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
-        </span>
+        <span class="nav-tab-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg></span>
         <span class="nav-tab-label">Carteira</span>
       </button>
-      <button type="button" class="nav-tab-item" id="nav-calculadora" title="Calculadora">
-        <span class="nav-tab-icon">
-          <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"/></svg>
-        </span>
-        <span class="nav-tab-label">Calculadora</span>
+      <button type="button" class="nav-tab-item nav-fab" id="nav-visitas" title="Gravar Visita" aria-label="Gravar Visita">
+        <span class="nav-fab-circle"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg></span>
       </button>
-      <button type="button" class="nav-tab-item" id="nav-scripts" title="Scripts">
-        <span class="nav-tab-icon">
-          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>
-        </span>
-        <span class="nav-tab-label">Scripts</span>
+      <button type="button" class="nav-tab-item" id="nav-esfera" title="Clientes">
+        <span class="nav-tab-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        <span class="nav-tab-label">Clientes</span>
       </button>
-      <button type="button" class="nav-tab-item" id="nav-esfera" title="Esfera">
-        <span class="nav-tab-icon">
-          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </span>
-        <span class="nav-tab-label">Esfera</span>
+      <button type="button" class="nav-tab-item" id="nav-menu" title="Menu" aria-haspopup="dialog" aria-controls="more-sheet">
+        <span class="nav-tab-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg></span>
+        <span class="nav-tab-label">Menu</span>
       </button>
     </nav>
+
+    <!-- Menu (Bottom Sheet) com funcionalidades secundárias -->
+    <div class="more-sheet-backdrop" id="more-sheet-backdrop" hidden></div>
+    <div class="more-sheet" id="more-sheet" role="dialog" aria-modal="true" aria-labelledby="more-sheet-title" hidden>
+      <div class="more-sheet-handle"></div>
+      <h2 class="more-sheet-title" id="more-sheet-title">Menu</h2>
+
+      <p class="more-sheet-section">Ferramentas</p>
+      <button type="button" class="more-row" id="btn-open-teleprompter">
+        <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg></span>
+        <span class="more-row-text"><b>Scripts de Vídeo &amp; Teleprompter</b><small>Gancho, destaques e CTA</small></span>
+        <span class="more-row-chev">›</span>
+      </button>
+      <button type="button" class="more-row" id="btn-open-leads">
+        <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+        <span class="more-row-text"><b>Captação &amp; Angariação</b><small>Leilões &amp; FSBO na zona</small></span>
+        <span class="more-row-chev">›</span>
+      </button>
+      <button type="button" class="more-row" data-proxy="btn-open-market-study">
+        <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>
+        <span class="more-row-text"><b>Estudo de Mercado (ACM)</b><small>Dados nacionais INE</small></span>
+        <span class="more-row-chev">›</span>
+      </button>
+      <button type="button" class="more-row" data-proxy="nav-calculadora" hidden></button>
+
+      <p class="more-sheet-section">Desempenho</p>
+      <button type="button" class="more-row" id="btn-open-my-goals">
+        <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>
+        <span class="more-row-text"><b>As Minhas Metas &amp; KPIs</b><small>Faturação e pipeline do mês</small></span>
+        <span class="more-row-badge" id="home-my-goals-badge">Metas</span>
+      </button>
+
+      <p class="more-sheet-section">Conta</p>
+      <button type="button" class="more-row" id="btn-sunlight-toggle">
+        <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+        <span class="more-row-text"><b id="sunlight-label">Luz Solar</b><small>Contraste máximo ao ar livre</small></span>
+      </button>
+      <button type="button" class="more-row more-row-danger" id="btn-logout" style="display: none;">
+        <span class="more-row-text"><b>Terminar Sessão</b></span>
+      </button>
+    </div>
+
+    <!-- Compatibilidade: abas antigas mantidas ocultas para preservar bindings -->
+    <div hidden>
+      <button type="button" class="nav-tab-item" id="nav-calculadora"></button>
+      <button type="button" class="nav-tab-item" id="nav-scripts"></button>
+      <button type="button" id="btn-open-portfolio"></button>
+      <button type="button" id="btn-open-contacts"></button>
+    </div>
+
   </div>
 
   <!-- Drawer / Gaveta da Carteira de Imóveis -->

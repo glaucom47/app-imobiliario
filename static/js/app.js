@@ -254,7 +254,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           ? 'status-pill status-pill-notarized'
           : 'status-pill status-pill-secondary';
       }
-      if (btnLogout) btnLogout.style.display = 'inline-flex';
+      if (btnLogout) btnLogout.style.display = 'flex';
+      const greetName = document.getElementById('home-greeting-name');
+      if (greetName) greetName.textContent = user.nome ? `, ${String(user.nome).split(' ')[0]}` : '';
       if (authModal) authModal.style.display = 'none';
 
       // Carrega o imóvel em foco ou inicializa carteira
@@ -274,7 +276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const homeBadge = document.getElementById('home-my-goals-badge');
       if (homeBadge) {
-        homeBadge.textContent = '🎯 Metas';
+        homeBadge.textContent = 'Metas';
         homeBadge.style.background = 'var(--color-secondary-container)';
         homeBadge.style.color = 'var(--color-secondary)';
       }
@@ -430,8 +432,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 7. Abertura e Fechamento de Drawers e Sincronização da Bottom Nav
   const navTabItems = document.querySelectorAll('.nav-tab-item');
   function setActiveNavTab(tabId) {
+    const effectiveId = tabId || 'nav-home';
     navTabItems.forEach((btn) => {
-      btn.classList.toggle('active', btn.id === tabId);
+      btn.classList.toggle('active', btn.id === effectiveId);
     });
   }
 
@@ -473,6 +476,60 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (btnOpenPortfolio) btnOpenPortfolio.addEventListener('click', handleOpenPortfolio);
   if (navCarteira) navCarteira.addEventListener('click', handleOpenPortfolio);
   if (btnClosePortfolio) btnClosePortfolio.addEventListener('click', () => closeDrawer(drawerPortfolio));
+
+  // 7.1 Painel de Entrada: Saudação, Menu (Bottom Sheet), Aba Início e Proxies
+  const homeGreeting = document.getElementById('home-greeting');
+  if (homeGreeting) {
+    const h = new Date().getHours();
+    homeGreeting.textContent = h < 12 ? 'Bom dia' : (h < 20 ? 'Boa tarde' : 'Boa noite');
+  }
+
+  const moreSheet = document.getElementById('more-sheet');
+  const moreSheetBackdrop = document.getElementById('more-sheet-backdrop');
+  const navMenu = document.getElementById('nav-menu');
+  const navHome = document.getElementById('nav-home');
+
+  function openMoreSheet() {
+    if (!moreSheet) return;
+    moreSheet.hidden = false;
+    if (moreSheetBackdrop) moreSheetBackdrop.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setActiveNavTab('nav-menu');
+  }
+  function closeMoreSheet(restoreHome = true) {
+    if (!moreSheet || moreSheet.hidden) return;
+    moreSheet.hidden = true;
+    if (moreSheetBackdrop) moreSheetBackdrop.hidden = true;
+    document.body.style.overflow = '';
+    if (restoreHome) setActiveNavTab('nav-home');
+  }
+  if (navMenu) navMenu.addEventListener('click', openMoreSheet);
+  if (moreSheetBackdrop) moreSheetBackdrop.addEventListener('click', () => closeMoreSheet());
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMoreSheet(); });
+  if (moreSheet) {
+    moreSheet.addEventListener('click', (e) => {
+      const row = e.target.closest('.more-row');
+      if (row && row.id !== 'btn-sunlight-toggle') closeMoreSheet(false);
+    });
+  }
+
+  if (navHome) {
+    navHome.addEventListener('click', () => {
+      closeMoreSheet(false);
+      document.querySelectorAll('.fecho-modal-overlay.active').forEach((d) => d.classList.remove('active'));
+      document.body.style.overflow = '';
+      setActiveNavTab('nav-home');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // Botões que delegam para ações existentes (sem duplicar IDs)
+  document.querySelectorAll('[data-proxy]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const target = document.getElementById(el.dataset.proxy);
+      if (target) target.click();
+    });
+  });
 
   // Inicialização do Carrossel Fotográfico de Alto Luxo do Imóvel em Destaque
   function initHeroCarousel() {
@@ -3055,6 +3112,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       // 1. Atualizar Badge da Home
       if (homeMyGoalsBadge) {
         homeMyGoalsBadge.textContent = `${dados.percentual_faturacao}% Atingido`;
+        const todayGoalChip = document.getElementById('today-goal-chip');
+        if (todayGoalChip) todayGoalChip.textContent = `Meta ${dados.percentual_faturacao}%`;
         if (dados.semaforo_trajetoria === 'verde') {
           homeMyGoalsBadge.style.background = '#dcfce7';
           homeMyGoalsBadge.style.color = '#15803d';

@@ -1,10 +1,10 @@
-/**
+﻿/**
  * Service Worker - Fecho (fecho.pt)
  * Fornece suporte a cache estático e funcionamento 100% offline
  * para motores client-side (Calculadora IMT/Selo e Teleprompter).
  */
 
-const CACHE_NAME = 'fecho-static-v20';
+const CACHE_NAME = 'fecho-static-v23';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -12,8 +12,10 @@ const ASSETS_TO_CACHE = [
   '/static/manifest.json',
   '/static/css/design-tokens.css',
   '/static/css/style.css',
+  '/static/css/team-meetings.css',
   '/static/js/app.js',
   '/static/js/api.js',
+  '/static/js/team_meetings.js',
   '/static/js/calculator.js',
   '/static/js/teleprompter.js',
   '/static/js/audio_recorder.js',

@@ -1,12 +1,15 @@
 # STATUS DO PROJETO - FECHO (meufecho.pt)
 
-* **Última Atualização:** 08/10/2026 - 22:15
-* **Fase Atual:** Assistente Virtual Imobiliário Inteligente (Google Gemini API - `google-genai`)
-* **Status Geral:** Concluído, Documentado, Auditado e Operacional no `meufecho.pt`. O sistema conta com a implementação integral ponta a ponta (Backend e Frontend PWA / Backoffice):
-  1. **Backend FastAPI & SDK `google-genai` (`app/services/gemini_service.py`):** Serviço desacoplado integrado à API do Gemini (`gemini-1.5-flash`), com fallback automático e resiliente para modo Mock/Simulador local quando sem chave configurada ou em testes;
-  2. **Endpoint REST Protegido (`POST /api/v1/ai/chat`):** Validação Pydantic v2 com `AIChatRequest` e `AIChatResponse`, exigindo autenticação JWT e respeitando isolamento multi-tenant (`agencia_id`);
-  3. **Interface PWA Móvel & Backoffice Web (`static/index.html` e `static/backoffice.html`):** Gaveta/modal tátil `#drawer-ai-chat` com balões de conversa, indicador de digitação ("A pensar..."), atalhos rápidos de prompts ("✨ Criar Anúncio", "📊 Baixa de Preço", "⚖️ IMT Jovem"), botão "Copiar Resposta" e "Aplicar ao Imóvel";
-  4. **Suíte de Testes Automatizados:** Suíte com **157 testes automatizados e 100% de aprovação (`pytest -v`)**. Service Worker elevado para `fecho-static-v20`.
+* **Última Atualização:** 13/10/2026 - 18:35
+* **Atualização 13/10/2026 18:35 — Painel de Entrada (UI/UX):** Os 9 botões empilhados e a duplicação com a barra inferior foram substituídos por hierarquia clara: saudação + faixa "Hoje" (Visitas, Aniversários, Meta %), imóvel em destaque, CTA principal "Gravar Feedback de Visita" e 3 atalhos (Calculadora, Assistente IA, Estudo ACM). Barra inferior: Início · Carteira · Visita (FAB central) · Clientes · Menu. Novo **Menu** (bottom sheet) com Scripts & Teleprompter, Captação & Angariação, Estudo ACM, Metas & KPIs, Luz Solar e Terminar Sessão. IDs originais preservados (abas legadas ocultas por compatibilidade). Logotipo ampliado (46px mobile / 54px desktop). Emoji 🎯 removido. Service Worker `fecho-static-v23`.
+* **Fase Atual:** Reunião de Equipa Diária (coletiva) com Registo de Presença, Lançamento de Atividade pelo Diretor e Assiduidade
+* **Status Geral:** Concluído, testado e operacional. Entrega mais recente:
+  1. **Modelos `TeamMeeting` e `TeamMeetingAttendance`** (`app/models/team_meeting.py`) com migração Alembic `a3f1c9e2b7d4`, isolamento por `agencia_id`, presença (Presente, Atraso, Ausente, Ausência Justificada) e 8 métricas de atividade declarada (contactos, reuniões de angariação, angariações, exclusivos, visitas, propostas, CPCV, escrituras) e nota;
+  2. **Endpoints `require_diretor`:** `POST/GET /api/v1/backoffice/team-meetings`, `GET/PUT /api/v1/backoffice/team-meetings/{id}` e `GET /api/v1/backoffice/attendance-stats?dias=7|30|90`;
+  3. **Regras de negócio aprovadas:** (a) consolidação nos KPIs por máximo determinístico (`consolidar`) entre o valor declarado, os registos do sistema e as estimativas, sem somar fontes, com os valores declarados guardados separadamente para auditoria; (b) Assiduidade = (Presente + Atraso) ÷ (Total − Justificadas) × 100; (c) edição livre até 24h, depois disso só edição excecional confirmada e auditada (`updated_by`, `Log`); (d) cada início cria uma nova reunião e nunca substitui uma anterior;
+  4. **Integração:** dashboard, funil, performance (nova coluna `assiduidade_reunioes_pct`), ficha individual, progresso de metas do consultor e snapshot da reunião semanal;
+  5. **Frontend:** nova aba "Reuniões de Equipa" (`static/js/team_meetings.js`, `static/css/team-meetings.css`) com presença em 1 toque, campos numéricos rápidos, histórico, assiduidade 7/30/90 dias e semáforo (≥90 / 70–89 / <70). Corrigido o mapeamento de campos da tabela de performance. Service Worker `fecho-static-v22`;
+  6. **Testes:** `tests/test_team_meetings.py` (12 testes) — **176 testes com 100% de aprovação (`pytest -v`)**.
 
 ---
 
@@ -29,6 +32,8 @@
 | **Módulo Comercial**| Direção Comercial & Gestão Ativa de Equipa (Fase 1 - MVP: Backend Completo) | Concluído |
 | **Módulo RBAC** | Gestão de Consultores pela Direção, Ativação/Desativação e Isolamento Estrito | Concluído |
 | **Módulo IA Gemini**| Assistente Virtual Imobiliário Inteligente (Google Gemini API & PWA / Backoffice) | Concluído |
+| **Módulo Sync CRM**| Sincronização de Imóveis via API / Feed XML de CRMs Externos (eGO, Casafari, X-Feed) | Concluído |
+| **Módulo Reunião de Equipa**| Reunião coletiva com presença, atividade lançada pelo Diretor e assiduidade | Concluído |
 | **Documentação Final** | Manuais de Manutenção, FSD Atualizado e Modo Manutenção | Concluída |
 
 

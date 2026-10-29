@@ -68,6 +68,14 @@ class RegisterAgencyRequest(BaseModel):
     email_diretor: str = Field(..., description="E-mail corporativo do diretor")
     password: str = Field(..., min_length=6, max_length=128, description="Palavra-passe de acesso (mínimo 6 carateres)")
     telemovel_diretor: Optional[str] = Field(None, max_length=50, description="Telemóvel direto do diretor")
+    aceita_termos: bool = Field(..., description="Aceitação obrigatória dos Termos de Serviço e Política de Privacidade (RGPD)")
+
+    @field_validator("aceita_termos")
+    @classmethod
+    def validate_aceita_termos(cls, v: bool) -> bool:
+        if v is not True:
+            raise ValueError("É obrigatório aceitar os Termos de Serviço e a Política de Privacidade.")
+        return v
 
     @field_validator("email_diretor")
     @classmethod

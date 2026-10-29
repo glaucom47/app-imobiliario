@@ -2601,6 +2601,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           email_diretor: document.getElementById('reg-agency-director-email').value.trim(),
           telemovel_diretor: document.getElementById('reg-agency-director-phone')?.value.trim() || null,
           password: document.getElementById('reg-agency-password').value,
+          aceita_termos: document.getElementById('reg-agency-terms')?.checked === true,
         };
 
         const result = await Api.registerAgency(payload);

@@ -15,6 +15,7 @@ from app.controllers import (
     ai_controller,
     auth_controller,
     backoffice_controller,
+    billing_controller,
     commercial_controller,
     contacts_controller,
     leads_controller,
@@ -80,6 +81,7 @@ app.include_router(commercial_controller.router, prefix=settings.API_V1_STR)
 app.include_router(commercial_controller.consultor_router, prefix=settings.API_V1_STR)
 app.include_router(leads_controller.router, prefix=settings.API_V1_STR)
 app.include_router(ai_controller.router, prefix=settings.API_V1_STR)
+app.include_router(billing_controller.router, prefix=settings.API_V1_STR)
 
 
 # Montagem dos arquivos estáticos do frontend/PWA

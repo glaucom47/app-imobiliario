@@ -42,6 +42,7 @@ from app.schemas.report_schema import (
     TagUpdate,
 )
 from app.services.auth_service import hash_password
+from app.services import billing_service
 from app.services.commercial_service import CommercialService
 from app.services.crm_sync_service import CRMSyncService
 from app.services.export_service import ExportService
@@ -667,6 +668,9 @@ def create_consultor(
             status_code=status.HTTP_409_CONFLICT,
             detail="Já existe um utilizador registado com este endereço de e-mail.",
         )
+
+    if not billing_service.pode_adicionar_utilizador(db, current_user.tenant):
+        raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=billing_service.LIMITE_UTILIZADORES_MSG)
 
     novo_consultor = User(
         agencia_id=current_user.agencia_id,

@@ -21,6 +21,17 @@ class Tenant(Base):
     morada = Column(Text, nullable=True)
     ativo = Column(Boolean, default=True, nullable=False)
 
+    # Faturação / subscrição (estado calculado no servidor; ver app/services/billing_service.py)
+    # plano_status: trial | ativo | pendente | suspenso | cancelado
+    plano_status = Column(String(20), nullable=False, default="ativo", server_default="ativo")
+    trial_termina_em = Column(DateTime(timezone=True), nullable=True)
+    subscricao_valida_ate = Column(DateTime(timezone=True), nullable=True)
+    plano_periodo = Column(String(10), nullable=True)  # mensal | anual
+    utilizadores_contratados = Column(Integer, nullable=False, default=3, server_default="3")
+    stripe_customer_id = Column(String(255), nullable=True, index=True)
+    stripe_subscription_id = Column(String(255), nullable=True, index=True)
+    termos_aceites_em = Column(DateTime(timezone=True), nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

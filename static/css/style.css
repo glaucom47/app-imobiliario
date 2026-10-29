@@ -3128,3 +3128,23 @@ body.sunlight-mode .btn-primary-action {
 .home-avatar[hidden] { display: none; }
 .home-avatar:not([hidden]) + #user-badge { display: none; }
 @media (min-width: 768px) { .home-avatar:not([hidden]) + #user-badge { display: inline-flex; } }
+
+
+/* ===== Faixa de período de teste / subscrição ===== */
+.fecho-subscription-banner {
+  position: sticky; top: 0; z-index: 2000;
+  display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+  padding: 8px 16px; font-size: 13px; font-weight: 500;
+  background: var(--color-surface-container, #f4f1ea); color: var(--color-on-surface, #1b1b1b);
+  border-bottom: 1px solid var(--color-outline-variant, #ddd);
+}
+.fecho-subscription-banner[hidden] { display: none; }
+.fecho-subscription-banner[data-variant="warning"] { background: #fff4d6; color: #5c4400; }
+.fecho-subscription-banner[data-variant="blocked"] { background: #fde7e4; color: #7a1c10; }
+.fecho-subscription-btn {
+  border: 0; border-radius: 999px; padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+  background: var(--color-primary, #1b1b1b); color: var(--color-on-primary, #fff);
+}
+.fecho-subscription-btn[hidden] { display: none; }
+.fecho-terms-label { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; line-height: 1.4; cursor: pointer; }
+.fecho-terms-label input { margin-top: 2px; flex-shrink: 0; }

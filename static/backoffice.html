@@ -1128,6 +1128,13 @@
             </div>
           </div>
 
+          <div class="fecho-form-group fecho-terms-group">
+            <label class="fecho-terms-label">
+              <input type="checkbox" id="bo-reg-agency-terms" required>
+              <span>Aceito os Termos de Serviço e a Política de Privacidade (RGPD). Inclui 7 dias de teste gratuito, sem cartão.</span>
+            </label>
+          </div>
+
           <div id="bo-reg-agency-error" style="display: none; color: var(--color-error); font-size: 12px; margin-bottom: 12px; text-align: center;"></div>
 
           <button type="submit" class="btn-primary-action" id="bo-btn-submit-reg">Criar Agência e Entrar</button>
@@ -1755,6 +1762,7 @@
 
   <script src="/static/js/api.js?v=16"></script>
   <script src="/static/js/team_meetings.js?v=16"></script>
+  <script src="/static/js/subscription.js?v=16"></script>
   <script>
     let currentAnalyticsData = null;
     let selectedKpiDays = 30;
@@ -1989,6 +1997,7 @@
               email_diretor: document.getElementById('bo-reg-director-email').value.trim(),
               telemovel_diretor: document.getElementById('bo-reg-director-phone')?.value.trim() || null,
               password: document.getElementById('bo-reg-password').value,
+              aceita_termos: document.getElementById('bo-reg-agency-terms')?.checked === true,
             };
 
             const result = await Api.registerAgency(payload);

@@ -21,6 +21,7 @@ from app.models.settings import Settings
 from app.models.tenant import Tenant
 from app.models.user import User
 from app.schemas.auth_schema import RegisterAgencyRequest, RegisterConsultorRequest
+from app.services import billing_service
 
 
 def hash_password(password: str) -> str:
@@ -156,6 +157,8 @@ def register_agency(db: Session, data: RegisterAgencyRequest) -> User:
         morada=data.morada.strip() if data.morada else None,
         ativo=True,
     )
+    billing_service.iniciar_trial(tenant)
+    tenant.termos_aceites_em = datetime.now(timezone.utc)
     db.add(tenant)
     db.flush()
 
@@ -222,6 +225,9 @@ def register_consultor(db: Session, data: RegisterConsultorRequest) -> User:
     existing_user = db.query(User).filter(User.email == clean_email).first()
     if existing_user:
         raise ValueError("Já existe um utilizador registado com este endereço de e-mail.")
+
+    if not billing_service.pode_adicionar_utilizador(db, tenant):
+        raise ValueError(billing_service.LIMITE_UTILIZADORES_MSG)
 
     # 3. Cria o consultor
     consultor = User(

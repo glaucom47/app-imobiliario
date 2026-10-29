@@ -8,7 +8,7 @@ Implementa:
 - require_diretor: Controle de acesso RBAC restrito ao perfil de Diretor;
 - require_consultor: Controle de acesso RBAC para consultores e diretores.
 """
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError
 from sqlalchemy.orm import Session
@@ -17,12 +17,14 @@ from database.connection import get_db
 from app.models.tenant import Tenant
 from app.models.user import User
 from app.services.auth_service import decode_access_token
+from app.services import billing_service
 
 # Esquema de autorização HTTP Bearer (não bloqueia automaticamente para gerarmos mensagens claras em português)
 http_bearer = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
+    request: Request,
     auth: HTTPAuthorizationCredentials = Depends(http_bearer),
     db: Session = Depends(get_db)
 ) -> User:
@@ -74,7 +76,32 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    _verificar_subscricao(request, user)
+
     return user
+
+
+# Métodos sem efeitos colaterais e rotas sempre acessíveis (auth, faturação, exportação RGPD)
+_METODOS_LEITURA = {"GET", "HEAD", "OPTIONS"}
+_ROTAS_ISENTAS = ("/auth/", "/billing/")
+
+
+def _verificar_subscricao(request: Request, user: User) -> None:
+    """
+    Modo só leitura: com trial expirado ou subscrição suspensa/cancelada, a agência
+    continua a consultar os seus dados, mas qualquer escrita devolve 402.
+    """
+    if request.method.upper() in _METODOS_LEITURA:
+        return
+    path = request.url.path
+    if any(seg in path for seg in _ROTAS_ISENTAS):
+        return
+    if not billing_service.escrita_permitida(user.tenant):
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="O período de teste terminou ou a subscrição não está ativa. "
+                   "Os seus dados estão disponíveis apenas para consulta até ativar a subscrição.",
+        )
 
 
 async def get_current_tenant(

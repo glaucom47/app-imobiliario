@@ -117,6 +117,11 @@ const Api = {
         headers,
       });
 
+      if (response.status === 402) {
+        // Trial expirado / subscrição inativa: modo só leitura
+        window.dispatchEvent(new CustomEvent('fecho:subscricao'));
+      }
+
       if (response.status === 401) {
         // Limpa credencial expirada e notifica
         this.setToken(null);
@@ -177,6 +182,13 @@ const Api = {
       this.setUser(data.user);
     }
     return data;
+  },
+
+  /**
+   * Estado do período de teste / subscrição da agência autenticada.
+   */
+  async getBillingStatus() {
+    return this.request('/billing/status');
   },
 
   /**

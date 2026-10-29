@@ -11,9 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Estilos e Design Tokens (Editorial PropTech Luxury) -->
-  <link rel="stylesheet" href="/static/css/design-tokens.css?v=15">
-  <link rel="stylesheet" href="/static/css/style.css?v=15">
-  <link rel="stylesheet" href="/static/css/team-meetings.css?v=15">
+  <link rel="stylesheet" href="/static/css/design-tokens.css?v=16">
+  <link rel="stylesheet" href="/static/css/style.css?v=16">
+  <link rel="stylesheet" href="/static/css/team-meetings.css?v=16">
 </head>
 <body>
   <div class="backoffice-shell" id="backoffice-app">
@@ -1086,13 +1086,6 @@
           <button type="submit" class="btn-primary-action" id="bo-btn-submit-login">Entrar na Direção</button>
         </form>
 
-        <div class="demo-credentials-box">
-          <span class="label-caps" style="color: var(--color-outline); display: block; margin-bottom: 4px;">Acesso de Teste (1 Toque):</span>
-          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
-            <button type="button" class="btn-demo-pill" id="bo-btn-demo-diretor">Diretora Demo (Acesso Completo)</button>
-            <button type="button" class="btn-demo-pill" id="bo-btn-demo-consultor">Consultor Demo (Testar Bloqueio RBAC)</button>
-          </div>
-        </div>
       </div>
 
       <!-- Painel 2: Registo de Nova Agência -->
@@ -1760,8 +1753,8 @@
     </div>
   </div>
 
-  <script src="/static/js/api.js?v=15"></script>
-  <script src="/static/js/team_meetings.js?v=15"></script>
+  <script src="/static/js/api.js?v=16"></script>
+  <script src="/static/js/team_meetings.js?v=16"></script>
   <script>
     let currentAnalyticsData = null;
     let selectedKpiDays = 30;
@@ -1833,8 +1826,6 @@
       const passInput = document.getElementById('bo-login-password');
       const errorDiv = document.getElementById('bo-login-error');
       const btnSubmit = document.getElementById('bo-btn-submit-login');
-      const btnDemoDir = document.getElementById('bo-btn-demo-diretor');
-      const btnDemoCons = document.getElementById('bo-btn-demo-consultor');
       const btnLogout = document.getElementById('btn-backoffice-logout');
       const btnShortcutExport = document.getElementById('btn-shortcut-export');
       const rbacWarning = document.getElementById('rbac-warning-banner');
@@ -1953,19 +1944,6 @@
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         doLogin(emailInput.value.trim(), passInput.value);
-      });
-
-      // Botões demo
-      btnDemoDir.addEventListener('click', () => {
-        emailInput.value = 'diretor@fecho.pt';
-        passInput.value = 'senha_segura_diretor';
-        doLogin('diretor@fecho.pt', 'senha_segura_diretor');
-      });
-
-      btnDemoCons.addEventListener('click', () => {
-        emailInput.value = 'consultor@fecho.pt';
-        passInput.value = 'senha_segura_consultor';
-        doLogin('consultor@fecho.pt', 'senha_segura_consultor');
       });
 
       // Alternância de abas de autenticação (Entrar vs Registar Agência)
@@ -4117,22 +4095,13 @@
           if (typingIndicatorBO) typingIndicatorBO.style.display = 'flex';
           messagesContainerBO.scrollTop = messagesContainerBO.scrollHeight;
 
-          // Auto-login de demonstração para a Direção se não houver sessão ativa
-          if (!Api.isAuthenticated()) {
-            try {
-              await Api.login('diretor@fecho.pt', 'senha_segura_diretor');
-            } catch {
-              // segue para a chamada
-            }
-          }
-
           try {
             const data = await Api.sendAIChat(msg);
             appendBOMessage(data.response, 'assistant');
           } catch (err) {
             const errStr = err.message || '';
             if (errStr.includes('autenticação') || errStr.includes('ausente') || errStr.includes('401')) {
-              appendBOMessage('🔐 **Autenticação Necessária**\n\nA sua sessão expirou ou não está autenticado. Por favor, inicie sessão no Backoffice ou selecione "Diretora Demo" para testar.', 'assistant');
+              appendBOMessage('🔐 **Autenticação Necessária**\n\nA sua sessão expirou ou não está autenticado. Por favor, inicie sessão no Backoffice.', 'assistant');
             } else {
               appendBOMessage(`⚠️ Erro ao comunicar com a IA: ${errStr || 'Falha de rede.'}`, 'assistant');
             }

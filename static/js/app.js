@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 1. Registro de Service Worker para suporte offline
   if ('serviceWorker' in navigator) {
     const registerSW = () => {
-      navigator.serviceWorker.register('/static/sw.js?v=11')
+      navigator.serviceWorker.register('/static/sw.js?v=12')
         .then((registration) => {
           console.log('[PWA] Service Worker registrado:', registration.scope);
           if (registration.update) registration.update();
@@ -140,8 +140,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnSubmitLogin = document.getElementById('btn-submit-login');
   const userBadge = document.getElementById('user-badge');
   const btnLogout = document.getElementById('btn-logout');
-  const btnDemoConsultor = document.getElementById('btn-demo-consultor');
-  const btnDemoDiretor = document.getElementById('btn-demo-diretor');
 
   // Elementos do Imóvel em Foco
   const propertySelectorCard = document.getElementById('property-selector-card');
@@ -2506,23 +2504,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 11. Preenchimento de Demonstração
-  if (btnDemoConsultor) {
-    btnDemoConsultor.addEventListener('click', () => {
-      loginEmailInput.value = 'consultor@fecho.pt';
-      loginPasswordInput.value = 'senha_segura_consultor';
-      loginForm.dispatchEvent(new Event('submit'));
-    });
-  }
-
-  if (btnDemoDiretor) {
-    btnDemoDiretor.addEventListener('click', () => {
-      loginEmailInput.value = 'diretor@fecho.pt';
-      loginPasswordInput.value = 'senha_segura_diretor';
-      loginForm.dispatchEvent(new Event('submit'));
-    });
-  }
-
   // 12. Botão de Logout
   if (btnLogout) {
     btnLogout.addEventListener('click', () => {
@@ -3457,15 +3438,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (aiChatTypingIndicator) aiChatTypingIndicator.style.display = 'flex';
       if (aiChatMessagesContainer) aiChatMessagesContainer.scrollTop = aiChatMessagesContainer.scrollHeight;
-
-      // Auto-login demo se não estiver autenticado
-      if (!Api.isAuthenticated()) {
-        try {
-          await Api.login('consultor@fecho.pt', 'senha_segura_consultor');
-        } catch {
-          // segue para a chamada
-        }
-      }
 
       try {
         const responseData = await Api.sendAIChat(message, activeAIContext);

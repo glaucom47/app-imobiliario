@@ -10,7 +10,7 @@
  *  - /api/ e métodos != GET: nunca passam pela cache.
  */
 
-const CACHE_NAME = 'fecho-static-v25';
+const CACHE_NAME = 'fecho-static-v26';
 const IMG_CACHE = 'fecho-img-v1';
 const IMG_CACHE_MAX = 40;
 
@@ -19,16 +19,16 @@ const ASSETS_TO_CACHE = [
   '/',
   '/backoffice',
   '/static/manifest.json',
-  '/static/css/design-tokens.css?v=15',
-  '/static/css/style.css?v=15',
-  '/static/css/team-meetings.css?v=15',
-  '/static/js/app.js?v=15',
-  '/static/js/api.js?v=15',
-  '/static/js/team_meetings.js?v=15',
-  '/static/js/calculator.js?v=15',
-  '/static/js/teleprompter.js?v=15',
-  '/static/js/audio_recorder.js?v=15',
-  '/static/js/market_study.js?v=15',
+  '/static/css/design-tokens.css?v=16',
+  '/static/css/style.css?v=16',
+  '/static/css/team-meetings.css?v=16',
+  '/static/js/app.js?v=16',
+  '/static/js/api.js?v=16',
+  '/static/js/team_meetings.js?v=16',
+  '/static/js/calculator.js?v=16',
+  '/static/js/teleprompter.js?v=16',
+  '/static/js/audio_recorder.js?v=16',
+  '/static/js/market_study.js?v=16',
   '/static/img/screen.png',
   '/static/img/logo.png'
 ];

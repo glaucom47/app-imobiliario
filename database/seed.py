@@ -37,6 +37,11 @@ def hash_password(password: str) -> str:
 
 def seed_database(db=None):
     """Popula o banco de dados com dados iniciais para desenvolvimento."""
+    from config.config import settings as _settings
+    if _settings.ENVIRONMENT == "production" or not _settings.SEED_DEMO:
+        raise RuntimeError(
+            "Seed de demonstração bloqueado: requer SEED_DEMO=true e ENVIRONMENT diferente de production."
+        )
     close_db = False
     if db is None:
         db = SessionLocal()

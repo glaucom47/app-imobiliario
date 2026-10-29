@@ -283,4 +283,9 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
   3. Validou-se a suíte completa de testes (`pytest -v`), obtendo 100% de aprovação (145 de 145 testes).
 - **Como evitar no futuro:** Sempre verificar o contrato exato dos esquemas Pydantic ao reutilizar métodos de serviço internamente, evitando suposições sobre nomes de atributos de resposta.
 
+### 2026-10-29 - TestClient bloqueado indefinidamente dentro do sandbox do agente (Windows)
 
+- **Sintoma:** `pytest` ficava pendurado sem output em testes que usam `with TestClient(app)`.
+- **Causa:** No Windows, o asyncio (`ProactorEventLoop`) cria um socketpair por loopback (`socket.accept`); o sandbox do agente bloqueia sockets locais e o `accept` nunca retorna. Não é defeito da aplicação. Adicionalmente, um hook de telemetria de plugin externo (`googlecloudtools.datacloud_telemetry`) com caminho mal formado bloqueava todas as ferramentas do agente até ser removido da pasta de plugins.
+- **Solução aplicada:** Diagnóstico com `-o faulthandler_timeout=20`; suíte executada fora do sandbox: 185 testes aprovados.
+- **Como evitar no futuro:** Em agentes com sandbox no Windows, executar `pytest` fora do sandbox ou com rede local permitida; usar `faulthandler_timeout` para identificar bloqueios.

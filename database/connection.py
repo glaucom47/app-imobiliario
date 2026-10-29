@@ -119,6 +119,11 @@ def ensure_initialized():
                     "Seed automático de demonstração bloqueado por segurança. "
                     "Utilize script administrativo seguro para provisionamento da agência e diretor."
                 )
+            elif not settings.SEED_DEMO:
+                logger.info(
+                    "Banco vazio: seed de demonstração não executado (defina SEED_DEMO=true "
+                    "apenas em desenvolvimento local para carregar dados de exemplo)."
+                )
             else:
                 from database.seed import seed_database
                 seed_database(db=db)

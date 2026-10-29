@@ -19,6 +19,9 @@ class Settings:
     # Ambiente de execução: development | production | test
     ENVIRONMENT: str = os.environ.get("ENVIRONMENT", "development").lower().strip()
 
+    # Seed de demonstração: só corre com opt-in explícito (SEED_DEMO=true) e nunca em produção
+    SEED_DEMO: bool = os.environ.get("SEED_DEMO", "false").lower().strip() == "true"
+
     # Servidor ASGI
     HOST: str = os.environ.get("HOST", "0.0.0.0")
     PORT: int = int(os.environ.get("PORT", "8000"))
@@ -90,6 +93,11 @@ class Settings:
                     "Configuração Insegura Crítica: Em ambiente de produção (ENVIRONMENT=production), "
                     "a variável SECRET_KEY deve ser configurada no painel do PaaS com chave de alta "
                     "entropia contendo no mínimo 32 caracteres."
+                )
+            if cls.SEED_DEMO:
+                raise ValueError(
+                    "Configuração Insegura Crítica: SEED_DEMO=true não é permitido em produção "
+                    "(ENVIRONMENT=production). Remova a variável do painel do PaaS."
                 )
 
 

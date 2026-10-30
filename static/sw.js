@@ -78,19 +78,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 1. Navegações / HTML: network-first
+  // 1. Navegações / HTML: stale-while-revalidate (entrega instantânea da cache em 0ms e atualiza em background)
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).then((networkResponse) => {
-        if (isCacheable(networkResponse)) {
-          const copy = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-        }
-        return networkResponse;
-      }).catch(() => {
-        return caches.match(request).then((cached) => {
-          if (cached) return cached;
-          return caches.match(request.url.includes('/backoffice') ? '/backoffice' : '/');
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.match(request).then((cached) => {
+          const networkFetch = fetch(request).then((networkResponse) => {
+            if (isCacheable(networkResponse)) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => {
+            if (cached) return cached;
+            return cache.match(request.url.includes('/backoffice') ? '/backoffice' : '/app');
+          });
+          return cached || networkFetch;
         });
       })
     );

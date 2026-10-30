@@ -3525,7 +3525,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 14. Verificação de Sessão Inicial
   if (Api.isAuthenticated()) {
     try {
-      const user = await Api.getMe();
+      const cachedUser = Api.getUser(); if (cachedUser) { updateAuthUI(cachedUser); } const user = await Api.getMe();
       updateAuthUI(user);
     } catch {
       Api.logout();

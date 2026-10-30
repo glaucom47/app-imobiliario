@@ -30,7 +30,13 @@ def _init_engine():
                 pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
                 max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "5")),
                 pool_recycle=1800,
-                connect_args={"connect_timeout": 5},
+                connect_args={
+                    "connect_timeout": 5,
+                    "keepalives": 1,
+                    "keepalives_idle": 30,
+                    "keepalives_interval": 10,
+                    "keepalives_count": 5,
+                },
             )
             with pg_engine.connect() as conn:
                 pass

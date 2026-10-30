@@ -11,7 +11,7 @@ Implementa:
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from database.connection import get_db
 from app.models.tenant import Tenant
@@ -53,8 +53,8 @@ async def get_current_user(
     except (JWTError, ValueError, TypeError):
         raise credentials_exception
 
-    # Busca o usuário filtrando obrigatoriamente por id e agencia_id para garantir isolamento
-    user = db.query(User).filter(
+    # Busca o usuário e a agência numa única query (evita lazy load extra de user.tenant em cada request)
+    user = db.query(User).options(joinedload(User.tenant)).filter(
         User.id == user_id,
         User.agencia_id == agencia_id
     ).first()

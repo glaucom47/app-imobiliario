@@ -1061,7 +1061,7 @@
   <script>
     // Se o utilizador já tiver sessão ativa no navegador, destaca o botão de entrada rápida
     try {
-      if (localStorage.getItem('fecho_token')) {
+      if (localStorage.getItem('fecho_jwt_token') || localStorage.getItem('fecho_token')) {
         var btnLogin = document.getElementById('nav-btn-login');
         if (btnLogin) {
           btnLogin.textContent = 'Abrir o Meu Cockpit ➔';

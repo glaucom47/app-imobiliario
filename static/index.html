@@ -16,12 +16,12 @@
   <link rel="stylesheet" href="/static/css/design-tokens.css?v=17">
   <link rel="stylesheet" href="/static/css/style.css?v=17">
 
-  <!-- Limpeza automática de caches antigos para restauração imediata do design original -->
+  <!-- Limpeza automática apenas de caches legados (preservando a cache ativa v29 do Service Worker) -->
   <script>
     if ('caches' in window) {
       caches.keys().then(function(keys) {
         keys.forEach(function(k) {
-          if (k.indexOf('fecho-') === 0 && k !== 'fecho-static-v24' && k !== 'fecho-img-v1') caches.delete(k);
+          if (k.indexOf('fecho-') === 0 && k !== 'fecho-static-v29' && k !== 'fecho-img-v1') caches.delete(k);
         });
       });
     }

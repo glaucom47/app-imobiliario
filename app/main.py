@@ -100,7 +100,28 @@ async def health_check():
     }
 
 
-@app.get("/", tags=["Interface PWA"])
+@app.get("/", tags=["Landing Comercial"])
+async def serve_landing_page():
+    """Serve a Landing Page comercial e vendedora no domínio principal (meufecho.pt)."""
+    landing_path = os.path.join(settings.STATIC_DIR, "landing.html")
+    if os.path.exists(landing_path):
+        return FileResponse(
+            landing_path,
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
+    index_path = os.path.join(settings.STATIC_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(
+            index_path,
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+        )
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"detail": "Página inicial não encontrada."}
+    )
+
+
+@app.get("/app", tags=["Interface PWA"])
 async def serve_pwa_shell():
     """Serve a casca principal da aplicação PWA móvel para consultores."""
     index_path = os.path.join(settings.STATIC_DIR, "index.html")

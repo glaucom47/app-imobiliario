@@ -10,26 +10,27 @@
  *  - /api/ e métodos != GET: nunca passam pela cache.
  */
 
-const CACHE_NAME = 'fecho-static-v27';
+const CACHE_NAME = 'fecho-static-v29';
 const IMG_CACHE = 'fecho-img-v1';
 const IMG_CACHE_MAX = 40;
 
 // Pré-cache apenas da casca essencial (imagens hero deixam de ser pré-carregadas: ~4,4 MB poupados)
 const ASSETS_TO_CACHE = [
   '/',
+  '/app',
   '/backoffice',
   '/static/manifest.json',
-  '/static/css/design-tokens.css?v=16',
-  '/static/css/style.css?v=16',
-  '/static/css/team-meetings.css?v=16',
-  '/static/js/app.js?v=16',
-  '/static/js/api.js?v=16',
-  '/static/js/team_meetings.js?v=16',
-  '/static/js/calculator.js?v=16',
-  '/static/js/teleprompter.js?v=16',
-  '/static/js/audio_recorder.js?v=16',
-  '/static/js/market_study.js?v=16',
-  '/static/js/subscription.js?v=16',
+  '/static/css/design-tokens.css?v=17',
+  '/static/css/style.css?v=17',
+  '/static/css/team-meetings.css?v=17',
+  '/static/js/app.js?v=17',
+  '/static/js/api.js?v=17',
+  '/static/js/team_meetings.js?v=17',
+  '/static/js/calculator.js?v=17',
+  '/static/js/teleprompter.js?v=17',
+  '/static/js/audio_recorder.js?v=17',
+  '/static/js/market_study.js?v=17',
+  '/static/js/subscription.js?v=17',
   '/static/img/screen.png',
   '/static/img/logo.png'
 ];

@@ -70,6 +70,15 @@ class Settings:
     # Controle de Rate Limiting (pode ser ativado/desativado via env)
     RATE_LIMIT_ENABLED: bool = os.environ.get("RATE_LIMIT_ENABLED", "true").lower() == "true"
 
+    # Stripe (pagamentos). Valores definidos EXCLUSIVAMENTE no painel do PaaS, nunca no repositório.
+    # Sem STRIPE_SECRET_KEY, os endpoints de pagamento respondem 503 (o trial continua a funcionar).
+    STRIPE_SECRET_KEY: str = os.environ.get("STRIPE_SECRET_KEY", "")
+    STRIPE_WEBHOOK_SECRET: str = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+    STRIPE_PRICE_MENSAL: str = os.environ.get("STRIPE_PRICE_MENSAL", "")
+    STRIPE_PRICE_ANUAL: str = os.environ.get("STRIPE_PRICE_ANUAL", "")
+    STRIPE_TAX_RATE_ID: str = os.environ.get("STRIPE_TAX_RATE_ID", "")  # IVA 23% (exclusivo)
+    APP_BASE_URL: str = os.environ.get("APP_BASE_URL", "https://meufecho.pt").rstrip("/")
+
 
     # Diretórios do sistema
     BASE_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

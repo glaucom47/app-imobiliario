@@ -192,6 +192,20 @@ const Api = {
   },
 
   /**
+   * Inicia subscrição no Stripe Checkout (apenas diretor). Devolve { url }.
+   */
+  async createCheckout(periodo) {
+    return this.request('/billing/checkout', { method: 'POST', body: JSON.stringify({ periodo }) });
+  },
+
+  /**
+   * Abre o portal do cliente Stripe (gerir/cancelar). Devolve { url }.
+   */
+  async openBillingPortal() {
+    return this.request('/billing/portal', { method: 'POST' });
+  },
+
+  /**
    * Regista uma nova agência e o respetivo utilizador diretor.
    */
   async registerAgency(payload) {

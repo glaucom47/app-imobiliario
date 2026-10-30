@@ -123,14 +123,14 @@ def test_endpoints_agregados_sem_n_mais_1():
 
 def test_gzip_em_respostas_grandes():
     client = TestClient(app)
-    resp = client.get("/static/js/api.js?v=16", headers={"Accept-Encoding": "gzip"})
+    resp = client.get("/static/js/api.js?v=17", headers={"Accept-Encoding": "gzip"})
     assert resp.status_code == 200
     assert resp.headers.get("content-encoding") == "gzip"
 
 
 def test_cache_control_estaticos_e_api():
     client = TestClient(app)
-    versionado = client.get("/static/css/style.css?v=16")
+    versionado = client.get("/static/css/style.css?v=17")
     assert "immutable" in versionado.headers.get("Cache-Control", "")
     assert "max-age=31536000" in versionado.headers.get("Cache-Control", "")
 

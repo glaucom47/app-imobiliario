@@ -13,8 +13,8 @@
   <link rel="apple-touch-icon" href="/static/img/logo.png">
 
   <!-- Estilos e Design Tokens (Editorial PropTech Luxury) -->
-  <link rel="stylesheet" href="/static/css/design-tokens.css?v=16">
-  <link rel="stylesheet" href="/static/css/style.css?v=16">
+  <link rel="stylesheet" href="/static/css/design-tokens.css?v=17">
+  <link rel="stylesheet" href="/static/css/style.css?v=17">
 
   <!-- Limpeza automática de caches antigos para restauração imediata do design original -->
   <script>
@@ -2098,12 +2098,22 @@
 
   <!-- Scripts da Aplicação -->
 
-  <script src="/static/js/api.js?v=16" defer></script>
-  <script src="/static/js/calculator.js?v=16" defer></script>
-  <script src="/static/js/teleprompter.js?v=16" defer></script>
-  <script src="/static/js/audio_recorder.js?v=16" defer></script>
-  <script src="/static/js/market_study.js?v=16" defer></script>
-  <script src="/static/js/subscription.js?v=16" defer></script>
-  <script src="/static/js/app.js?v=16" defer></script>
+  <script src="/static/js/api.js?v=17" defer></script>
+  <script src="/static/js/calculator.js?v=17" defer></script>
+  <script src="/static/js/teleprompter.js?v=17" defer></script>
+  <script src="/static/js/audio_recorder.js?v=17" defer></script>
+  <script src="/static/js/market_study.js?v=17" defer></script>
+  <script src="/static/js/subscription.js?v=17" defer></script>
+  <script src="/static/js/app.js?v=17" defer></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', function() {
+      try {
+        if (new URLSearchParams(window.location.search).get('action') === 'register') {
+          var regTab = document.getElementById('auth-tab-btn-register');
+          if (regTab) regTab.click();
+        }
+      } catch (e) {}
+    });
+  </script>
 </body>
 </html>

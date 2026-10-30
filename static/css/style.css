@@ -3148,3 +3148,7 @@ body.sunlight-mode .btn-primary-action {
 .fecho-subscription-btn[hidden] { display: none; }
 .fecho-terms-label { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; line-height: 1.4; cursor: pointer; }
 .fecho-terms-label input { margin-top: 2px; flex-shrink: 0; }
+.fecho-subscription-actions { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+.fecho-subscription-actions[hidden] { display: none; }
+.fecho-subscription-btn-alt { background: transparent; color: inherit; border: 1px solid currentColor; }
+.fecho-subscription-btn:disabled { opacity: .6; cursor: wait; }

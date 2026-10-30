@@ -29,6 +29,10 @@ const Api = {
     }
   },
 
+  getCurrentUser() {
+    return this.getUser();
+  },
+
   setUser(user) {
     if (user) {
       localStorage.setItem(this.userKey, JSON.stringify(user));

@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 import unicodedata
 import bcrypt
 from jose import JWTError, jwt
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from config.config import settings
 from app.models.objection import ObjectionTag
@@ -95,7 +95,12 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     Retorna o objeto User se as credenciais forem válidas e tanto o usuário
     quanto a sua agência estiverem ativos; caso contrário retorna None.
     """
-    user = db.query(User).filter(User.email == email.lower().strip()).first()
+    user = (
+        db.query(User)
+        .options(joinedload(User.tenant))
+        .filter(User.email == email.lower().strip())
+        .first()
+    )
     if not user:
         return None
 

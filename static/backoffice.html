@@ -1893,7 +1893,7 @@
       btnShortcutExport.addEventListener('click', () => switchTab('tab-export'));
 
       // Renderização condicional por perfil (RBAC)
-      function renderBackofficeUI(user) {
+      function renderBackofficeUI(user, options = {}) {
         if (!user) {
           modal.style.display = 'flex';
           boContent.style.display = 'none';
@@ -1908,8 +1908,10 @@
           boContent.style.display = 'block';
           dirBadge.textContent = `${user.nome} (Diretora)`;
           if (user.agencia_nome) agencyBadge.textContent = user.agencia_nome;
-          loadKPIs(selectedKpiDays);
-          ensureCommercialConsultores();
+          if (!options.onlyHeader) {
+            loadKPIs(selectedKpiDays);
+            ensureCommercialConsultores();
+          }
         } else {
           rbacWarning.style.display = 'block';
           boContent.style.display = 'none';
@@ -1918,15 +1920,24 @@
         }
       }
 
-      // Validação inicial de sessão
+      // Validação inicial de sessão (Optimistic UI em 0ms + validação assíncrona em background)
       if (Api.isAuthenticated()) {
-        try {
-          const user = await Api.getMe();
-          renderBackofficeUI(user);
-        } catch {
-          Api.logout();
-          renderBackofficeUI(null);
+        const cachedUser = Api.getCurrentUser();
+        if (cachedUser) {
+          renderBackofficeUI(cachedUser);
         }
+        Api.getMe()
+          .then((user) => {
+            if (user) {
+              renderBackofficeUI(user, { onlyHeader: Boolean(cachedUser) });
+            }
+          })
+          .catch(() => {
+            if (!Api.isAuthenticated() || !cachedUser) {
+              Api.logout();
+              renderBackofficeUI(null);
+            }
+          });
       } else {
         renderBackofficeUI(null);
       }

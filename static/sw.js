@@ -3,8 +3,8 @@
  * Fornece suporte a cache estático e funcionamento 100% offline
  * para motores client-side (Calculadora IMT/Selo e Teleprompter).
  *
- * Estratégias (v24 - performance):
- *  - HTML/navegação: network-first com fallback offline para a casca em cache;
+ * Estratégias (v30 - performance):
+ *  - HTML/navegação ('/', '/app', '/backoffice'): stale-while-revalidate (abertura instantânea em 0ms a partir da cache local e atualização silenciosa em background);
  *  - JS/CSS: cache-first (ficheiros versionados com ?v=);
  *  - Imagens: stale-while-revalidate em cache próprio limitado (fecho-img-v1);
  *  - /api/ e métodos != GET: nunca passam pela cache.
@@ -78,21 +78,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 1. Navegações / HTML: network-first para a Landing Page ('/') e stale-while-revalidate para '/app' e '/backoffice'
+  // 1. Navegações / HTML ('/', '/app', '/backoffice'): stale-while-revalidate (0ms a partir da cache e atualização em background)
   if (request.mode === 'navigate') {
-    const reqUrl = new URL(request.url);
-    if (reqUrl.pathname === '/') {
-      event.respondWith(
-        fetch(request).then((networkResponse) => {
-          if (isCacheable(networkResponse)) {
-            const copy = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          }
-          return networkResponse;
-        }).catch(() => caches.match(request))
-      );
-      return;
-    }
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
         return cache.match(request).then((cached) => {
@@ -103,7 +90,10 @@ self.addEventListener('fetch', (event) => {
             return networkResponse;
           }).catch(() => {
             if (cached) return cached;
-            return cache.match(request.url.includes('/backoffice') ? '/backoffice' : '/app');
+            const reqUrl = new URL(request.url);
+            if (reqUrl.pathname.startsWith('/backoffice')) return cache.match('/backoffice');
+            if (reqUrl.pathname.startsWith('/app')) return cache.match('/app');
+            return cache.match('/');
           });
           return cached || networkFetch;
         });

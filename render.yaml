@@ -7,7 +7,7 @@ services:
     region: frankfurt # Servidor europeu ideal para conformidade RGPD e baixa latência em Portugal
     plan: starter
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt && alembic upgrade head
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1 --no-access-log
     healthCheckPath: /health
     autoDeploy: true
     envVars:
@@ -24,7 +24,7 @@ services:
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "480"
       - key: CORS_ORIGINS
-        value: "https://fecho.pt,https://www.fecho.pt"
+        value: "https://meufecho.pt,https://www.meufecho.pt,https://fecho.pt,https://www.fecho.pt"
       - key: RATE_LIMIT_ENABLED
         value: "true"
 

@@ -19,6 +19,23 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 
 ## Registros Históricos
 
+### 2026-10-30 - Abertura lenta da aplicação no Render por destruição de cache PWA, bloqueio no bootstrap, lazy loading SQL duplo e contenção de CPU
+
+- **Sintoma:** A aplicação hospedada no Render (plano Starter: 0.5 CPU / 512 MB RAM) apresentava lentidão perceptível a cada abertura no telemóvel e no computador.
+- **Causa:**
+  1. `static/index.html` continha um script inline que apagava caches diferentes de `fecho-static-v24` (ou apagava todas as caches na raiz `/`), destruindo a cache ativa do Service Worker a cada abertura e forçando novo download de todos os ficheiros; além disso, `/` usava `network-first` em vez de `stale-while-revalidate`;
+  2. No bootstrap de `static/js/app.js` e `static/backoffice.html`, a interface aguardava `await Api.getMe()` ou executava `updateAuthUI` duas vezes seguidas (disparando em duplicado `loadTodayVisitsCount`, `initPortfolioContext`, `checkMorningAnniversaries` e `carregarMinhasMetas`);
+  3. `get_current_user` (`app/dependencies.py`) e `authenticate_user` (`app/services/auth_service.py`) acediam a `user.tenant` por *lazy loading*, gerando uma 2.ª query SQL em cada requisição autenticada;
+  4. `ensure_initialized()` executava `SELECT count(*) FROM users` no arranque de produção e o pool não usava `pool_use_lifo=True`;
+  5. `Procfile` e `render.yaml` configuravam `--workers 2` em meia CPU partilhada (0.5 vCPU), causando *CPU throttling* e duplicação do consumo de RAM e conexões ao banco.
+- **Solução aplicada:**
+  1. Alinhada a cache `fecho-static-v30` (`/static/sw.js?v=30`), removido o wipe destrutivo de cache em `static/index.html` e adotado `stale-while-revalidate` para todas as navegações HTML (`/`, `/app`, `/backoffice`) em `static/sw.js`;
+  2. Implementado Optimistic UI em 0ms com `Api.getCurrentUser()` e validação assíncrona em background com `{ onlyHeader: true }` para evitar chamadas duplicadas;
+  3. Adicionado `.options(joinedload(User.tenant))` em `get_current_user` e `authenticate_user`;
+  4. Configurado `pool_use_lifo=True`, `pool_pre_ping=True` e TCP `keepalives` em `database/connection.py`, ignorando queries de seed em produção;
+  5. Ajustado `Procfile` e `render.yaml` para `--workers 1 --no-access-log`.
+- **Como evitar no futuro:** Centralizar a limpeza de caches antigas no evento `activate` do Service Worker (`static/sw.js`), usar sempre `joinedload` em relações acedidas no middleware/dependência de autenticação e dimensionar o número de workers Uvicorn conforme o número real de vCPUs do plano PaaS.
+
 ### 2026-10-13 - Tabela de performance do Backoffice vazia por divergência de contrato frontend/API
 
 - **Sintoma:** A tabela "Performance da Equipa" (aba Direção Comercial) mostrava sempre "Nenhum consultor com dados no período".

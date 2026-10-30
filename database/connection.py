@@ -27,6 +27,7 @@ def _init_engine():
             pg_engine = create_engine(
                 db_url,
                 pool_pre_ping=True,
+                pool_use_lifo=True,
                 pool_size=int(os.getenv("DB_POOL_SIZE", "5")),
                 max_overflow=int(os.getenv("DB_MAX_OVERFLOW", "5")),
                 pool_recycle=1800,
@@ -112,27 +113,21 @@ def ensure_initialized():
     from app.models.settings import Settings
     from app.models.log import Log
 
-    # Performance: em produção o esquema é gerido exclusivamente pelo Alembic (evita introspeção no arranque)
-    if settings.ENVIRONMENT != "production":
-        Base.metadata.create_all(bind=engine)
+    # Performance: em produção o esquema é gerido exclusivamente pelo Alembic e o seed de demonstração
+    # é estritamente proibido, evitando queries extras (COUNT) no arranque do worker Uvicorn.
+    if settings.ENVIRONMENT == "production":
+        return
+
+    Base.metadata.create_all(bind=engine)
+
+    if not settings.SEED_DEMO:
+        return
 
     db = SessionLocal()
     try:
         if db.query(User).count() == 0:
-            if settings.ENVIRONMENT == "production":
-                logger.info(
-                    "Ambiente de produção (ENVIRONMENT=production) detectado com banco vazio: "
-                    "Seed automático de demonstração bloqueado por segurança. "
-                    "Utilize script administrativo seguro para provisionamento da agência e diretor."
-                )
-            elif not settings.SEED_DEMO:
-                logger.info(
-                    "Banco vazio: seed de demonstração não executado (defina SEED_DEMO=true "
-                    "apenas em desenvolvimento local para carregar dados de exemplo)."
-                )
-            else:
-                from database.seed import seed_database
-                seed_database(db=db)
+            from database.seed import seed_database
+            seed_database(db=db)
     except Exception as e:
         logger.warning("Aviso durante a inicialização automática do banco: %s", e)
     finally:

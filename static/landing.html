@@ -14,7 +14,7 @@
     // Regista e atualiza o Service Worker para garantir cache fresca no telemóvel
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/static/sw.js?v=12').then(function(reg) {
+        navigator.serviceWorker.register('/static/sw.js?v=30').then(function(reg) {
           if (reg.update) reg.update();
         }).catch(function() {});
       });

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 1. Registro de Service Worker para suporte offline
   if ('serviceWorker' in navigator) {
     const registerSW = () => {
-      navigator.serviceWorker.register('/static/sw.js?v=12')
+      navigator.serviceWorker.register('/static/sw.js?v=30')
         .then((registration) => {
           console.log('[PWA] Service Worker registrado:', registration.scope);
           if (registration.update) registration.update();
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       chip.textContent = `${n} ${n === 1 ? 'visita' : 'visitas'}`;
     } catch (e) { /* mantém rótulo padrão */ }
   }
-  function updateAuthUI(user) {
+  function updateAuthUI(user, options = {}) {
     if (user) {
       if (userBadge) {
         userBadge.textContent = `${user.nome} • ${user.role.toUpperCase()}`;
@@ -271,15 +271,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         avatar.textContent = ((parts[0] || '')[0] || '') + (parts.length > 1 ? parts[parts.length - 1][0] : '');
         avatar.hidden = false;
       }
-      loadTodayVisitsCount();
       if (authModal) authModal.style.display = 'none';
 
-      // Carrega o imóvel em foco ou inicializa carteira
-      initPortfolioContext();
-      checkMorningAnniversaries();
-      if (typeof carregarMinhasMetas === 'function') {
-        carregarMinhasMetas(true);
+      // Renderiza imediatamente o imóvel guardado em localStorage (0ms)
+      const savedProp = Api.getSelectedProperty();
+      if (savedProp) {
+        renderFocusProperty(savedProp);
       }
+
+      // Se for apenas atualização de cabeçalho pós-getMe(), evita repetir as 4 chamadas secundárias
+      if (options.onlyHeader) return;
+
+      // Hidratação secundária assíncrona sem bloquear a renderização inicial
+      setTimeout(() => {
+        initPortfolioContext();
+        loadTodayVisitsCount();
+        checkMorningAnniversaries();
+        if (typeof carregarMinhasMetas === 'function') {
+          carregarMinhasMetas(true);
+        }
+      }, 0);
     } else {
       if (userBadge) {
         userBadge.textContent = 'Não autenticado';
@@ -3522,15 +3533,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderFocusProperty(event.detail);
   });
 
-  // 14. Verificação de Sessão Inicial
+  // 14. Verificação de Sessão Inicial (Optimistic UI em 0ms + validação assíncrona em background)
   if (Api.isAuthenticated()) {
-    try {
-      const cachedUser = Api.getUser(); if (cachedUser) { updateAuthUI(cachedUser); } const user = await Api.getMe();
-      updateAuthUI(user);
-    } catch {
-      Api.logout();
-      updateAuthUI(null);
+    const cachedUser = Api.getCurrentUser();
+    if (cachedUser) {
+      updateAuthUI(cachedUser);
     }
+    Api.getMe()
+      .then((user) => {
+        if (user) {
+          updateAuthUI(user, { onlyHeader: Boolean(cachedUser) });
+        }
+      })
+      .catch(() => {
+        if (!Api.isAuthenticated() || !cachedUser) {
+          Api.logout();
+          updateAuthUI(null);
+        }
+      });
   } else {
     updateAuthUI(null);
   }

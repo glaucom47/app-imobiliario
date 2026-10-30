@@ -25,21 +25,6 @@
         });
       });
     }
-    // Se um Service Worker antigo no telemóvel serviu index.html na raiz '/', força atualização para a Landing Page
-    if (window.location.pathname === '/' && !window.location.search.includes('app=1')) {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(regs) {
-          regs.forEach(function(r) { if (r.update) r.update(); });
-        });
-      }
-      if ('caches' in window) {
-        caches.keys().then(function(keys) {
-          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
-        }).then(function() {
-          window.location.reload();
-        });
-      }
-    }
   </script>
 </head>
 <body>

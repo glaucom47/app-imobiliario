@@ -142,3 +142,45 @@ def test_cache_control_estaticos_e_api():
 
     api = client.get(f"{API}/backoffice/kpis")
     assert "no-store" in api.headers.get("Cache-Control", "")
+
+
+def test_auth_me_single_sql_query_with_joinedload():
+    """Garante que get_current_user busca User e Tenant numa única query SQL (joinedload)."""
+    engine, session, token = _montar_agencia(1)
+
+    def _override():
+        yield session
+
+    app.dependency_overrides[get_db] = _override
+    contador = {"n": 0}
+
+    def _cb(*_args, **_kwargs):
+        contador["n"] += 1
+
+    event.listen(engine, "before_cursor_execute", _cb)
+    try:
+        client = TestClient(app)
+        session.expire_all()
+        contador["n"] = 0
+        resp = client.get(f"{API}/auth/me", headers={"Authorization": f"Bearer {token}"})
+        assert resp.status_code == 200
+        assert contador["n"] == 1, f"Esperava 1 query SQL em /auth/me com joinedload(User.tenant), executou {contador['n']}"
+    finally:
+        event.remove(engine, "before_cursor_execute", _cb)
+        app.dependency_overrides.clear()
+        session.close()
+
+
+def test_pwa_cache_alignment_and_optimistic_bootstrap():
+    """Garante alinhamento da cache do Service Worker e Optimistic UI no bootstrap."""
+    import os
+    index_txt = open(os.path.join(settings.STATIC_DIR, "index.html"), encoding="utf-8").read()
+    sw_txt = open(os.path.join(settings.STATIC_DIR, "sw.js"), encoding="utf-8").read()
+    app_txt = open(os.path.join(settings.STATIC_DIR, "js", "app.js"), encoding="utf-8").read()
+
+    assert "fecho-static-v30" in sw_txt
+    assert "fecho-static-v30" in index_txt
+    assert "fecho-static-v24" not in index_txt
+    assert "Api.getCurrentUser()" in app_txt
+    assert "onlyHeader: Boolean(cachedUser)" in app_txt
+

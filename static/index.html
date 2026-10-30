@@ -16,14 +16,29 @@
   <link rel="stylesheet" href="/static/css/design-tokens.css?v=17">
   <link rel="stylesheet" href="/static/css/style.css?v=17">
 
-  <!-- Limpeza automática apenas de caches legados (preservando a cache ativa v29 do Service Worker) -->
+  <!-- Limpeza automática apenas de caches legados (preservando a cache ativa v30 do Service Worker) -->
   <script>
     if ('caches' in window) {
       caches.keys().then(function(keys) {
         keys.forEach(function(k) {
-          if (k.indexOf('fecho-') === 0 && k !== 'fecho-static-v29' && k !== 'fecho-img-v1') caches.delete(k);
+          if (k.indexOf('fecho-') === 0 && k !== 'fecho-static-v30' && k !== 'fecho-img-v1') caches.delete(k);
         });
       });
+    }
+    // Se um Service Worker antigo no telemóvel serviu index.html na raiz '/', força atualização para a Landing Page
+    if (window.location.pathname === '/' && !window.location.search.includes('app=1')) {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(r) { if (r.update) r.update(); });
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then(function(keys) {
+          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+        }).then(function() {
+          window.location.reload();
+        });
+      }
     }
   </script>
 </head>

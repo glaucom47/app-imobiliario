@@ -11,9 +11,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
-    // Se aberto como PWA instalada no ecrã principal, abre diretamente o Cockpit
-    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
-      window.location.replace('/app');
+    // Regista e atualiza o Service Worker para garantir cache fresca no telemóvel
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/static/sw.js?v=12').then(function(reg) {
+          if (reg.update) reg.update();
+        }).catch(function() {});
+      });
     }
   </script>
   <style>

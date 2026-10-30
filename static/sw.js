@@ -10,7 +10,7 @@
  *  - /api/ e métodos != GET: nunca passam pela cache.
  */
 
-const CACHE_NAME = 'fecho-static-v29';
+const CACHE_NAME = 'fecho-static-v30';
 const IMG_CACHE = 'fecho-img-v1';
 const IMG_CACHE_MAX = 40;
 
@@ -78,8 +78,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 1. Navegações / HTML: stale-while-revalidate (entrega instantânea da cache em 0ms e atualiza em background)
+  // 1. Navegações / HTML: network-first para a Landing Page ('/') e stale-while-revalidate para '/app' e '/backoffice'
   if (request.mode === 'navigate') {
+    const reqUrl = new URL(request.url);
+    if (reqUrl.pathname === '/') {
+      event.respondWith(
+        fetch(request).then((networkResponse) => {
+          if (isCacheable(networkResponse)) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return networkResponse;
+        }).catch(() => caches.match(request))
+      );
+      return;
+    }
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
         return cache.match(request).then((cached) => {

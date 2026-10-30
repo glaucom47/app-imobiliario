@@ -18,10 +18,16 @@ def test_health_check():
 
 def test_static_files_and_calculator_served():
     """Valida se os arquivos estáticos da aplicação e da calculadora são servidos corretamente."""
-    # Shell principal
+    # Landing Page comercial no domínio principal
     res_root = client.get("/")
     assert res_root.status_code == 200
     assert "Calculadora de Viabilidade" in res_root.text
+    assert "Menos papelada no terreno" in res_root.text
+
+    # Shell principal da App PWA do Consultor
+    res_app = client.get("/app")
+    assert res_app.status_code == 200
+    assert "Calculadora de Viabilidade" in res_app.text
 
     # Motor matemático da calculadora
     res_calc = client.get("/static/js/calculator.js")

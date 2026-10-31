@@ -4,22 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MeuFecho · O Cockpit de Fecho Imobiliário para Consultores e Diretores de Loja</title>
-  <meta name="description" content="Menos papelada no terreno, mais escrituras na agência. Relatórios de visita por voz em 30s, Calculadora de Viabilidade IMT/Crédito 100% Offline, Estudo de Mercado com IA e Backoffice de Direção em tempo real.">
+  <meta name="description" content="Menos burocracia no terreno, mais escrituras na agência. Relatórios de visita por voz em 30s, Calculadora de Viabilidade IMT/Crédito 100% Offline, Estudo de Mercado com IA e Backoffice de Direção em tempo real.">
   <link rel="manifest" href="/static/manifest.json">
   <link rel="apple-touch-icon" href="/static/img/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script>
-    // Regista e atualiza o Service Worker para garantir cache fresca no telemóvel
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/static/sw.js?v=30').then(function(reg) {
-          if (reg.update) reg.update();
-        }).catch(function() {});
-      });
-    }
-  </script>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  </noscript>
   <style>
     :root {
       --primary: #000000;
@@ -696,7 +690,7 @@
     <div class="hero-grid">
       <div>
         <div class="eyebrow">✦ Software de Produtividade e Fecho Imobiliário em Portugal</div>
-        <h1>Menos papelada no terreno.<br><span>Mais escrituras na agência.</span></h1>
+        <h1>Menos burocracia no terreno.<br><span>Mais escrituras na agência.</span></h1>
         <p class="lead">
           O <strong>MeuFecho</strong> une o telemóvel do Consultor ao Backoffice do Diretor de Loja numa única plataforma em tempo real. Registe visitas por voz em 30 segundos, simule IMT e Crédito sem internet e governe as metas e reuniões da equipa sem folhas de cálculo.
         </p>
@@ -1073,6 +1067,15 @@
         }
       }
     } catch (e) {}
+
+    // Registo otimizado do Service Worker sem concorrer com o First Contentful Paint
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/static/sw.js?v=30').then(function(reg) {
+          if (reg.update) reg.update();
+        }).catch(function() {});
+      });
+    }
   </script>
 </body>
 </html>

@@ -22,7 +22,7 @@ def test_static_files_and_calculator_served():
     res_root = client.get("/")
     assert res_root.status_code == 200
     assert "Calculadora de Viabilidade" in res_root.text
-    assert "Menos papelada no terreno" in res_root.text
+    assert "Menos burocracia no terreno" in res_root.text
 
     # Shell principal da App PWA do Consultor
     res_app = client.get("/app")

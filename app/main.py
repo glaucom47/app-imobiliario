@@ -107,13 +107,13 @@ async def serve_landing_page():
     if os.path.exists(landing_path):
         return FileResponse(
             landing_path,
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+            headers={"Cache-Control": "no-cache, must-revalidate", "Pragma": "no-cache"}
         )
     index_path = os.path.join(settings.STATIC_DIR, "index.html")
     if os.path.exists(index_path):
         return FileResponse(
             index_path,
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+            headers={"Cache-Control": "no-cache, must-revalidate", "Pragma": "no-cache"}
         )
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -128,7 +128,7 @@ async def serve_pwa_shell():
     if os.path.exists(index_path):
         return FileResponse(
             index_path,
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+            headers={"Cache-Control": "no-cache, must-revalidate", "Pragma": "no-cache"}
         )
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -143,7 +143,7 @@ async def serve_backoffice_shell():
     if os.path.exists(backoffice_path):
         return FileResponse(
             backoffice_path,
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"}
+            headers={"Cache-Control": "no-cache, must-revalidate", "Pragma": "no-cache"}
         )
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,

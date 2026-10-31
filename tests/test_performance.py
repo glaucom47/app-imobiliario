@@ -172,15 +172,21 @@ def test_auth_me_single_sql_query_with_joinedload():
 
 
 def test_pwa_cache_alignment_and_optimistic_bootstrap():
-    """Garante alinhamento da cache do Service Worker e Optimistic UI no bootstrap."""
+    """Garante alinhamento da cache do Service Worker, ausência de scripts destrutivos e Optimistic UI."""
     import os
     index_txt = open(os.path.join(settings.STATIC_DIR, "index.html"), encoding="utf-8").read()
     sw_txt = open(os.path.join(settings.STATIC_DIR, "sw.js"), encoding="utf-8").read()
     app_txt = open(os.path.join(settings.STATIC_DIR, "js", "app.js"), encoding="utf-8").read()
+    manifest_txt = open(os.path.join(settings.STATIC_DIR, "manifest.json"), encoding="utf-8").read()
 
+    # O Service Worker deve gerir ativamente o cache estático
     assert "fecho-static-v30" in sw_txt
-    assert "fecho-static-v30" in index_txt
-    assert "fecho-static-v24" not in index_txt
+    # O index.html NÃO deve conter scripts inline de manipulação/deleção de caches (deve ser 100% responsabilidade do sw.js)
+    assert "caches.delete" not in index_txt
+    assert "fecho-static-" not in index_txt
+    # O manifesto PWA deve abrir diretamente a aplicação móvel /app
+    assert '"start_url": "/app"' in manifest_txt
+    # Optimistic UI preservado sem duplicar requisições secundárias
     assert "Api.getCurrentUser()" in app_txt
     assert "onlyHeader: Boolean(cachedUser)" in app_txt
 

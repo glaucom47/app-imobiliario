@@ -127,6 +127,9 @@ Depois de qualquer alteração:
 9. **Controle de Acesso Baseado em Perfis (RBAC):** Consultores não podem acessar rotas de diretoria, auditoria, parametrizações da agência ou painel de backoffice (`require_diretor`).
 10. **Conformidade com RGPD:** Suporte à rotina de anonimização ("Cliente Anonimizado") para expurgo de dados de compradores a pedido, preservando os registros de fechamento e auditoria da agência.
 
+11. **Governança de Cache PWA e Ciclo de Vida do Service Worker:** É estritamente proibido inserir scripts inline em páginas HTML (`index.html`, `backoffice.html`, `landing.html`) que manipulem ou apaguem o Storage de Cache (`caches.delete`). A limpeza e renovação de caches são de responsabilidade exclusiva e centralizada do evento `activate` no Service Worker (`static/sw.js`). O manifesto (`manifest.json`) deve apontar imperativamente para `/app` como `start_url`.
+12. **Prevenção de Regressão de Performance no Bootstrap:** Consultas de utilizador em rotas ou dependências autenticadas devem sempre usar eager loading (`.options(joinedload(User.tenant))`). No cliente frontend, toda renderização inicial deve empregar Optimistic UI com dados locais (`Api.getCurrentUser()`) sem bloquear a renderização em chamadas remotas de validação.
+
 ---
 
 ## 8. Cuidados para Não Quebrar o Sistema

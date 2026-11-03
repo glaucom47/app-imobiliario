@@ -16,6 +16,12 @@ def test_health_check():
     assert data["db"] == "ok"
     assert data["app"] == "Fecho"
 
+    # Monitores externos gratuitos (ex.: UptimeRobot) enviam requisição HEAD por padrão
+    head_resp = client.head("/health")
+    assert head_resp.status_code == 200
+    head_root = client.head("/")
+    assert head_root.status_code == 200
+
 
 def test_static_files_and_calculator_served():
     """Valida se os arquivos estáticos da aplicação e da calculadora são servidos corretamente."""

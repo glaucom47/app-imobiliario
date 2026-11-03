@@ -115,7 +115,7 @@ if os.path.exists(settings.STATIC_DIR):
     app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
 
-@app.get("/health", tags=["Sistema"])
+@app.api_route("/health", methods=["GET", "HEAD"], tags=["Sistema"])
 async def health_check():
     """Endpoint de verificação de integridade da API e aquecimento ativo do banco de dados."""
     db_ok = await asyncio.to_thread(_ping_database)
@@ -128,7 +128,7 @@ async def health_check():
     }
 
 
-@app.get("/", tags=["Landing Comercial"])
+@app.api_route("/", methods=["GET", "HEAD"], tags=["Landing Comercial"])
 async def serve_landing_page():
     """Serve a Landing Page comercial e vendedora no domínio principal (meufecho.pt)."""
     landing_path = os.path.join(settings.STATIC_DIR, "landing.html")
@@ -149,7 +149,7 @@ async def serve_landing_page():
     )
 
 
-@app.get("/app", tags=["Interface PWA"])
+@app.api_route("/app", methods=["GET", "HEAD"], tags=["Interface PWA"])
 async def serve_pwa_shell():
     """Serve a casca principal da aplicação PWA móvel para consultores."""
     index_path = os.path.join(settings.STATIC_DIR, "index.html")
@@ -164,7 +164,7 @@ async def serve_pwa_shell():
     )
 
 
-@app.get("/backoffice", tags=["Backoffice Web"])
+@app.api_route("/backoffice", methods=["GET", "HEAD"], tags=["Backoffice Web"])
 async def serve_backoffice_shell():
     """Serve o painel web de gestão da agência para diretores e brokers."""
     backoffice_path = os.path.join(settings.STATIC_DIR, "backoffice.html")

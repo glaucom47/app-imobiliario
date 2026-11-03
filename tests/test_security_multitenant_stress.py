@@ -729,3 +729,27 @@ def test_production_sqlite_fallback_blocked():
         settings.ENVIRONMENT = orig_env
         settings.DATABASE_URL = orig_url
 
+
+def test_normalize_and_redact_database_url():
+    """
+    Garante que URLs de provedores PaaS (postgres:// ou postgresql://) sejam normalizadas
+    para postgresql+psycopg2:// e que senhas jamais vazem nos logs de conexão.
+    """
+    from config.config import normalize_database_url
+    from database.connection import _redact_db_url
+
+    assert normalize_database_url("postgres://user:secret123@host:5432/railway") == (
+        "postgresql+psycopg2://user:secret123@host:5432/railway"
+    )
+    assert normalize_database_url("postgresql://user:secret123@host:5432/railway") == (
+        "postgresql+psycopg2://user:secret123@host:5432/railway"
+    )
+    assert normalize_database_url("postgresql+psycopg2://user:secret123@host:5432/railway") == (
+        "postgresql+psycopg2://user:secret123@host:5432/railway"
+    )
+
+    redacted = _redact_db_url("postgresql+psycopg2://user:super_secret_pw@host:5432/railway")
+    assert "super_secret_pw" not in redacted
+    assert "***" in redacted
+
+

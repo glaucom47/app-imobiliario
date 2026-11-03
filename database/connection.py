@@ -7,18 +7,28 @@ local não esteja configurado ou ocorra falha de autenticação.
 import logging
 import os
 from sqlalchemy import create_engine
+from sqlalchemy.engine.url import make_url
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-from config.config import settings
+from config.config import normalize_database_url, settings
 
 logger = logging.getLogger("fecho.database")
 
 Base = declarative_base()
 
 
+def _redact_db_url(raw_url: str) -> str:
+    """Oculta credenciais da URL de banco de dados antes de registrar em logs."""
+    try:
+        return make_url(raw_url).render_as_string(hide_password=True)
+    except Exception:
+        return "<database_url_redacted>"
+
+
 def _init_engine():
-    db_url = settings.DATABASE_URL
+    db_url = normalize_database_url(settings.DATABASE_URL)
+    safe_url = _redact_db_url(db_url)
     is_postgres = db_url.startswith("postgresql")
 
     if is_postgres:
@@ -47,7 +57,7 @@ def _init_engine():
                 logger.error(
                     "Erro Crítico: Não foi possível conectar ao PostgreSQL de produção em '%s': %s. "
                     "O fallback para SQLite está estritamente bloqueado em ambiente de produção.",
-                    db_url,
+                    safe_url,
                     exc,
                 )
                 raise RuntimeError(
@@ -57,7 +67,7 @@ def _init_engine():
             logger.warning(
                 "Aviso: Não foi possível conectar ao PostgreSQL em '%s' (%s). "
                 "Ativando fallback automático para base de dados local SQLite (database/fecho_dev.db) para desenvolvimento.",
-                db_url,
+                safe_url,
                 exc,
             )
 

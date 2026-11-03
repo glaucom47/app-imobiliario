@@ -19,6 +19,13 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 
 ## Registros Históricos
 
+### 2026-11-03 - Falha no alembic upgrade head no Railway por esquema postgresql:// sem driver explícito e exposição de URL nos logs de falha
+
+- **Sintoma:** No deploy para o Railway com PostgreSQL gerenciado (`DATABASE_URL=${{Postgres.DATABASE_URL}}`), a etapa `alembic upgrade head` falhou porque a URL fornecida iniciava com `postgresql://`, fazendo o SQLAlchemy 2.x procurar o pacote `psycopg` (v3) em vez do `psycopg2-binary` instalado, além de registrar a URL completa no log de erro de conexão.
+- **Causa:** O PostgreSQL do Railway injeta `DATABASE_URL` com prefixo `postgresql://` (ou `postgres://`), e `config/config.py` / `database/connection.py` repassavam a string sem normalizar para `postgresql+psycopg2://` e sem ocultar a senha via `render_as_string(hide_password=True)` nos logs de exceção.
+- **Solução aplicada:** Criada `normalize_database_url()` em `config/config.py` e aplicada em `database/connection.py`, convertendo qualquer prefixo `postgres://` ou `postgresql://` para `postgresql+psycopg2://`. Adicionada `_redact_db_url()` em `database/connection.py` para mascarar credenciais em logs.
+- **Como evitar no futuro:** Sempre normalizar esquemas de `DATABASE_URL` vindos de variáveis de ambiente de provedores PaaS e utilizar `make_url(url).render_as_string(hide_password=True)` antes de interpolar URLs de conexão em logs.
+
 ### 2026-10-30 - Abertura lenta da aplicação no Render por destruição de cache PWA, bloqueio no bootstrap, lazy loading SQL duplo e contenção de CPU
 
 - **Sintoma:** A aplicação hospedada no Render (plano Starter: 0.5 CPU / 512 MB RAM) apresentava lentidão perceptível a cada abertura no telemóvel e no computador.

@@ -10,6 +10,21 @@ import os
 from typing import List
 
 
+def normalize_database_url(url: str) -> str:
+    """
+    Normaliza o esquema da URL do PostgreSQL fornecida por provedores PaaS (Railway/Render/Heroku)
+    para garantir o uso explícito do driver instalado 'psycopg2' no SQLAlchemy 2.0+.
+    """
+    if not url:
+        return url
+    cleaned = url.strip()
+    if cleaned.startswith("postgres://"):
+        return "postgresql+psycopg2://" + cleaned[len("postgres://"):]
+    if cleaned.startswith("postgresql://"):
+        return "postgresql+psycopg2://" + cleaned[len("postgresql://"):]
+    return cleaned
+
+
 class Settings:
     PROJECT_NAME: str = "Fecho"
     DOMAIN: str = "meufecho.pt"
@@ -34,9 +49,11 @@ class Settings:
 
     # Banco de Dados PostgreSQL
     # Default para desenvolvimento local na porta 5432
-    DATABASE_URL: str = os.environ.get(
-        "DATABASE_URL",
-        "postgresql+psycopg2://postgres:postgres@localhost:5432/fecho_db"
+    DATABASE_URL: str = normalize_database_url(
+        os.environ.get(
+            "DATABASE_URL",
+            "postgresql+psycopg2://postgres:postgres@localhost:5432/fecho_db"
+        )
     )
 
     # Autenticação e Segurança JWT

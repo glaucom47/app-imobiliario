@@ -24,20 +24,46 @@ from app.controllers import (
     visits_controller,
 )
 
-from contextlib import asynccontextmanager
-from database.connection import ensure_initialized
+import asyncio
+from contextlib import asynccontextmanager, suppress
+from sqlalchemy import text
+from database.connection import engine, ensure_initialized
 from app.middleware.security import (
     SecurityHeadersMiddleware,
     RateLimitMiddleware,
     PayloadLimitMiddleware,
 )
 
+
+def _ping_database() -> bool:
+    """Executa SELECT 1 leve para manter o pool e o PostgreSQL acordados (anti-cold-start)."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return True
+    except Exception:
+        return False
+
+
+async def _db_keepalive_loop(interval_seconds: int = 240):
+    """Tarefa contínua em background que mantém o banco PostgreSQL quente a cada 4 minutos."""
+    while True:
+        await asyncio.sleep(interval_seconds)
+        await asyncio.to_thread(_ping_database)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gerenciamento de ciclo de vida moderno da aplicação ASGI."""
     settings.validate_production_settings()
     ensure_initialized()
-    yield
+    keepalive_task = asyncio.create_task(_db_keepalive_loop())
+    try:
+        yield
+    finally:
+        keepalive_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await keepalive_task
 
 # Inicialização da aplicação FastAPI
 app = FastAPI(
@@ -91,9 +117,11 @@ if os.path.exists(settings.STATIC_DIR):
 
 @app.get("/health", tags=["Sistema"])
 async def health_check():
-    """Endpoint de verificação de integridade da API."""
+    """Endpoint de verificação de integridade da API e aquecimento ativo do banco de dados."""
+    db_ok = await asyncio.to_thread(_ping_database)
     return {
         "status": "ok",
+        "db": "ok" if db_ok else "unreachable",
         "app": settings.PROJECT_NAME,
         "environment": settings.ENVIRONMENT,
         "version": settings.VERSION

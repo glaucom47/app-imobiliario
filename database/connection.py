@@ -54,6 +54,17 @@ def _init_engine():
             return pg_engine
         except (OperationalError, Exception) as exc:
             if settings.ENVIRONMENT == "production":
+                # Durante a fase de Build de containers PaaS (ex: Railway Nixpacks),
+                # o host interno 'postgres.railway.internal' ainda não está acessível
+                # na rede privada (só fica disponível na fase de Deploy/Start).
+                if "railway.internal" in db_url and "alembic" in " ".join(os.sys.argv).lower():
+                    logger.warning(
+                        "Build PaaS detectado: host privado '%s' indisponível durante a construção da imagem. "
+                        "A migração Alembic será executada no arranque do container (Start Command).",
+                        safe_url,
+                    )
+                    return pg_engine
+
                 logger.error(
                     "Erro Crítico: Não foi possível conectar ao PostgreSQL de produção em '%s': %s. "
                     "O fallback para SQLite está estritamente bloqueado em ambiente de produção.",
@@ -123,9 +134,19 @@ def ensure_initialized():
     from app.models.settings import Settings
     from app.models.log import Log
 
-    # Performance: em produção o esquema é gerido exclusivamente pelo Alembic e o seed de demonstração
-    # é estritamente proibido, evitando queries extras (COUNT) no arranque do worker Uvicorn.
+    # Em produção PaaS (Railway/Render), se o build-stage do Alembic foi pulado porque
+    # a rede privada estava desligada no Build, garante que as migrações Alembic rodem no arranque.
     if settings.ENVIRONMENT == "production":
+        try:
+            from sqlalchemy import inspect
+            inspector = inspect(engine)
+            if not inspector.has_table("users"):
+                from alembic.config import Config
+                from alembic import command
+                alembic_cfg = Config(os.path.join(settings.BASE_DIR, "alembic.ini"))
+                command.upgrade(alembic_cfg, "head")
+        except Exception as exc:
+            logger.warning("Aviso ao verificar/aplicar migrações Alembic no arranque: %s", exc)
         return
 
     Base.metadata.create_all(bind=engine)

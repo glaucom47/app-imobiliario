@@ -41,13 +41,24 @@ def run_migrations_online() -> None:
     """Executa migrações no modo online."""
     connectable = db_engine
 
-    with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+    try:
+        with connectable.connect() as connection:
+            context.configure(
+                connection=connection, target_metadata=target_metadata
+            )
 
-        with context.begin_transaction():
-            context.run_migrations()
+            with context.begin_transaction():
+                context.run_migrations()
+    except Exception as exc:
+        # Durante a fase de Build de imagem no Railway (Nixpacks), a rede privada
+        # (postgres.railway.internal) está desligada e só ativa no Start Command (Deploy).
+        if "railway.internal" in str(settings.DATABASE_URL):
+            print(
+                "[Alembic Build-Stage] Rede privada railway.internal indisponível durante Build image; "
+                "migrações serão aplicadas automaticamente no Start Command do container."
+            )
+            return
+        raise exc
 
 
 if context.is_offline_mode():

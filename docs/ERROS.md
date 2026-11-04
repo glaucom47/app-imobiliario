@@ -19,6 +19,13 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 
 ## Registros Históricos
 
+### 2026-11-04 - Falha no Build Image do Railway ao executar alembic upgrade head contra host privado postgres.railway.internal
+
+- **Sintoma:** Na etapa `Build > Build image` (`[stage-0 8/10] RUN alembic upgrade head`) do Railway, ocorria `RuntimeError: Falha de conexão com o banco de dados PostgreSQL gerenciado em produção: (psycopg2.OperationalError)`.
+- **Causa:** O Railway bloqueia o acesso à rede privada (`postgres.railway.internal`) durante a fase de construção da imagem Docker/Nixpacks (`Build image`), liberando a rede privada apenas na fase de execução (`Deploy / Start Command`). Como a receita de build importada continha `RUN alembic upgrade head`, o `_init_engine()` tentava conectar ao banco privado durante o build e abortava com `exit code: 1`.
+- **Solução aplicada:** Em `database/connection.py` e `database/migrations/env.py`, detectou-se o cenário de build-stage com `railway.internal` inacessível para diferir graciosamente a migração para o `Start Command` / `ensure_initialized()` no arranque do container em produção.
+- **Como evitar no futuro:** Nunca exigir conexão ativa com hosts de rede privada (`*.railway.internal`) durante a fase de `Build image` de containers; executar migrações sempre no `Start Command` / `lifespan` de inicialização.
+
 ### 2026-11-04 - ValueError no alembic upgrade head por valor alfanumérico acidental em ACCESS_TOKEN_EXPIRE_MINUTES no Railway
 
 - **Sintoma:** O build da imagem no Railway falhou na etapa `RUN alembic upgrade head` com `ValueError: invalid literal for int() with base 10: 'wi9d8y9m1kusrixqqyfp74hoo08mn2oi'` em `config/config.py` (linha 66, `ACCESS_TOKEN_EXPIRE_MINUTES`).

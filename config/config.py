@@ -25,6 +25,14 @@ def normalize_database_url(url: str) -> str:
     return cleaned
 
 
+def _safe_int(val: str, default: int) -> int:
+    """Converte variável de ambiente para inteiro com fallback resiliente caso contenha string inválida."""
+    try:
+        return int(str(val).strip())
+    except (ValueError, TypeError):
+        return default
+
+
 class Settings:
     PROJECT_NAME: str = "Fecho"
     DOMAIN: str = "meufecho.pt"
@@ -39,7 +47,7 @@ class Settings:
 
     # Servidor ASGI
     HOST: str = os.environ.get("HOST", "0.0.0.0")
-    PORT: int = int(os.environ.get("PORT", "8000"))
+    PORT: int = _safe_int(os.environ.get("PORT", "8000"), 8000)
     DEBUG: bool = (
         os.environ.get(
             "DEBUG",
@@ -63,7 +71,7 @@ class Settings:
         "fecho-dev-insecure-secret-key-replace-in-production-paas"
     )
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "480"))  # 8 horas
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = _safe_int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "480"), 480)  # 8 horas
 
     # Google Gemini API
     GEMINI_API_KEY: str = os.environ.get("GEMINI_API_KEY", "")

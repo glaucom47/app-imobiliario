@@ -752,4 +752,9 @@ def test_normalize_and_redact_database_url():
     assert "super_secret_pw" not in redacted
     assert "***" in redacted
 
+    from config.config import _safe_int
+    assert _safe_int("480", 480) == 480
+    assert _safe_int("wi9d8y9m1kusrixqqyfp74hoo08mn2oi", 480) == 480
+
+
 

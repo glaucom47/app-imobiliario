@@ -19,6 +19,13 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 
 ## Registros Históricos
 
+### 2026-11-04 - ValueError no alembic upgrade head por valor alfanumérico acidental em ACCESS_TOKEN_EXPIRE_MINUTES no Railway
+
+- **Sintoma:** O build da imagem no Railway falhou na etapa `RUN alembic upgrade head` com `ValueError: invalid literal for int() with base 10: 'wi9d8y9m1kusrixqqyfp74hoo08mn2oi'` em `config/config.py` (linha 66, `ACCESS_TOKEN_EXPIRE_MINUTES`).
+- **Causa:** A variável de ambiente `ACCESS_TOKEN_EXPIRE_MINUTES` no painel do PaaS continha uma string alfanumérica gerada acidentalmente em vez de um inteiro (`480`), e `int(...)` lançava exceção não tratada ao importar `config.config`.
+- **Solução aplicada:** Criada função `_safe_int(val, default)` em `config/config.py` para converter `ACCESS_TOKEN_EXPIRE_MINUTES` e `PORT` com fallback seguro para o valor padrão (`480` e `8000`) caso o texto não seja numérico.
+- **Como evitar no futuro:** Sempre utilizar funções de parsing resilientes (`_safe_int`) ao converter variáveis de ambiente numéricas em `config/config.py`.
+
 ### 2026-11-03 - Falha no alembic upgrade head no Railway por esquema postgresql:// sem driver explícito e exposição de URL nos logs de falha
 
 - **Sintoma:** No deploy para o Railway com PostgreSQL gerenciado (`DATABASE_URL=${{Postgres.DATABASE_URL}}`), a etapa `alembic upgrade head` falhou porque a URL fornecida iniciava com `postgresql://`, fazendo o SQLAlchemy 2.x procurar o pacote `psycopg` (v3) em vez do `psycopg2-binary` instalado, além de registrar a URL completa no log de erro de conexão.

@@ -10,7 +10,7 @@
  *  - /api/ e métodos != GET: nunca passam pela cache.
  */
 
-const CACHE_NAME = 'fecho-static-v30';
+const CACHE_NAME = 'fecho-static-v31';
 const IMG_CACHE = 'fecho-img-v1';
 const IMG_CACHE_MAX = 40;
 
@@ -23,7 +23,7 @@ const ASSETS_TO_CACHE = [
   '/static/css/design-tokens.css?v=17',
   '/static/css/style.css?v=17',
   '/static/css/team-meetings.css?v=17',
-  '/static/js/app.js?v=17',
+  '/static/js/app.js?v=18',
   '/static/js/api.js?v=17',
   '/static/js/team_meetings.js?v=17',
   '/static/js/calculator.js?v=17',

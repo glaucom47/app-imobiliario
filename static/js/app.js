@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 1. Registro de Service Worker para suporte offline
   if ('serviceWorker' in navigator) {
     const registerSW = () => {
-      navigator.serviceWorker.register('/static/sw.js?v=30')
+      navigator.serviceWorker.register('/static/sw.js?v=31')
         .then((registration) => {
           console.log('[PWA] Service Worker registrado:', registration.scope);
           if (registration.update) registration.update();
@@ -262,6 +262,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           ? 'status-pill status-pill-notarized'
           : 'status-pill status-pill-secondary';
       }
+      const btnGoBo = document.getElementById('btn-go-backoffice');
+      const btnMenuBo = document.getElementById('btn-menu-backoffice');
+      if (btnGoBo) btnGoBo.style.display = user.role === 'diretor' ? 'inline-flex' : 'none';
+      if (btnMenuBo) btnMenuBo.style.display = user.role === 'diretor' ? 'flex' : 'none';
       if (btnLogout) btnLogout.style.display = 'flex';
       const greetName = document.getElementById('home-greeting-name');
       if (greetName) greetName.textContent = user.nome ? `, ${String(user.nome).split(' ')[0]}` : '';
@@ -296,6 +300,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         userBadge.textContent = 'Não autenticado';
         userBadge.className = 'status-pill status-pill-error';
       }
+      const btnGoBo = document.getElementById('btn-go-backoffice');
+      const btnMenuBo = document.getElementById('btn-menu-backoffice');
+      if (btnGoBo) btnGoBo.style.display = 'none';
+      if (btnMenuBo) btnMenuBo.style.display = 'none';
       if (btnLogout) btnLogout.style.display = 'none';
       if (authModal) authModal.style.display = 'flex';
       renderFocusProperty(null);
@@ -2504,6 +2512,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const email = loginEmailInput.value.trim();
         const password = loginPasswordInput.value;
         const result = await Api.login(email, password);
+        if (result.user && result.user.role === 'diretor' && new URLSearchParams(window.location.search).get('mode') !== 'app') {
+          window.location.href = '/backoffice';
+          return;
+        }
         updateAuthUI(result.user);
       } catch (err) {
         loginError.textContent = err.message || 'Erro de autenticação.';
@@ -2616,6 +2628,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const result = await Api.registerAgency(payload);
+        if (result.user && result.user.role === 'diretor') {
+          window.location.href = '/backoffice';
+          return;
+        }
         updateAuthUI(result.user);
       } catch (err) {
         if (regAgencyError) {

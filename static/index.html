@@ -29,6 +29,7 @@
           <span>local</span>
         </button>
         <span class="home-avatar" id="home-avatar" hidden></span>
+        <a href="/backoffice" id="btn-go-backoffice" class="status-pill status-pill-notarized" style="display: none; text-decoration: none; cursor: pointer; font-weight: 700;" title="Abrir Painel de Direção Comercial (Backoffice)">📊 Painel Direção</a>
         <span class="status-pill status-pill-secondary" id="user-badge">Não autenticado</span>
       </div>
     </header>
@@ -237,6 +238,11 @@
       </button>
 
       <p class="more-sheet-section">Conta</p>
+      <a href="/backoffice" class="more-row" id="btn-menu-backoffice" style="display: none; text-decoration: none; color: inherit;">
+        <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
+        <span class="more-row-text"><b>Painel de Direção (Backoffice)</b><small>Gestão de equipa, KPIs e subscrição</small></span>
+        <span class="more-row-chev">›</span>
+      </a>
       <button type="button" class="more-row" id="btn-sunlight-toggle">
         <span class="luxury-gold-inline"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
         <span class="more-row-text"><b id="sunlight-label">Luz Solar</b><small>Contraste máximo ao ar livre</small></span>
@@ -2093,7 +2099,7 @@
   <script src="/static/js/audio_recorder.js?v=17" defer></script>
   <script src="/static/js/market_study.js?v=17" defer></script>
   <script src="/static/js/subscription.js?v=17" defer></script>
-  <script src="/static/js/app.js?v=17" defer></script>
+  <script src="/static/js/app.js?v=18" defer></script>
   <script>
     window.addEventListener('DOMContentLoaded', function() {
       try {

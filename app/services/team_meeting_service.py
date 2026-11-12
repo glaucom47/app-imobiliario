@@ -92,6 +92,30 @@ class TeamMeetingService:
             updated_at=meeting.updated_at,
         )
 
+    # ------------------------------------------------------------------ Participantes
+    @classmethod
+    def _obter_participantes_iniciais(cls, db: Session, agencia_id: int) -> List[User]:
+        """
+        Retorna os consultores comerciais ativos da agência.
+        Caso a agência ainda não possua consultores cadastrados (ex.: agência nova gerida
+        apenas pelo Diretor), inclui utilizadores ativos da agência (como o próprio Diretor)
+        como fallback resiliente para permitir registo de presença e lançamento de atividade de imediato.
+        """
+        consultores = (
+            db.query(User)
+            .filter(User.agencia_id == agencia_id, User.role == "consultor", User.ativo.is_(True))
+            .order_by(User.nome.asc())
+            .all()
+        )
+        if not consultores:
+            consultores = (
+                db.query(User)
+                .filter(User.agencia_id == agencia_id, User.ativo.is_(True))
+                .order_by(User.nome.asc())
+                .all()
+            )
+        return consultores
+
     # ------------------------------------------------------------------ CRUD
     @classmethod
     def create(cls, db: Session, agencia_id: int, diretor_id: int, payload: TeamMeetingCreate) -> TeamMeetingResponse:
@@ -105,12 +129,7 @@ class TeamMeetingService:
         db.add(meeting)
         db.flush()
 
-        consultores = (
-            db.query(User)
-            .filter(User.agencia_id == agencia_id, User.role == "consultor", User.ativo.is_(True))
-            .order_by(User.nome.asc())
-            .all()
-        )
+        consultores = cls._obter_participantes_iniciais(db, agencia_id)
         for c in consultores:
             db.add(TeamMeetingAttendance(
                 meeting_id=meeting.id,
@@ -147,11 +166,11 @@ class TeamMeetingService:
         for row in payload.linhas:
             att = linhas_por_consultor.get(row.consultor_id)
             if att is None:
-                # Consultor tem de pertencer à agência (ex.: entrou na equipa depois do início da reunião).
+                # Consultor/membro tem de pertencer à agência (ex.: entrou na equipa depois do início da reunião).
                 consultor = db.query(User).filter(
                     User.id == row.consultor_id,
                     User.agencia_id == agencia_id,
-                    User.role == "consultor",
+                    User.ativo.is_(True),
                 ).first()
                 if not consultor:
                     raise HTTPException(
@@ -190,7 +209,22 @@ class TeamMeetingService:
 
     @classmethod
     def get(cls, db: Session, agencia_id: int, meeting_id: int) -> TeamMeetingResponse:
-        return cls._to_response(cls._get_meeting(db, agencia_id, meeting_id))
+        meeting = cls._get_meeting(db, agencia_id, meeting_id)
+        if not meeting.attendances:
+            participantes = cls._obter_participantes_iniciais(db, agencia_id)
+            for c in participantes:
+                att = TeamMeetingAttendance(
+                    meeting_id=meeting.id,
+                    agencia_id=agencia_id,
+                    consultor_id=c.id,
+                    presenca="Ausente",
+                )
+                db.add(att)
+                meeting.attendances.append(att)
+            if participantes:
+                db.commit()
+                db.refresh(meeting)
+        return cls._to_response(meeting)
 
     @classmethod
     def list(cls, db: Session, agencia_id: int, limit: int = 30) -> List[TeamMeetingResponse]:
@@ -241,12 +275,7 @@ class TeamMeetingService:
             TeamMeeting.agencia_id == agencia_id, TeamMeeting.data_hora >= desde
         ).count()
         mapa = cls.attendance_map(db, agencia_id, dias)
-        consultores = (
-            db.query(User)
-            .filter(User.agencia_id == agencia_id, User.role == "consultor", User.ativo.is_(True))
-            .order_by(User.nome.asc())
-            .all()
-        )
+        consultores = cls._obter_participantes_iniciais(db, agencia_id)
         items = []
         for c in consultores:
             cont = mapa.get(c.id, {})

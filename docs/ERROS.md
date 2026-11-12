@@ -19,6 +19,21 @@ Este arquivo serve como base de conhecimento viva do projeto para registrar qual
 
 ## Registros Históricos
 
+### 2026-11-12 - Painel de Reuniões de Equipa e 1-on-1 não editável no Backoffice
+
+- **Sintoma:** Ao aceder à interface de diretores (`/backoffice`) na aba "Reuniões de Equipa" ou tentar iniciar reunião individual na aba "Direção Comercial", os formulários e linhas ficavam bloqueados ou vazios ("Sem consultores ativos na agência"), e o clique em "🤝 Reunião" na listagem de consultores não abria o modal.
+- **Causa:**
+  1. No frontend (`static/backoffice.html`), os botões da tabela de consultores chamavam `openStartMeetingModal(c.id)`, mas o script definia a função apenas como `window.openWeeklyMeetingModal`, gerando `Uncaught ReferenceError: openStartMeetingModal is not defined` no console.
+  2. Em agências recém-registadas que ainda possuem apenas o Diretor registado (sem consultores com `role == "consultor"`), `TeamMeetingService.create()` filtrava estritamente por `role == "consultor"`, criando a reunião com 0 participantes. Como a tabela não tinha linhas de consultor, não havia campos numéricos ou botões de presença para interagir.
+  3. No frontend (`static/js/team_meetings.js`), a função `load()` não invocava `renderEditor()` automaticamente ao abrir a aba, deixando o painel principal em branco caso a reunião não fosse explicitamente iniciada ou selecionada.
+  4. Em reuniões com mais de 24h consolidadas, todos os inputs ficavam desabilitados sem um botão/banner claro informando como proceder para desbloquear edição excecional.
+- **Solução aplicada:**
+  1. Em `static/backoffice.html`, registrado alias de compatibilidade `window.openStartMeetingModal = window.openWeeklyMeetingModal`.
+  2. Em `app/services/team_meeting_service.py`, criada `_obter_participantes_iniciais` com fallback para incluir utilizadores ativos da agência (como o Diretor) quando não há consultores adicionais cadastrados, além de auto-popular participantes em reuniões existentes caso tenham sido criadas com 0 linhas.
+  3. Em `static/js/team_meetings.js`, adicionado auto-carregamento da reunião de hoje (ou mais recente) no `load()`, estado vazio (`renderEmptyState()`) amigável com botão CTA, banner com botão de desbloqueio evidente (`.tm-trigger-unlock`), e comportamento amigável em `startToday()` que abre a reunião de hoje caso o utilizador cancele a criação de duplicata.
+  4. Incrementada a versão do Service Worker para `fecho-static-v32` com `team_meetings.js?v=18`.
+- **Como evitar no futuro:** Sempre testar jornadas de utilizadores com agências recém-registadas (apenas 1 utilizador diretor), garantir que botões inline de HTML chamem funções globais exatamente com os mesmos identificadores expostos no escopo `window`, e fornecer estados vazios claros e informativos no frontend.
+
 ### 2026-11-04 - Falha no Build Image do Railway ao executar alembic upgrade head contra host privado postgres.railway.internal
 
 - **Sintoma:** Na etapa `Build > Build image` (`[stage-0 8/10] RUN alembic upgrade head`) do Railway, ocorria `RuntimeError: Falha de conexão com o banco de dados PostgreSQL gerenciado em produção: (psycopg2.OperationalError)`.

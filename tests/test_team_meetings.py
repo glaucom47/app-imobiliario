@@ -247,3 +247,41 @@ def test_atividade_declarada_alimenta_funil_sem_duplicar(ctx):
     assert start.status_code == 200, start.text
     assert start.json()["visitas_semana"] == 3
     assert start.json()["contactos_semana"] == 40
+
+
+def test_criacao_agencia_apenas_com_diretor_inclui_diretor_para_teste_imediato(ctx):
+    """
+    Garante que uma nova agência que ainda não cadastrou consultores adicionais
+    (apenas o Diretor) consegue criar e editar reuniões de equipa normalmente.
+    """
+    tc = Tenant(nome="Agência Solo", slug="solo", nif="509000099", ativo=True)
+    ctx["db"].add(tc)
+    ctx["db"].commit()
+
+    dir_solo = User(agencia_id=tc.id, nome="Broker Solo", email="solo@fecho.pt", password_hash=hash_password("senha123"), role="diretor", ativo=True)
+    ctx["db"].add(dir_solo)
+    ctx["db"].commit()
+
+    tok = create_access_token({"sub": str(dir_solo.id), "agencia_id": tc.id, "role": "diretor"})
+    h_solo = {"Authorization": f"Bearer {tok}"}
+
+    # Criar reunião
+    r = ctx["client"].post(f"{BASE}/team-meetings", json={"tipo": "diaria"}, headers=h_solo)
+    assert r.status_code == 201, r.text
+    data = r.json()
+    assert len(data["linhas"]) == 1
+    assert data["linhas"][0]["consultor_id"] == dir_solo.id
+    assert data["linhas"][0]["consultor_nome"] == "Broker Solo"
+
+    # Atualizar reunião com presença e métricas
+    m_id = data["id"]
+    r_up = ctx["client"].put(
+        f"{BASE}/team-meetings/{m_id}",
+        json={"linhas": [_linha(dir_solo.id, "Presente", contactos=15, visitas=3, angariacoes=1)]},
+        headers=h_solo
+    )
+    assert r_up.status_code == 200, r_up.text
+    updated = r_up.json()
+    assert updated["linhas"][0]["contactos"] == 15
+    assert updated["linhas"][0]["visitas"] == 3
+    assert updated["linhas"][0]["presenca"] == "Presente"

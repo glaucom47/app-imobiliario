@@ -1765,7 +1765,7 @@
   </div>
 
   <script src="/static/js/api.js?v=17"></script>
-  <script src="/static/js/team_meetings.js?v=17"></script>
+  <script src="/static/js/team_meetings.js?v=18"></script>
   <script src="/static/js/subscription.js?v=17"></script>
   <script>
     let currentAnalyticsData = null;
@@ -3602,6 +3602,9 @@
           errMeeting.style.display = 'block';
         }
       };
+
+      // Compatibilidade cruzada com botões inline da equipa e ficha
+      window.openStartMeetingModal = window.openWeeklyMeetingModal;
 
       function addCommitmentRow() {
         const row = document.createElement('div');

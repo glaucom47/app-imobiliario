@@ -120,6 +120,23 @@
   }
 
   // ---------------------------------------------------------------- Editor
+  function renderEmptyState() {
+    const box = document.getElementById('tm-editor');
+    if (!box) return;
+    box.innerHTML = `
+      <section class="tm-card" style="text-align: center; padding: 36px 20px;">
+        <span style="font-size: 32px; display: block; margin-bottom: 8px;">🤝</span>
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">Painel de Reuniões de Equipa</h3>
+        <p class="tm-meta" style="max-width: 520px; margin: 0 auto 16px;">
+          Registe a presença de cada consultor e lance as métricas de atividade reportadas na reunião matinal (contactos, reuniões, angariações, visitas, propostas e fechos).
+        </p>
+        <button type="button" class="btn-primary-action" id="tm-btn-empty-start" style="width: auto; padding: 0 24px; height: 44px; display: inline-flex; align-items: center; gap: 8px; margin: 0 auto;">
+          ▶ Iniciar Reunião de Hoje
+        </button>
+      </section>`;
+    document.getElementById('tm-btn-empty-start')?.addEventListener('click', startToday);
+  }
+
   function renderEditor(meeting) {
     current = meeting;
     editExcecional = false;
@@ -141,6 +158,26 @@
         <td><input class="tm-note" type="text" maxlength="2000" data-campo="nota" value="${escapeHtml(l.nota || '')}" ${dis} placeholder="Nota"></td>
       </tr>`).join('');
 
+    const emptyNotice = `
+      <tr>
+        <td colspan="11" class="tm-meta" style="text-align: center; padding: 24px 16px;">
+          <div style="margin-bottom: 8px; font-weight: 500;">Ainda não existem consultores ativos cadastrados na equipa.</div>
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 32px; padding: 0 14px; font-size: 12px;" onclick="document.querySelector('.bo-tab-btn[data-tab=\\'tab-team\\']')?.click()">
+            ➕ Adicionar Consultor na Equipa
+          </button>
+        </td>
+      </tr>`;
+
+    const lockedNotice = locked ? `
+      <div class="tm-locked-notice" style="background: #fffbeb; border: 1px solid #fef3c7; color: #92400e; padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="font-size: 13px;">
+          ℹ️ <strong>Reunião consolidada (+24h):</strong> Os campos estão bloqueados para proteger o histórico. Para alterar valores, ative a edição excecional.
+        </div>
+        <button type="button" class="btn-primary-action tm-trigger-unlock" style="width: auto; height: 34px; padding: 0 14px; font-size: 12px;">
+          🔓 Desbloquear Edição
+        </button>
+      </div>` : '';
+
     box.innerHTML = `
       <section class="tm-card" aria-labelledby="tm-editor-title">
         <div class="tm-card-head">
@@ -148,19 +185,23 @@
             <h3 id="tm-editor-title">Reunião ${escapeHtml(TIPO_LABEL[meeting.tipo] || meeting.tipo)} · ${escapeHtml(fmtData(meeting.data_hora))}</h3>
             <div class="tm-meta">Toque na presença para alternar: Presente → Atraso → Ausente → Justificada</div>
           </div>
-          <span class="tm-badge ${locked ? 'tm-badge--lock' : 'tm-badge--open'}">${locked ? '🔒 Consolidada (+24h)' : '✎ Editável até 24h'}</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${locked ? '<button type="button" class="btn-secondary-ghost tm-trigger-unlock" style="width: auto; height: 30px; padding: 0 10px; font-size: 11px;">🔓 Desbloquear</button>' : ''}
+            <span class="tm-badge ${locked ? 'tm-badge--lock' : 'tm-badge--open'}">${locked ? '🔒 Consolidada (+24h)' : '✎ Editável até 24h'}</span>
+          </div>
         </div>
+        ${lockedNotice}
         <div class="tm-grid-wrap">
           <table class="tm-grid">
             <thead><tr><th scope="col">Consultor</th><th scope="col">Presença</th>${head}<th scope="col">Nota</th></tr></thead>
-            <tbody>${rows || '<tr><td colspan="11" class="tm-meta">Sem consultores ativos na agência.</td></tr>'}</tbody>
+            <tbody>${rows || emptyNotice}</tbody>
           </table>
         </div>
         <label for="tm-notas-gerais" class="tm-meta" style="display:block;margin-top:14px;">Notas gerais da reunião</label>
         <textarea id="tm-notas-gerais" maxlength="5000" rows="2" ${dis}
           style="width:100%;border:1px solid var(--color-outline-variant);border-radius:10px;padding:10px;font:inherit;">${escapeHtml(meeting.notas_gerais || '')}</textarea>
         <div class="tm-actions">
-          ${locked ? '<button type="button" id="tm-btn-unlock" class="btn-secondary-ghost" style="width:auto;padding:0 16px;">Edição excecional</button>' : ''}
+          ${locked ? '<button type="button" id="tm-btn-unlock" class="btn-secondary-ghost tm-trigger-unlock" style="width:auto;padding:0 16px;">Edição excecional</button>' : ''}
           <button type="button" id="tm-btn-save" class="btn-primary-action" style="width:auto;padding:0 20px;" ${dis}>Guardar Reunião</button>
         </div>
         <p id="tm-feedback" class="tm-meta" role="status" aria-live="polite" style="margin-top:8px;"></p>
@@ -216,17 +257,31 @@
     editExcecional = true;
     document.querySelectorAll('#tm-editor input, #tm-editor textarea, #tm-editor .tm-presenca, #tm-btn-save')
       .forEach((el) => { el.disabled = false; });
-    document.getElementById('tm-btn-unlock')?.remove();
+    document.querySelectorAll('#tm-btn-unlock, .tm-trigger-unlock, .tm-locked-notice').forEach((el) => el.remove());
+    const badge = document.querySelector('#tm-editor .tm-badge--lock');
+    if (badge) {
+      badge.className = 'tm-badge tm-badge--open';
+      badge.textContent = '✎ Edição Excecional Ativa';
+    }
+    notify('Modo de edição excecional ativado. Pode alterar os campos e guardar.');
   }
 
   async function startToday() {
     const tipo = document.getElementById('tm-tipo')?.value || 'diaria';
-    const existeHoje = historico.some((m) => isHoje(m.data_hora));
-    if (existeHoje && !window.confirm('Já existe uma reunião registada hoje. Criar uma NOVA reunião (a anterior é preservada)?')) {
-      return;
+    const hojeMeeting = historico.find((m) => isHoje(m.data_hora));
+    if (hojeMeeting) {
+      const criarNova = window.confirm(
+        'Já existe uma reunião registada hoje.\n\n' +
+        'Clique em [OK] para criar uma NOVA reunião adicional,\n' +
+        'ou [Cancelar] para abrir e editar a reunião existente de hoje.'
+      );
+      if (!criarNova) {
+        renderEditor(hojeMeeting);
+        return;
+      }
     }
     const btn = document.getElementById('tm-btn-start');
-    btn.disabled = true;
+    if (btn) btn.disabled = true;
     try {
       const meeting = await Api.createTeamMeeting(tipo);
       renderEditor(meeting);
@@ -234,7 +289,7 @@
     } catch (err) {
       notify(err.message || 'Não foi possível iniciar a reunião.', true);
     } finally {
-      btn.disabled = false;
+      if (btn) btn.disabled = false;
     }
   }
 
@@ -248,7 +303,7 @@
       const t = ev.target;
       if (t.closest('#tm-btn-start')) return startToday();
       if (t.closest('#tm-btn-save')) return save();
-      if (t.closest('#tm-btn-unlock')) return unlock();
+      if (t.closest('#tm-btn-unlock') || t.closest('.tm-trigger-unlock')) return unlock();
 
       const chip = t.closest('.tm-presenca');
       if (chip && !chip.disabled) {
@@ -286,6 +341,13 @@
   async function load() {
     bind();
     await Promise.all([loadHistory(), loadStats()]);
+    // Auto-carregar a reunião de hoje se existir, ou a mais recente, ou exibir estado vazio intuitivo
+    if (historico && historico.length > 0) {
+      const hoje = historico.find((m) => isHoje(m.data_hora));
+      renderEditor(hoje || historico[0]);
+    } else {
+      renderEmptyState();
+    }
   }
 
   window.TeamMeetings = { load, assidPill };

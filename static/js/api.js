@@ -562,6 +562,34 @@ const Api = {
     });
   },
 
+  async importBackofficeConsultores(importData) {
+    return await this.request('/backoffice/consultores/import', {
+      method: 'POST',
+      body: JSON.stringify(importData),
+    });
+  },
+
+  async downloadTeamTemplateCsv() {
+    const token = this.getToken();
+    const response = await fetch(`${this.baseUrl}/backoffice/consultores/modelo-csv`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Falha ao descarregar o modelo CSV da equipa.');
+    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'modelo_equipa_fecho.csv';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  },
+
   async downloadExportCsv(tipo, propertyId = null) {
     let url = `${this.baseUrl}/backoffice/export/csv?tipo=${encodeURIComponent(tipo)}`;
     if (propertyId) {

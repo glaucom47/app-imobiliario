@@ -46,6 +46,8 @@ from app.services import billing_service
 from app.services.commercial_service import CommercialService
 from app.services.crm_sync_service import CRMSyncService
 from app.services.export_service import ExportService
+from app.schemas.team_import_schema import TeamImportRequest, TeamImportResponse
+from app.services.team_import_service import TeamImportService
 
 router = APIRouter(prefix="/backoffice", tags=["Backoffice Web & Métricas"])
 
@@ -685,6 +687,58 @@ def create_consultor(
     db.commit()
     db.refresh(novo_consultor)
     return novo_consultor
+
+
+@router.post("/consultores/import", response_model=TeamImportResponse)
+def import_consultores(
+    payload: TeamImportRequest,
+    current_user: User = Depends(require_diretor),
+    db: Session = Depends(get_db),
+):
+    """
+    Importa consultores em lote a partir de ficheiro Excel (.xlsx) ou CSV.
+    Cria contas ativas associadas à agência com Bcrypt rounds=12 e senha padrão.
+    """
+    try:
+        linhas = TeamImportService.extrair_linhas_de_payload(
+            file_base64=payload.file_base64,
+            filename=payload.filename,
+            csv_text=payload.csv_text,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
+    if not linhas:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nenhuma linha válida de consultor foi localizada no ficheiro enviado.",
+        )
+
+    return TeamImportService.import_team(
+        db=db,
+        current_user=current_user,
+        rows=linhas,
+        default_password=payload.default_password or "Fecho2026!",
+    )
+
+
+@router.get("/consultores/modelo-csv")
+def download_modelo_csv_consultores(
+    current_user: User = Depends(require_diretor),
+):
+    """
+    Descarrega um ficheiro de modelo CSV estruturado para preenchimento da equipa.
+    Compatível com Excel, Numbers e Google Sheets em português (UTF-8 com BOM).
+    """
+    csv_content = TeamImportService.gerar_modelo_csv()
+    return Response(
+        content=csv_content,
+        media_type="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": 'attachment; filename="modelo_equipa_fecho.csv"',
+            "Cache-Control": "no-cache",
+        },
+    )
 
 
 @router.patch("/consultores/{consultor_id}/status", response_model=ConsultorResponse)

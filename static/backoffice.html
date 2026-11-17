@@ -675,7 +675,10 @@
             <h2 style="font-size: 18px; font-weight: 600;">Equipa Comercial da Agência</h2>
             <p style="font-size: 13px; color: var(--color-outline); margin-top: 2px;">Adicione consultores, ative/desative acessos e controle credenciais da sua loja</p>
           </div>
-          <div style="display: flex; gap: 10px; align-items: center;">
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" class="btn-secondary-ghost" style="width: auto; height: 38px; padding: 0 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;" id="btn-open-modal-import-team">
+              <span>📥</span> Importar Planilha (Excel/CSV)
+            </button>
             <button class="btn-primary-action" style="width: auto; height: 38px; padding: 0 16px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;" id="btn-open-modal-consultor">
               <span>+</span> Novo Consultor
             </button>
@@ -1344,6 +1347,54 @@
     </div>
   </div>
 
+  <!-- Modal para Importar Equipa por Planilha (Excel / CSV) -->
+  <div class="auth-overlay" id="modal-import-team" style="display: none;">
+    <div class="auth-card" style="max-width: 520px; text-align: left;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <div>
+          <h3 style="font-size: 16px; font-weight: 600;">Importar Equipa por Planilha</h3>
+          <p style="font-size: 12px; color: var(--color-outline); margin-top: 2px;">Carregue ficheiros .xlsx (Excel) ou .csv com a lista de consultores</p>
+        </div>
+        <button type="button" id="btn-close-modal-import-team" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-outline);">&times;</button>
+      </div>
+
+      <div style="background: #f8f9fa; border: 1px dashed var(--color-outline-variant); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; margin-bottom: 4px;">Formato esperado das colunas:</div>
+        <div style="font-size: 12px; color: var(--color-outline); line-height: 1.4;">
+          <strong>Nome</strong> (obrigatório), <strong>Email</strong> (obrigatório), <strong>Telemóvel</strong> (opcional), <strong>Palavra-passe</strong> (opcional).
+        </div>
+        <div style="margin-top: 10px;">
+          <button type="button" id="btn-download-sample-csv" class="btn-secondary-ghost" style="width: auto; height: 32px; font-size: 11px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px;">
+            <span>📥</span> Descarregar Modelo de Exemplo (.csv)
+          </button>
+        </div>
+      </div>
+
+      <form id="form-import-team">
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-import-team-file">Selecionar Ficheiro (.xlsx ou .csv) *</label>
+          <input type="file" id="input-import-team-file" class="fecho-input" accept=".csv, .xlsx, .xls, text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required style="padding-top: 8px;">
+          <small style="color: var(--color-outline); font-size: 11px; display: block; margin-top: 4px;">Compatível diretamente com ficheiros gravados no Excel ou Google Sheets.</small>
+        </div>
+
+        <div class="fecho-form-group">
+          <label class="fecho-label" for="input-import-team-default-pwd">Palavra-passe Padrão Inicial</label>
+          <input type="text" id="input-import-team-default-pwd" class="fecho-input" value="Fecho2026!" placeholder="Fecho2026!" maxlength="100">
+          <small style="color: var(--color-outline); font-size: 11px; display: block; margin-top: 4px;">Atribuída aos consultores que não tiverem senha especificada na planilha.</small>
+        </div>
+
+        <div id="modal-import-team-feedback" style="display: none; font-size: 12px; margin-bottom: 14px; padding: 10px 12px; border-radius: var(--radius-sm);"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn-secondary-ghost" style="width: auto; height: 42px; padding: 0 16px;" id="btn-cancel-modal-import-team">Cancelar</button>
+          <button type="submit" class="btn-primary-action" style="width: auto; height: 42px; padding: 0 20px; display: inline-flex; align-items: center; gap: 6px;" id="btn-submit-import-team">
+            <span>📥</span> Importar Consultores
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal para Editar Consultor -->
   <div class="auth-overlay" id="modal-edit-consultor" style="display: none;">
     <div class="auth-card" style="max-width: 480px;">
@@ -1764,7 +1815,7 @@
     </div>
   </div>
 
-  <script src="/static/js/api.js?v=17"></script>
+  <script src="/static/js/api.js?v=18"></script>
   <script src="/static/js/team_meetings.js?v=18"></script>
   <script src="/static/js/subscription.js?v=17"></script>
   <script>
@@ -2912,6 +2963,109 @@
             btnSubmit.disabled = false;
             btnSubmit.textContent = 'Criar Consultor';
           }
+        });
+      }
+
+      // Modal Importar Equipa por Planilha (Excel / CSV)
+      const modalImportTeam = document.getElementById('modal-import-team');
+      const btnOpenImportTeam = document.getElementById('btn-open-modal-import-team');
+      const btnCloseImportTeam = document.getElementById('btn-close-modal-import-team');
+      const btnCancelImportTeam = document.getElementById('btn-cancel-modal-import-team');
+      const formImportTeam = document.getElementById('form-import-team');
+      const feedbackImportTeam = document.getElementById('modal-import-team-feedback');
+      const btnDownloadSampleCsv = document.getElementById('btn-download-sample-csv');
+
+      if (btnOpenImportTeam) {
+        btnOpenImportTeam.addEventListener('click', () => {
+          if (formImportTeam) formImportTeam.reset();
+          if (feedbackImportTeam) {
+            feedbackImportTeam.style.display = 'none';
+            feedbackImportTeam.textContent = '';
+          }
+          if (modalImportTeam) modalImportTeam.style.display = 'flex';
+        });
+      }
+
+      if (btnCloseImportTeam) {
+        btnCloseImportTeam.addEventListener('click', () => { if (modalImportTeam) modalImportTeam.style.display = 'none'; });
+      }
+      if (btnCancelImportTeam) {
+        btnCancelImportTeam.addEventListener('click', () => { if (modalImportTeam) modalImportTeam.style.display = 'none'; });
+      }
+
+      if (btnDownloadSampleCsv) {
+        btnDownloadSampleCsv.addEventListener('click', async () => {
+          try {
+            await Api.downloadTeamTemplateCsv();
+          } catch (err) {
+            alert('Erro ao descarregar modelo: ' + err.message);
+          }
+        });
+      }
+
+      if (formImportTeam) {
+        formImportTeam.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const fileInput = document.getElementById('input-import-team-file');
+          const file = fileInput?.files?.[0];
+          if (!file) {
+            alert('Por favor selecione um ficheiro .xlsx ou .csv.');
+            return;
+          }
+
+          const defaultPwd = document.getElementById('input-import-team-default-pwd')?.value?.trim() || 'Fecho2026!';
+          const btnSubmit = document.getElementById('btn-submit-import-team');
+          const originalHtml = btnSubmit.innerHTML;
+          btnSubmit.disabled = true;
+          btnSubmit.innerHTML = '<span>⏳</span> A processar planilha...';
+          feedbackImportTeam.style.display = 'none';
+
+          const reader = new FileReader();
+          reader.onload = async (ev) => {
+            try {
+              const base64Data = ev.target.result;
+              const res = await Api.importBackofficeConsultores({
+                file_base64: base64Data,
+                filename: file.name,
+                default_password: defaultPwd,
+              });
+
+              feedbackImportTeam.style.display = 'block';
+              if (res.total_criados > 0) {
+                feedbackImportTeam.style.background = '#f0fff4';
+                feedbackImportTeam.style.border = '1px solid #c6f6d5';
+                feedbackImportTeam.style.color = '#22543d';
+                feedbackImportTeam.innerHTML = `<strong>✅ ${escapeHtml(res.mensagem)}</strong>`;
+                setTimeout(async () => {
+                  if (modalImportTeam) modalImportTeam.style.display = 'none';
+                  if (formImportTeam) formImportTeam.reset();
+                  feedbackImportTeam.style.display = 'none';
+                  await loadTeamConsultores();
+                }, 2200);
+              } else {
+                feedbackImportTeam.style.background = '#fffaf0';
+                feedbackImportTeam.style.border = '1px solid #feebc8';
+                feedbackImportTeam.style.color = '#744210';
+                feedbackImportTeam.innerHTML = `<strong>⚠️ ${escapeHtml(res.mensagem)}</strong>`;
+              }
+              await loadTeamConsultores();
+            } catch (err) {
+              feedbackImportTeam.style.display = 'block';
+              feedbackImportTeam.style.background = '#fff5f5';
+              feedbackImportTeam.style.border = '1px solid #fed7d7';
+              feedbackImportTeam.style.color = 'var(--color-error)';
+              feedbackImportTeam.textContent = err.message || 'Erro ao processar ficheiro de importação.';
+            } finally {
+              btnSubmit.disabled = false;
+              btnSubmit.innerHTML = originalHtml;
+            }
+          };
+          reader.onerror = () => {
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = originalHtml;
+            alert('Não foi possível ler o ficheiro selecionado.');
+          };
+          reader.readAsDataURL(file);
         });
       }
 

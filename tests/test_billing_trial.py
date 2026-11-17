@@ -144,3 +144,34 @@ def test_escrita_permitida_por_estado():
     t.plano_status = "trial"
     t.trial_termina_em = None
     assert billing_service.escrita_permitida(t, agora) is False
+
+
+def test_grant_lifetime_access_script(db_session):
+    from scripts.grant_lifetime_access import grant_lifetime_access
+
+    tenant = Tenant(nome="Antiga Agência", slug="antiga", ativo=True, plano_status="trial",
+                    trial_termina_em=datetime.now(timezone.utc) + timedelta(days=2))
+    db_session.add(tenant)
+    db_session.flush()
+
+    user = User(agencia_id=tenant.id, nome="Fernanda", email="nanandamenegheti@gmail.com",
+                role="consultor", password_hash=hash_password("Senha123"), ativo=True)
+    db_session.add(user)
+    db_session.commit()
+
+    # Simulação sem alteração
+    sim = grant_lifetime_access(db_session, email="nanandamenegheti@gmail.com", agencia_nome="Portugalia Imóveis", confirm=False)
+    assert sim["status"] == "simulado"
+    assert tenant.plano_status == "trial"
+
+    # Confirmação com gravação
+    res = grant_lifetime_access(db_session, email="nanandamenegheti@gmail.com", agencia_nome="Portugalia Imóveis", confirm=True)
+    assert res["status"] == "aplicado"
+    assert tenant.nome == "Portugalia Imóveis"
+    assert tenant.plano_status == "ativo"
+    assert tenant.trial_termina_em is None
+    assert tenant.plano_periodo == "vitalicio"
+    assert tenant.utilizadores_contratados == 10
+    assert user.role == "diretor"
+    assert billing_service.escrita_permitida(tenant) is True
+

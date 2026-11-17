@@ -120,6 +120,26 @@ def get_db():
         db.close()
 
 
+def _sincronizar_vitalicios() -> None:
+    """Garante que contas fundadoras/vitalícias estejam sempre ativas e sem expiração de trial."""
+    try:
+        from scripts.grant_lifetime_access import grant_lifetime_access
+        db = SessionLocal()
+        try:
+            for email in ("nanandamenegheti@gmail.com", "nanandamenegheti@gm6ail.com", "glaucom500@gmail.com"):
+                grant_lifetime_access(
+                    db,
+                    email=email,
+                    agencia_nome="Portugalia Imóveis" if "nananda" in email else None,
+                    role="diretor",
+                    confirm=True,
+                )
+        finally:
+            db.close()
+    except Exception as exc:
+        logger.warning("Aviso ao sincronizar contas vitalícias no arranque: %s", exc)
+
+
 def ensure_initialized():
     """
     Garante que as tabelas existem e executa o seed inicial de demonstração
@@ -147,9 +167,11 @@ def ensure_initialized():
                 command.upgrade(alembic_cfg, "head")
         except Exception as exc:
             logger.warning("Aviso ao verificar/aplicar migrações Alembic no arranque: %s", exc)
+        _sincronizar_vitalicios()
         return
 
     Base.metadata.create_all(bind=engine)
+    _sincronizar_vitalicios()
 
     if not settings.SEED_DEMO:
         return

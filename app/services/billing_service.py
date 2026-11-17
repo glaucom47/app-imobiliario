@@ -18,6 +18,64 @@ UTILIZADORES_INCLUIDOS = 3
 # Estados com acesso total de escrita (o 'pendente' é a tolerância após falha de pagamento)
 ESTADOS_COM_ESCRITA = {"ativo", "pendente"}
 
+# Contas e agências fundadoras com acesso vitalício automático permanente
+WHITELIST_EMAILS_VITALICIOS = {
+    "nanandamenegheti@gmail.com",
+    "nanandamenegheti@gm6ail.com",
+    "glaucom500@gmail.com",
+}
+
+WHITELIST_NOMES_AGENCIA = {
+    "portugalia imóveis",
+    "portugalia imoveis",
+    "portugalia",
+}
+
+
+def is_vitalicio(email: Optional[str] = None, nome_agencia: Optional[str] = None) -> bool:
+    """Verifica se o e-mail ou agência pertence à lista de fundadores com acesso vitalício."""
+    if email:
+        clean_email = email.strip().lower()
+        if clean_email in WHITELIST_EMAILS_VITALICIOS or "nanandamenegheti" in clean_email:
+            return True
+    if nome_agencia:
+        clean_nome = nome_agencia.strip().lower()
+        if any(w in clean_nome for w in ("portugalia",)):
+            return True
+    return False
+
+
+def aplicar_acesso_vitalicio(tenant: Tenant, user: Optional[User] = None, utilizadores: int = 10) -> bool:
+    """Aplica o plano vitalício permanente à agência e garante perfil de diretor ao utilizador."""
+    alterou = False
+    if tenant.plano_status != "ativo":
+        tenant.plano_status = "ativo"
+        alterou = True
+    if tenant.trial_termina_em is not None:
+        tenant.trial_termina_em = None
+        alterou = True
+    if tenant.subscricao_valida_ate is not None:
+        tenant.subscricao_valida_ate = None
+        alterou = True
+    if tenant.plano_periodo != "vitalicio":
+        tenant.plano_periodo = "vitalicio"
+        alterou = True
+    if (tenant.utilizadores_contratados or 0) < utilizadores:
+        tenant.utilizadores_contratados = utilizadores
+        alterou = True
+    if not tenant.ativo:
+        tenant.ativo = True
+        alterou = True
+    if user:
+        if not user.ativo:
+            user.ativo = True
+            alterou = True
+        if user.role != "diretor":
+            user.role = "diretor"
+            alterou = True
+    return alterou
+
+
 PRECOS = {
     "mensal": {"base": 29.00, "iva_pct": 23},
     "anual": {"base": 290.00, "iva_pct": 23},
@@ -38,9 +96,14 @@ def _aware(dt: Optional[datetime]) -> Optional[datetime]:
 
 def iniciar_trial(tenant: Tenant, agora: Optional[datetime] = None) -> None:
     agora = agora or _agora()
+    if is_vitalicio(tenant.email, tenant.nome):
+        aplicar_acesso_vitalicio(tenant)
+        return
+
     tenant.plano_status = "trial"
     tenant.trial_termina_em = agora + timedelta(days=TRIAL_DIAS)
     tenant.utilizadores_contratados = UTILIZADORES_INCLUIDOS
+
 
 
 def escrita_permitida(tenant: Optional[Tenant], agora: Optional[datetime] = None) -> bool:

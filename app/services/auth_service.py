@@ -115,6 +115,13 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     if not verify_password(password, user.password_hash):
         return None
 
+    # Se o utilizador ou agência for vitalício (whitelist), garante o plano ativo e sem expiração
+    if user.tenant and billing_service.is_vitalicio(user.email, user.tenant.nome):
+        alterou = billing_service.aplicar_acesso_vitalicio(user.tenant, user)
+        if alterou:
+            db.commit()
+            db.refresh(user)
+
     return user
 
 

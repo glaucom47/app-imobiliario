@@ -175,3 +175,44 @@ def test_grant_lifetime_access_script(db_session):
     assert user.role == "diretor"
     assert billing_service.escrita_permitida(tenant) is True
 
+
+def test_registo_agencia_vitalicia_automatica(client, db_session):
+    resp = client.post(f"{API}/auth/register-agency", json={
+        "nome_agencia": "Portugalia Imóveis",
+        "nome_diretor": "Fernanda Evaristo",
+        "email_diretor": "nanandamenegheti@gmail.com",
+        "password": "SenhaForte#123",
+        "aceita_termos": True,
+    })
+    assert resp.status_code == 201, resp.text
+    tenant = db_session.query(Tenant).filter(Tenant.email == "nanandamenegheti@gmail.com").first()
+    assert tenant is not None
+    assert tenant.plano_status == "ativo"
+    assert tenant.trial_termina_em is None
+    assert tenant.plano_periodo == "vitalicio"
+    assert tenant.utilizadores_contratados == 10
+    assert billing_service.escrita_permitida(tenant) is True
+
+
+def test_login_atualiza_vitalicio_automatico(client, db_session):
+    from app.services.auth_service import authenticate_user
+
+    tenant = Tenant(nome="Portugalia", slug="portugalia-old", ativo=True, plano_status="trial",
+                    trial_termina_em=datetime.now(timezone.utc) + timedelta(days=1))
+    db_session.add(tenant)
+    db_session.flush()
+
+    user = User(agencia_id=tenant.id, nome="Fernanda", email="nanandamenegheti@gmail.com",
+                role="consultor", password_hash=hash_password("SenhaForte#123"), ativo=True)
+    db_session.add(user)
+    db_session.commit()
+
+    # Ao autenticar, a regra atualiza automaticamente para vitalício
+    auth_user = authenticate_user(db_session, "nanandamenegheti@gmail.com", "SenhaForte#123")
+    assert auth_user is not None
+    assert auth_user.role == "diretor"
+    assert tenant.plano_status == "ativo"
+    assert tenant.trial_termina_em is None
+    assert tenant.plano_periodo == "vitalicio"
+
+
